@@ -1,0 +1,16 @@
+query searchProjectMembers($fullPath: ID!, $search: String) {
+  project(fullPath: $fullPath) {
+    id
+    projectMembers(search: $search) {
+      nodes {
+        id
+        user {
+          id
+          name
+          username
+          avatarUrl
+        }
+      }
+    }
+  }
+}

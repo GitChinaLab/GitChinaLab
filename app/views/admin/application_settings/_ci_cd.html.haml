@@ -1,0 +1,80 @@
+= form_for @application_setting, url: ci_cd_admin_application_settings_path(anchor: 'js-ci-cd-settings'), html: { class: 'fieldset-form' } do |f|
+  = form_errors(@application_setting)
+
+  %fieldset
+    .form-group
+      .form-check
+        = f.check_box :auto_devops_enabled, class: 'form-check-input'
+        = f.label :auto_devops_enabled, class: 'form-check-label' do
+          = s_('CICD|Default to Auto DevOps pipeline for all projects')
+        .form-text.text-muted
+          = s_('CICD|The Auto DevOps pipeline runs by default in all projects with no CI/CD configuration file.')
+          = link_to _('What is Auto DevOps?'), help_page_path('topics/autodevops/index.md'), target: '_blank'
+    .form-group
+      = f.label :auto_devops_domain, s_('AdminSettings|Auto DevOps domain'), class: 'label-bold'
+      = f.text_field :auto_devops_domain, class: 'form-control gl-form-input', placeholder: 'example.com'
+      .form-text.text-muted
+        = s_("AdminSettings|The default domain to use for Auto Review Apps and Auto Deploy stages in all projects.")
+        = link_to _('Learn more.'), help_page_path('topics/autodevops/stages.md', anchor: 'auto-review-apps'), target: '_blank'
+
+    .form-group
+      .form-check
+        = f.check_box :shared_runners_enabled, class: 'form-check-input'
+        = f.label :shared_runners_enabled, class: 'form-check-label' do
+          = s_("AdminSettings|Enable shared runners for new projects")
+          .form-text.text-muted
+            = s_("AdminSettings|All new projects can use the instance's shared runners by default.")
+
+    = render_if_exists 'admin/application_settings/shared_runners_minutes_setting', form: f
+
+    .form-group
+      = f.label :shared_runners_text, _('Shared runners details'), class: 'label-bold'
+      = f.text_area :shared_runners_text, class: 'form-control gl-form-input', rows: 4
+      .form-text.text-muted= _("Add a custom message with details about the instance's shared runners. The message is visible in group and project CI/CD settings, in the Runners section. Markdown is supported.")
+    .form-group
+      = f.label :max_artifacts_size, _('Maximum artifacts size (MB)'), class: 'label-bold'
+      = f.number_field :max_artifacts_size, class: 'form-control gl-form-input'
+      .form-text.text-muted
+        = _("The maximum file size for job artifacts.")
+        = link_to _('Learn more.'), help_page_path('user/admin_area/settings/continuous_integration', anchor: 'maximum-artifacts-size')
+    .form-group
+      = f.label :default_artifacts_expire_in, _('Default artifacts expiration'), class: 'label-bold'
+      = f.text_field :default_artifacts_expire_in, class: 'form-control gl-form-input'
+      .form-text.text-muted
+        = html_escape(_("Set the default expiration time for job artifacts in all projects. Set to %{code_open}0%{code_close} to never expire artifacts by default. If no unit is written, it defaults to seconds. For example, these are all equivalent: %{code_open}3600%{code_close}, %{code_open}60 minutes%{code_close}, or %{code_open}one hour%{code_close}.")) % { code_open: '<code>'.html_safe, code_close: '</code>'.html_safe }
+        = link_to _('Learn more.'), help_page_path('user/admin_area/settings/continuous_integration', anchor: 'default-artifacts-expiration')
+    .form-group
+      .form-check
+        = f.check_box :keep_latest_artifact, class: 'form-check-input'
+        = f.label :keep_latest_artifact, class: 'form-check-label' do
+          = s_('AdminSettings|Keep the latest artifacts for all jobs in the latest successful pipelines')
+        .form-text.text-muted
+          = s_('AdminSettings|The latest artifacts for all jobs in the most recent successful pipelines in each project are stored and do not expire.')
+    .form-group
+      = f.label :archive_builds_in_human_readable, _('Archive jobs'), class: 'label-bold'
+      = f.text_field :archive_builds_in_human_readable, class: 'form-control gl-form-input'
+      .form-text.text-muted
+        = html_escape(_("Jobs older than the configured time are considered expired and are archived. Archived jobs can no longer be retried. Leave empty to never archive jobs automatically. The default unit is in days, but you can use other units, for example %{code_open}15 days%{code_close}, %{code_open}1 month%{code_close}, %{code_open}2 years%{code_close}. Minimum value is 1 day.")) % { code_open: '<code>'.html_safe, code_close: '</code>'.html_safe }
+        = link_to _('Learn more.'), help_page_path('user/admin_area/settings/continuous_integration', anchor: 'archive-jobs')
+    .form-group
+      .form-check
+        = f.check_box :protected_ci_variables, class: 'form-check-input'
+        = f.label :protected_ci_variables, class: 'form-check-label' do
+          = s_('AdminSettings|Protect CI/CD variables by default')
+        .form-text.text-muted
+          = s_('AdminSettings|New CI/CD variables in projects and groups default to protected.')
+    .form-group
+      = f.label :ci_config_path, _('Default CI/CD configuration file'), class: 'label-bold'
+      = f.text_field :default_ci_config_path, class: 'form-control gl-form-input', placeholder: '.gitlab-ci.yml'
+      %p.form-text.text-muted
+        = _("The default CI/CD configuration file and path for new projects.").html_safe
+        = link_to sprite_icon('question-o'), help_page_path('ci/pipelines/settings', anchor: 'specify-a-custom-cicd-configuration-file'), target: '_blank'
+    .form-group
+      .form-check
+        = f.check_box :suggest_pipeline_enabled, class: 'form-check-input'
+        = f.label :suggest_pipeline_enabled, class: 'form-check-label' do
+          = s_('AdminSettings|Enable pipeline suggestion banner')
+        .form-text.text-muted
+          = s_('AdminSettings|Display a banner on merge requests in projects with no pipelines to initiate steps to add a .gitlab-ci.yml file.')
+
+  = f.submit _('Save changes'), class: "gl-button btn btn-confirm"

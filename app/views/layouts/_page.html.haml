@@ -1,0 +1,35 @@
+.layout-page.hide-when-top-nav-responsive-open{ class: page_with_sidebar_class }
+  - if defined?(nav) && nav
+    = render "layouts/nav/sidebar/#{nav}"
+  .content-wrapper.content-wrapper-margin{ class: "#{@content_wrapper_class}" }
+    .mobile-overlay
+    = render_if_exists 'layouts/header/verification_reminder'
+    = yield :group_invite_members_banner
+    .alert-wrapper.gl-force-block-formatting-context
+      = render 'shared/outdated_browser'
+      = render_if_exists "layouts/header/licensed_user_count_threshold"
+      = render_if_exists "layouts/header/token_expiry_notification"
+      = render "layouts/broadcast"
+      = render "layouts/header/read_only_banner"
+      = render "layouts/header/registration_enabled_callout"
+      = render "layouts/nav/classification_level_banner"
+      = yield :flash_message
+      = render "shared/service_ping_consent"
+      = render_two_factor_auth_recovery_settings_check
+      = render_if_exists "layouts/header/ee_subscribable_banner"
+      = render_if_exists "shared/namespace_storage_limit_alert"
+      = render_if_exists "shared/namespace_user_cap_reached_alert"
+      = render_if_exists "shared/new_user_signups_cap_reached_alert"
+      = yield :page_level_alert
+      - unless @hide_breadcrumbs
+        = render "layouts/nav/breadcrumbs"
+    %div{ class: "#{(container_class unless @no_container)} #{@content_class}" }
+      %main.content{ id: "content-body", **page_itemtype }
+        = render "layouts/flash", extra_flash_class: 'limit-container-width'
+        = yield :before_content
+        = yield
+    = yield :after_content
+    -# This is needed by [GitLab JH](https://gitlab.com/gitlab-jh/jh-team/gitlab-cn/-/issues/81)
+    = render_if_exists "shared/footer/global_footer"
+
+= render "layouts/nav/top_nav_responsive", class: 'layout-page content-wrapper-margin'

@@ -1,0 +1,120 @@
+@import 'mixins_and_variables_and_functions';
+
+.compare-versions-container {
+  min-width: 0;
+}
+
+.diff-files-holder {
+  flex: 1;
+  min-width: 0;
+  z-index: 203;
+
+  .vue-recycle-scroller__item-wrapper {
+    overflow: visible;
+  }
+}
+
+.with-system-header {
+  --system-header-height: #{$system-header-height};
+}
+
+.with-performance-bar {
+  --performance-bar-height: #{$performance-bar-height};
+}
+
+.review-bar-visible {
+  --review-bar-height: #{$mr-review-bar-height};
+}
+
+.diff-tree-list {
+  // This 11px value should match the additional value found in
+  //      /assets/stylesheets/framework/diffs.scss
+  // for the $mr-file-header-top SCSS variable within the
+  //      .file-title,
+  //      .file-title-flex-parent {
+  // rule.
+  // If they don't match, the file tree and the diff files stick
+  // to the top at different heights, which is a bad-looking defect
+  $diff-file-header-top: 11px;
+  $top-pos: $header-height + $mr-tabs-height + $mr-version-controls-height + $diff-file-header-top;
+
+  position: -webkit-sticky;
+  position: sticky;
+  // Unitless zero values are not allowed in calculations
+  // stylelint-disable-next-line length-zero-no-unit
+  top: calc(#{$top-pos} + var(--system-header-height, 0px) + var(--performance-bar-height, 0px));
+  // stylelint-disable-next-line length-zero-no-unit
+  max-height: calc(100vh - #{$top-pos} - var(--system-header-height, 0px) - var(--performance-bar-height, 0px) - var(--review-bar-height, 0px));
+  z-index: 205;
+
+  .drag-handle {
+    bottom: 16px;
+    transform: translateX(10px);
+  }
+}
+
+.tree-list-holder {
+  height: 100%;
+
+  .file-row {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+.tree-list-scroll {
+  max-height: 100%;
+  padding-bottom: $grid-size;
+  overflow-y: scroll;
+  overflow-x: auto;
+}
+
+.tree-list-search {
+  flex: 0 0 34px;
+
+  .form-control {
+    padding-left: 30px;
+  }
+}
+
+.tree-list-icon {
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+
+  &,
+  svg {
+    fill: var(--gray-400, $gray-400);
+  }
+}
+
+.tree-list-clear-icon {
+  right: 10px;
+  left: auto;
+  line-height: 0;
+}
+
+@media (max-width: map-get($grid-breakpoints, md)-1) {
+  .diffs .files {
+    .diff-tree-list {
+      position: relative;
+      top: 0;
+      // !important is required to override inline styles of resizable sidebar
+      width: 100% !important;
+    }
+
+    .tree-list-holder {
+      max-height: calc(50px + 50vh);
+      padding-right: 0;
+    }
+  }
+}
+
+// TODO: Move to GitLab UI
+.mr-extenson-scrim {
+  background: linear-gradient(to bottom, rgba($gray-light, 0), rgba($gray-light, 1));
+
+  .gl-dark & {
+    background: linear-gradient(to bottom, rgba(#333, 0), rgba(#333, 1));
+  }
+}

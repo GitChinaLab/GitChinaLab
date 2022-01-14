@@ -1,0 +1,308 @@
+import * as getters from '~/header_search/store/getters';
+import initState from '~/header_search/store/state';
+import {
+  MOCK_USERNAME,
+  MOCK_SEARCH_PATH,
+  MOCK_ISSUE_PATH,
+  MOCK_MR_PATH,
+  MOCK_AUTOCOMPLETE_PATH,
+  MOCK_SEARCH_CONTEXT,
+  MOCK_DEFAULT_SEARCH_OPTIONS,
+  MOCK_SCOPED_SEARCH_OPTIONS,
+  MOCK_PROJECT,
+  MOCK_GROUP,
+  MOCK_ALL_PATH,
+  MOCK_SEARCH,
+  MOCK_AUTOCOMPLETE_OPTIONS,
+  MOCK_GROUPED_AUTOCOMPLETE_OPTIONS,
+  MOCK_SORTED_AUTOCOMPLETE_OPTIONS,
+} from '../mock_data';
+
+describe('Header Search Store Getters', () => {
+  let state;
+
+  const createState = (initialState) => {
+    state = initState({
+      searchPath: MOCK_SEARCH_PATH,
+      issuesPath: MOCK_ISSUE_PATH,
+      mrPath: MOCK_MR_PATH,
+      autocompletePath: MOCK_AUTOCOMPLETE_PATH,
+      searchContext: MOCK_SEARCH_CONTEXT,
+      ...initialState,
+    });
+  };
+
+  afterEach(() => {
+    state = null;
+  });
+
+  describe.each`
+    group         | project         | scope       | expectedPath
+    ${null}       | ${null}         | ${null}     | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar`}
+    ${MOCK_GROUP} | ${null}         | ${null}     | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar&group_id=${MOCK_GROUP.id}`}
+    ${null}       | ${MOCK_PROJECT} | ${null}     | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar&project_id=${MOCK_PROJECT.id}`}
+    ${MOCK_GROUP} | ${MOCK_PROJECT} | ${null}     | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar&project_id=${MOCK_PROJECT.id}&group_id=${MOCK_GROUP.id}`}
+    ${MOCK_GROUP} | ${MOCK_PROJECT} | ${'issues'} | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar&project_id=${MOCK_PROJECT.id}&group_id=${MOCK_GROUP.id}&scope=issues`}
+  `('searchQuery', ({ group, project, scope, expectedPath }) => {
+    describe(`when group is ${group?.name}, project is ${project?.name}, and scope is ${scope}`, () => {
+      beforeEach(() => {
+        createState({
+          searchContext: {
+            group,
+            project,
+            scope,
+          },
+        });
+        state.search = MOCK_SEARCH;
+      });
+
+      it(`should return ${expectedPath}`, () => {
+        expect(getters.searchQuery(state)).toBe(expectedPath);
+      });
+    });
+  });
+
+  describe.each`
+    project         | ref                | expectedPath
+    ${null}         | ${null}            | ${`${MOCK_AUTOCOMPLETE_PATH}?term=${MOCK_SEARCH}`}
+    ${MOCK_PROJECT} | ${null}            | ${`${MOCK_AUTOCOMPLETE_PATH}?term=${MOCK_SEARCH}&project_id=${MOCK_PROJECT.id}`}
+    ${null}         | ${MOCK_PROJECT.id} | ${`${MOCK_AUTOCOMPLETE_PATH}?term=${MOCK_SEARCH}&project_ref=${MOCK_PROJECT.id}`}
+    ${MOCK_PROJECT} | ${MOCK_PROJECT.id} | ${`${MOCK_AUTOCOMPLETE_PATH}?term=${MOCK_SEARCH}&project_id=${MOCK_PROJECT.id}&project_ref=${MOCK_PROJECT.id}`}
+  `('autocompleteQuery', ({ project, ref, expectedPath }) => {
+    describe(`when project is ${project?.name} and project ref is ${ref}`, () => {
+      beforeEach(() => {
+        createState({
+          searchContext: {
+            project,
+            ref,
+          },
+        });
+        state.search = MOCK_SEARCH;
+      });
+
+      it(`should return ${expectedPath}`, () => {
+        expect(getters.autocompleteQuery(state)).toBe(expectedPath);
+      });
+    });
+  });
+
+  describe.each`
+    group                     | group_metadata                   | project                     | project_metadata                   | expectedPath
+    ${null}                   | ${null}                          | ${null}                     | ${null}                            | ${MOCK_ISSUE_PATH}
+    ${{ name: 'Test Group' }} | ${{ issues_path: 'group/path' }} | ${null}                     | ${null}                            | ${'group/path'}
+    ${{ name: 'Test Group' }} | ${{ issues_path: 'group/path' }} | ${{ name: 'Test Project' }} | ${{ issues_path: 'project/path' }} | ${'project/path'}
+  `('scopedIssuesPath', ({ group, group_metadata, project, project_metadata, expectedPath }) => {
+    describe(`when group is ${group?.name} and project is ${project?.name}`, () => {
+      beforeEach(() => {
+        createState({
+          searchContext: {
+            group,
+            group_metadata,
+            project,
+            project_metadata,
+          },
+        });
+      });
+
+      it(`should return ${expectedPath}`, () => {
+        expect(getters.scopedIssuesPath(state)).toBe(expectedPath);
+      });
+    });
+  });
+
+  describe.each`
+    group                     | group_metadata               | project                     | project_metadata               | expectedPath
+    ${null}                   | ${null}                      | ${null}                     | ${null}                        | ${MOCK_MR_PATH}
+    ${{ name: 'Test Group' }} | ${{ mr_path: 'group/path' }} | ${null}                     | ${null}                        | ${'group/path'}
+    ${{ name: 'Test Group' }} | ${{ mr_path: 'group/path' }} | ${{ name: 'Test Project' }} | ${{ mr_path: 'project/path' }} | ${'project/path'}
+  `('scopedMRPath', ({ group, group_metadata, project, project_metadata, expectedPath }) => {
+    describe(`when group is ${group?.name} and project is ${project?.name}`, () => {
+      beforeEach(() => {
+        createState({
+          searchContext: {
+            group,
+            group_metadata,
+            project,
+            project_metadata,
+          },
+        });
+      });
+
+      it(`should return ${expectedPath}`, () => {
+        expect(getters.scopedMRPath(state)).toBe(expectedPath);
+      });
+    });
+  });
+
+  describe.each`
+    group         | project         | scope       | expectedPath
+    ${null}       | ${null}         | ${null}     | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar`}
+    ${MOCK_GROUP} | ${null}         | ${null}     | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar&group_id=${MOCK_GROUP.id}`}
+    ${null}       | ${MOCK_PROJECT} | ${null}     | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar&project_id=${MOCK_PROJECT.id}`}
+    ${MOCK_GROUP} | ${MOCK_PROJECT} | ${null}     | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar&project_id=${MOCK_PROJECT.id}&group_id=${MOCK_GROUP.id}`}
+    ${MOCK_GROUP} | ${MOCK_PROJECT} | ${'issues'} | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar&project_id=${MOCK_PROJECT.id}&group_id=${MOCK_GROUP.id}&scope=issues`}
+  `('projectUrl', ({ group, project, scope, expectedPath }) => {
+    describe(`when group is ${group?.name}, project is ${project?.name}, and scope is ${scope}`, () => {
+      beforeEach(() => {
+        createState({
+          searchContext: {
+            group,
+            project,
+            scope,
+          },
+        });
+        state.search = MOCK_SEARCH;
+      });
+
+      it(`should return ${expectedPath}`, () => {
+        expect(getters.projectUrl(state)).toBe(expectedPath);
+      });
+    });
+  });
+
+  describe.each`
+    group         | project         | scope       | expectedPath
+    ${null}       | ${null}         | ${null}     | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar`}
+    ${MOCK_GROUP} | ${null}         | ${null}     | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar&group_id=${MOCK_GROUP.id}`}
+    ${null}       | ${MOCK_PROJECT} | ${null}     | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar`}
+    ${MOCK_GROUP} | ${MOCK_PROJECT} | ${null}     | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar&group_id=${MOCK_GROUP.id}`}
+    ${MOCK_GROUP} | ${MOCK_PROJECT} | ${'issues'} | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar&group_id=${MOCK_GROUP.id}&scope=issues`}
+  `('groupUrl', ({ group, project, scope, expectedPath }) => {
+    describe(`when group is ${group?.name}, project is ${project?.name}, and scope is ${scope}`, () => {
+      beforeEach(() => {
+        createState({
+          searchContext: {
+            group,
+            project,
+            scope,
+          },
+        });
+        state.search = MOCK_SEARCH;
+      });
+
+      it(`should return ${expectedPath}`, () => {
+        expect(getters.groupUrl(state)).toBe(expectedPath);
+      });
+    });
+  });
+
+  describe.each`
+    group         | project         | scope       | expectedPath
+    ${null}       | ${null}         | ${null}     | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar`}
+    ${MOCK_GROUP} | ${null}         | ${null}     | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar`}
+    ${null}       | ${MOCK_PROJECT} | ${null}     | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar`}
+    ${MOCK_GROUP} | ${MOCK_PROJECT} | ${null}     | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar`}
+    ${MOCK_GROUP} | ${MOCK_PROJECT} | ${'issues'} | ${`${MOCK_SEARCH_PATH}?search=${MOCK_SEARCH}&nav_source=navbar&scope=issues`}
+  `('allUrl', ({ group, project, scope, expectedPath }) => {
+    describe(`when group is ${group?.name}, project is ${project?.name}, and scope is ${scope}`, () => {
+      beforeEach(() => {
+        createState({
+          searchContext: {
+            group,
+            project,
+            scope,
+          },
+        });
+        state.search = MOCK_SEARCH;
+      });
+
+      it(`should return ${expectedPath}`, () => {
+        expect(getters.allUrl(state)).toBe(expectedPath);
+      });
+    });
+  });
+
+  describe('defaultSearchOptions', () => {
+    const mockGetters = {
+      scopedIssuesPath: MOCK_ISSUE_PATH,
+      scopedMRPath: MOCK_MR_PATH,
+    };
+
+    beforeEach(() => {
+      createState();
+      window.gon.current_username = MOCK_USERNAME;
+    });
+
+    it('returns the correct array', () => {
+      expect(getters.defaultSearchOptions(state, mockGetters)).toStrictEqual(
+        MOCK_DEFAULT_SEARCH_OPTIONS,
+      );
+    });
+  });
+
+  describe('scopedSearchOptions', () => {
+    const mockGetters = {
+      projectUrl: MOCK_PROJECT.path,
+      groupUrl: MOCK_GROUP.path,
+      allUrl: MOCK_ALL_PATH,
+    };
+
+    beforeEach(() => {
+      createState({
+        searchContext: {
+          project: MOCK_PROJECT,
+          group: MOCK_GROUP,
+        },
+      });
+    });
+
+    it('returns the correct array', () => {
+      expect(getters.scopedSearchOptions(state, mockGetters)).toStrictEqual(
+        MOCK_SCOPED_SEARCH_OPTIONS,
+      );
+    });
+  });
+
+  describe('autocompleteGroupedSearchOptions', () => {
+    beforeEach(() => {
+      createState();
+      state.autocompleteOptions = MOCK_AUTOCOMPLETE_OPTIONS;
+    });
+
+    it('returns the correct grouped array', () => {
+      expect(getters.autocompleteGroupedSearchOptions(state)).toStrictEqual(
+        MOCK_GROUPED_AUTOCOMPLETE_OPTIONS,
+      );
+    });
+  });
+
+  describe.each`
+    search         | defaultSearchOptions           | scopedSearchOptions           | autocompleteGroupedSearchOptions     | expectedArray
+    ${null}        | ${MOCK_DEFAULT_SEARCH_OPTIONS} | ${MOCK_SCOPED_SEARCH_OPTIONS} | ${MOCK_GROUPED_AUTOCOMPLETE_OPTIONS} | ${MOCK_DEFAULT_SEARCH_OPTIONS}
+    ${MOCK_SEARCH} | ${MOCK_DEFAULT_SEARCH_OPTIONS} | ${MOCK_SCOPED_SEARCH_OPTIONS} | ${[]}                                | ${MOCK_SCOPED_SEARCH_OPTIONS}
+    ${MOCK_SEARCH} | ${MOCK_DEFAULT_SEARCH_OPTIONS} | ${[]}                         | ${MOCK_GROUPED_AUTOCOMPLETE_OPTIONS} | ${MOCK_SORTED_AUTOCOMPLETE_OPTIONS}
+    ${MOCK_SEARCH} | ${MOCK_DEFAULT_SEARCH_OPTIONS} | ${MOCK_SCOPED_SEARCH_OPTIONS} | ${MOCK_GROUPED_AUTOCOMPLETE_OPTIONS} | ${MOCK_SCOPED_SEARCH_OPTIONS.concat(MOCK_SORTED_AUTOCOMPLETE_OPTIONS)}
+  `(
+    'searchOptions',
+    ({
+      search,
+      defaultSearchOptions,
+      scopedSearchOptions,
+      autocompleteGroupedSearchOptions,
+      expectedArray,
+    }) => {
+      describe(`when search is ${search} and the defaultSearchOptions${
+        defaultSearchOptions.length ? '' : ' do not'
+      } exist, scopedSearchOptions${
+        scopedSearchOptions.length ? '' : ' do not'
+      } exist, and autocompleteGroupedSearchOptions${
+        autocompleteGroupedSearchOptions.length ? '' : ' do not'
+      } exist`, () => {
+        const mockGetters = {
+          defaultSearchOptions,
+          scopedSearchOptions,
+          autocompleteGroupedSearchOptions,
+        };
+
+        beforeEach(() => {
+          createState();
+          state.search = search;
+        });
+
+        it(`should return the correct combined array`, () => {
+          expect(getters.searchOptions(state, mockGetters)).toStrictEqual(expectedArray);
+        });
+      });
+    },
+  );
+});

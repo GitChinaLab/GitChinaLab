@@ -1,0 +1,115 @@
+- breadcrumb_title _("General Settings")
+- page_title _("General")
+- @content_class = "limit-container-width" unless fluid_layout
+- expanded = expanded_by_default?
+
+%section.settings.general-settings.no-animate.expanded#js-general-settings
+  .settings-header
+    %h4.settings-title.js-settings-toggle.js-settings-toggle-trigger-only= _('Naming, topics, avatar')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }= _('Collapse')
+    %p= _('Update your project name, topics, description, and avatar.')
+  .settings-content= render 'projects/settings/general'
+
+%section.settings.sharing-permissions.no-animate#js-shared-permissions{ class: ('expanded' if expanded), data: { qa_selector: 'visibility_features_permissions_content' } }
+  .settings-header
+    %h4.settings-title.js-settings-toggle.js-settings-toggle-trigger-only= _('Visibility, project features, permissions')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }= expanded ? _('Collapse') : _('Expand')
+    %p= _('Choose visibility level, enable/disable project features and their permissions, disable email notifications, and show default award emoji.')
+
+  .settings-content
+    = form_for @project, html: { multipart: true, class: "sharing-permissions-form" }, authenticity_token: true do |f|
+      %input{ name: 'update_section', type: 'hidden', value: 'js-shared-permissions' }
+      %template.js-project-permissions-form-data{ type: "application/json" }= project_permissions_panel_data(@project).to_json.html_safe
+      .js-project-permissions-form
+      - if show_visibility_confirm_modal?(@project)
+        = render "visibility_modal"
+      = f.submit _('Save changes'), class: "btn gl-button btn-confirm #{('js-legacy-confirm-danger' if show_visibility_confirm_modal?(@project))}", data: { qa_selector: 'visibility_features_permissions_save_button', check_field_name: ("project[visibility_level]" if show_visibility_confirm_modal?(@project)), check_compare_value: @project.visibility_level }
+
+%section.rspec-merge-request-settings.settings.merge-requests-feature.no-animate#js-merge-request-settings{ class: [('expanded' if expanded), ('hidden' if @project.project_feature.send(:merge_requests_access_level) == 0)], data: { qa_selector: 'merge_request_settings_content' } }
+  .settings-header
+    %h4.settings-title.js-settings-toggle.js-settings-toggle-trigger-only= _('Merge requests')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }= expanded ? _('Collapse') : _('Expand')
+    = render_if_exists 'projects/merge_request_settings_description_text'
+
+  .settings-content
+    = render_if_exists 'shared/promotions/promote_mr_features'
+
+    = form_for @project, html: { multipart: true, class: "merge-request-settings-form js-mr-settings-form" }, authenticity_token: true do |f|
+      %input{ name: 'update_section', type: 'hidden', value: 'js-merge-request-settings' }
+      = render 'projects/merge_request_settings', form: f
+      = f.submit _('Save changes'), class: "btn gl-button btn-confirm rspec-save-merge-request-changes", data: { qa_selector: 'save_merge_request_changes_button' }
+
+= render_if_exists 'projects/merge_request_approvals_settings', expanded: expanded
+
+
+%section.settings.no-animate{ class: ('expanded' if expanded) }
+  .settings-header
+    %h4.settings-title.js-settings-toggle.js-settings-toggle-trigger-only
+      = s_('ProjectSettings|Badges')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded ? _('Collapse') : _('Expand')
+    %p
+      = s_('ProjectSettings|Customize this project\'s badges.')
+      = link_to s_('ProjectSettings|What are badges?'), help_page_path('user/project/badges')
+  .settings-content
+    = render 'shared/badges/badge_settings'
+
+= render_if_exists 'compliance_management/compliance_framework/project_settings', expanded: expanded
+
+= render_if_exists 'projects/settings/default_issue_template'
+
+= render 'projects/service_desk_settings'
+
+%section.settings.advanced-settings.no-animate#js-project-advanced-settings{ class: ('expanded' if expanded), data: { qa_selector: 'advanced_settings_content' } }
+  .settings-header
+    %h4.settings-title.js-settings-toggle.js-settings-toggle-trigger-only= _('Advanced')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }= expanded ? _('Collapse') : _('Expand')
+    %p= _('Housekeeping, export, path, transfer, remove, archive.')
+
+  .settings-content
+    .sub-section
+      %h4= _('Housekeeping')
+      %p
+        = _('Runs a number of housekeeping tasks within the current repository, such as compressing file revisions and removing unreachable objects.')
+        = link_to _('Learn more.'), help_page_path('administration/housekeeping'), target: '_blank', rel: 'noopener noreferrer'
+      = link_to _('Run housekeeping'), housekeeping_project_path(@project),
+        method: :post, class: "btn gl-button btn-default"
+
+    = render 'export', project: @project
+
+    = render_if_exists 'projects/settings/archive'
+    .sub-section.rename-repository
+      %h4.warning-title= _('Change path')
+      = render 'projects/errors'
+      = form_for @project do |f|
+        .form-group
+          - link_start = '<a href="%{url}" target="_blank" rel="noopener noreferrer">'.html_safe % { url: help_page_path('user/project/settings/index', anchor: 'renaming-a-repository') }
+          %p= _("A project’s repository name defines its URL (the one you use to access the project via a browser) and its place on the file disk where GitLab is installed. %{link_start}Learn more.%{link_end}").html_safe % { link_start: link_start, link_end: '</a>'.html_safe }
+          %ul
+            %li= _("Be careful. Renaming a project's repository can have unintended side effects.")
+            %li= _('You will need to update your local repositories to point to the new location.')
+            - if @project.deployment_platform.present?
+              %li= _('Your deployment services will be broken, you will need to manually fix the services after renaming.')
+          = f.label :path, _('Path'), class: 'label-bold'
+          .form-group
+            .input-group
+              .input-group-prepend
+                .input-group-text
+                  #{Gitlab::Utils.append_path(root_url, @project.namespace.full_path)}/
+              = f.text_field :path, class: 'form-control h-auto', data: { qa_selector: 'project_path_field' }
+        = f.submit _('Change path'), class: "gl-button btn btn-warning", data: { qa_selector: 'change_path_button' }
+
+    = render 'transfer', project: @project
+
+    = render 'remove_fork', project: @project
+
+    = render 'remove', project: @project
+
+.save-project-loader.hide
+  .center
+    %h2
+      .gl-spinner.gl-spinner-md.align-text-bottom
+      = _('Saving project.')
+    %p= _('Please wait a moment, this page will automatically refresh when ready.')
+
+= render 'shared/confirm_modal', phrase: @project.path

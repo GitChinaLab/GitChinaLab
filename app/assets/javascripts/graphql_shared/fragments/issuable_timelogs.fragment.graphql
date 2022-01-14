@@ -1,0 +1,13 @@
+fragment TimelogFragment on Timelog {
+  timeSpent
+  user {
+    id
+    name
+  }
+  spentAt
+  note {
+    id
+    body
+  }
+  summary
+}

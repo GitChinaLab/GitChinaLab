@@ -1,0 +1,259 @@
+$gray-10: #1f1f1f;
+$gray-50: #303030;
+$gray-100: #404040;
+$gray-200: #525252;
+$gray-300: #5e5e5e;
+$gray-400: #868686;
+$gray-500: #999;
+$gray-600: #bfbfbf;
+$gray-700: #dbdbdb;
+$gray-800: #f0f0f0;
+$gray-900: #fafafa;
+$gray-950: #fff;
+
+$green-50: #0a4020;
+$green-100: #0d532a;
+$green-200: #24663b;
+$green-300: #217645;
+$green-400: #108548;
+$green-500: #2da160;
+$green-600: #52b87a;
+$green-700: #91d4a8;
+$green-800: #c3e6cd;
+$green-900: #ecf4ee;
+$green-950: #f1fdf6;
+
+$blue-50: #033464;
+$blue-100: #064787;
+$blue-200: #0b5cad;
+$blue-300: #1068bf;
+$blue-400: #1f75cb;
+$blue-500: #428fdc;
+$blue-600: #63a6e9;
+$blue-700: #9dc7f1;
+$blue-800: #cbe2f9;
+$blue-900: #e9f3fc;
+$blue-950: #f2f9ff;
+
+$orange-50: #5c2900;
+$orange-100: #703800;
+$orange-200: #8f4700;
+$orange-300: #9e5400;
+$orange-400: #ab6100;
+$orange-500: #c17d10;
+$orange-600: #d99530;
+$orange-700: #e9be74;
+$orange-800: #f5d9a8;
+$orange-900: #fdf1dd;
+$orange-950: #fff4e1;
+
+$red-50: #660e00;
+$red-100: #8d1300;
+$red-200: #ae1800;
+$red-300: #c91c00;
+$red-400: #dd2b0e;
+$red-500: #ec5941;
+$red-600: #f57f6c;
+$red-700: #fcb5aa;
+$red-800: #fdd4cd;
+$red-900: #fcf1ef;
+$red-950: #fff4f3;
+
+$indigo-50: #1a1a40;
+$indigo-100: #292961;
+$indigo-200: #393982;
+$indigo-300: #4b4ba3;
+$indigo-400: #5b5bbd;
+$indigo-500: #6666c4;
+$indigo-600: #7c7ccc;
+$indigo-700: #a6a6de;
+$indigo-800: #d1d1f0;
+$indigo-900: #ebebfa;
+$indigo-950: #f7f7ff;
+$indigo-900-alpha-008: rgba($indigo-900, 0.08);
+
+$purple-50: #232150;
+$purple-100: #2f2a6b;
+$purple-200: #453894;
+$purple-300: #5943b6;
+$purple-400: #694cc0;
+$purple-500: #7b58cf;
+$purple-600: #9475db;
+$purple-700: #ac93e6;
+$purple-800: #cbbbf2;
+$purple-900: #e1d8f9;
+$purple-950: #f4f0ff;
+
+$gray-lightest: #222;
+$gray-light: $gray-50;
+$gray-lighter: #303030;
+$gray-normal: #333;
+$gray-dark: $gray-100;
+$gray-darker: #4f4f4f;
+$gray-darkest: #c4c4c4;
+
+$black: #fff;
+$white: #333;
+$white-light: #2b2b2b;
+$white-normal: #333;
+$white-dark: #444;
+
+$border-color: #4f4f4f;
+
+body.gl-dark {
+  --gray-10: #{$gray-10};
+  --gray-50: #{$gray-50};
+  --gray-100: #{$gray-100};
+  --gray-200: #{$gray-200};
+  --gray-300: #{$gray-300};
+  --gray-400: #{$gray-400};
+  --gray-500: #{$gray-500};
+  --gray-600: #{$gray-600};
+  --gray-700: #{$gray-700};
+  --gray-800: #{$gray-800};
+  --gray-900: #{$gray-900};
+  --gray-950: #{$gray-950};
+
+  --green-50: #{$green-50};
+  --green-100: #{$green-100};
+  --green-200: #{$green-200};
+  --green-300: #{$green-300};
+  --green-400: #{$green-400};
+  --green-500: #{$green-500};
+  --green-600: #{$green-600};
+  --green-700: #{$green-700};
+  --green-800: #{$green-800};
+  --green-900: #{$green-900};
+  --green-950: #{$green-950};
+
+  --blue-50: #{$blue-50};
+  --blue-100: #{$blue-100};
+  --blue-200: #{$blue-200};
+  --blue-300: #{$blue-300};
+  --blue-400: #{$blue-400};
+  --blue-500: #{$blue-500};
+  --blue-600: #{$blue-600};
+  --blue-700: #{$blue-700};
+  --blue-800: #{$blue-800};
+  --blue-900: #{$blue-900};
+  --blue-950: #{$blue-950};
+
+  --orange-50: #{$orange-50};
+  --orange-100: #{$orange-100};
+  --orange-200: #{$orange-200};
+  --orange-300: #{$orange-300};
+  --orange-400: #{$orange-400};
+  --orange-500: #{$orange-500};
+  --orange-600: #{$orange-600};
+  --orange-700: #{$orange-700};
+  --orange-800: #{$orange-800};
+  --orange-900: #{$orange-900};
+  --orange-950: #{$orange-950};
+
+  --red-50: #{$red-50};
+  --red-100: #{$red-100};
+  --red-200: #{$red-200};
+  --red-300: #{$red-300};
+  --red-400: #{$red-400};
+  --red-500: #{$red-500};
+  --red-600: #{$red-600};
+  --red-700: #{$red-700};
+  --red-800: #{$red-800};
+  --red-900: #{$red-900};
+  --red-950: #{$red-950};
+
+  --indigo-50: #{$indigo-50};
+  --indigo-100: #{$indigo-100};
+  --indigo-200: #{$indigo-200};
+  --indigo-300: #{$indigo-300};
+  --indigo-400: #{$indigo-400};
+  --indigo-500: #{$indigo-500};
+  --indigo-600: #{$indigo-600};
+  --indigo-700: #{$indigo-700};
+  --indigo-800: #{$indigo-800};
+  --indigo-900: #{$indigo-900};
+  --indigo-950: #{$indigo-950};
+  --indigo-900-alpha-008: #{$indigo-900-alpha-008};
+
+  --purple-50: #{$purple-50};
+  --purple-100: #{$purple-100};
+  --purple-200: #{$purple-200};
+  --purple-300: #{$purple-300};
+  --purple-400: #{$purple-400};
+  --purple-500: #{$purple-500};
+  --purple-600: #{$purple-600};
+  --purple-700: #{$purple-700};
+  --purple-800: #{$purple-800};
+  --purple-900: #{$purple-900};
+  --purple-950: #{$purple-950};
+
+  --gl-text-color: #{$gray-900};
+  --border-color: #{$border-color};
+
+  --white: #{$white};
+  --black: #{$black};
+
+  --svg-status-bg: #{$white};
+
+  .gl-button.gl-button,
+  .gl-button.gl-button.btn-block {
+    &.btn-default,
+    &.btn-dashed,
+    &.btn-info,
+    &.btn-success,
+    &.btn-danger,
+    &.btn-warning,
+    &.btn-confirm {
+      &-tertiary {
+        mix-blend-mode: screen;
+      }
+    }
+  }
+
+  .gl-datepicker-theme {
+    .pika-prev,
+    .pika-next {
+      filter: invert(0.9);
+    }
+
+    .is-selected > .pika-button {
+      color: $gray-900;
+    }
+
+    :not(.is-selected) > .pika-button:hover {
+      background-color: $gray-200;
+    }
+  }
+}
+
+$border-white-normal: $border-color;
+
+$body-bg: $gray-10;
+$input-bg: $white;
+$input-focus-bg: $white;
+$input-color: $gray-900;
+$input-group-addon-bg: $gray-900;
+
+$card-cap-bg: $gray-50;
+
+$tooltip-bg: $gray-800;
+$tooltip-color: $gray-10;
+
+$popover-color: $gray-950;
+$popover-box-shadow: 0 2px 3px 1px $gray-700;
+$popover-arrow-outer-color: $gray-800;
+
+$secondary: $gray-600;
+
+$issues-today-bg: #333838;
+$issues-today-border: #333a40;
+
+$yiq-text-dark: $gray-50;
+$yiq-text-light: $gray-950;
+
+// Commit Diff Colors
+$line-added-dark: $green-200;
+$line-removed-dark: $red-200;
+
+$well-expand-item: $gray-200;
+$well-inner-border: $gray-200;

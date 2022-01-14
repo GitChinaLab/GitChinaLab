@@ -1,0 +1,66 @@
+review-cleanup:
+  extends:
+    - .default-retry
+    - .review:rules:review-cleanup
+  image: ${REGISTRY_HOST}/${REGISTRY_GROUP}/gitlab-build-images:gitlab-helm3-kubectl1.14
+  stage: prepare
+  environment:
+    name: review/${CI_COMMIT_REF_SLUG}${FREQUENCY}
+    action: stop
+  before_script:
+    - source scripts/utils.sh
+    - source scripts/review_apps/review-apps.sh
+    - source scripts/review_apps/gcp_cleanup.sh
+    - install_gitlab_gem
+    - setup_gcp_dependencies
+  script:
+    - delete_release
+    - delete_namespace
+    - ruby -rrubygems scripts/review_apps/automated_cleanup.rb
+    - gcp_cleanup
+
+start-review-app-pipeline:
+  extends:
+    - .review:rules:start-review-app-pipeline
+  stage: review
+  needs:
+    - job: build-assets-image
+      artifacts: false
+    - job: build-qa-image
+      artifacts: false
+  # These variables are set in the pipeline schedules.
+  # They need to be explicitly passed on to the child pipeline.
+  # https://docs.gitlab.com/ee/ci/pipelines/multi_project_pipelines.html#pass-cicd-variables-to-a-downstream-pipeline-by-using-the-variables-keyword
+  variables:
+    FREQUENCY: $FREQUENCY
+    DAST_RUN: $DAST_RUN
+  trigger:
+    include:
+      - local: .gitlab/ci/review-apps/main.gitlab-ci.yml
+    strategy: depend
+
+danger-review:
+  extends:
+    - .default-retry
+    - .danger-review-cache
+    - .review:rules:danger
+  stage: test
+  needs: []
+  before_script:
+    - source scripts/utils.sh
+    - bundle_install_script "--with danger"
+    - run_timed_command "retry yarn install --frozen-lockfile"
+  script:
+    - >
+      if [ -z "$DANGER_GITLAB_API_TOKEN" ]; then
+        run_timed_command danger_as_local
+      else
+        run_timed_command "bundle exec danger --fail-on-errors=true --verbose"
+      fi
+
+danger-review-local:
+  extends:
+    - danger-review
+    - .review:rules:danger-local
+  script:
+    - run_timed_command danger_as_local

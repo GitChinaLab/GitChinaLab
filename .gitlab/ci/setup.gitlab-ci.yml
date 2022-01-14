@@ -1,0 +1,167 @@
+# Insurance in case a gem needed by one of our releases gets yanked from
+# rubygems.org in the future.
+cache gems:
+  extends:
+    - .default-retry
+    - .rails-cache
+    - .default-before_script
+    - .setup:rules:cache-gems
+  stage: test
+  needs: ["setup-test-env"]
+  variables:
+    BUNDLE_INSTALL_FLAGS: --with=production --with=development --with=test --jobs=2 --path=vendor --retry=3 --quiet
+    SETUP_DB: "false"
+  script:
+    - bundle package --all --all-platforms
+  artifacts:
+    paths:
+      - vendor/cache
+    expire_in: 31d
+
+.minimal-job:
+  extends:
+    - .default-retry
+  needs: []
+
+dont-interrupt-me:
+  extends: .setup:rules:dont-interrupt-me
+  stage: sync
+  image: ${GITLAB_DEPENDENCY_PROXY}alpine:edge
+  interruptible: false
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - echo "This jobs makes sure this pipeline won't be interrupted! See https://docs.gitlab.com/ee/ci/yaml/#interruptible."
+
+gitlab_git_test:
+  extends:
+    - .minimal-job
+    - .setup:rules:gitlab_git_test
+  stage: test
+  script:
+    - spec/support/prepare-gitlab-git-test-for-commit --check-for-changes
+
+no-ee-check:
+  extends:
+    - .minimal-job
+    - .setup:rules:no-ee-check
+  stage: test
+  script:
+    - scripts/no-dir-check ee
+
+no-jh-check:
+  extends:
+    - .minimal-job
+    - .setup:rules:no-jh-check
+  stage: test
+  script:
+    - scripts/no-dir-check jh
+
+verify-tests-yml:
+  extends:
+    - .setup:rules:verify-tests-yml
+  image: ${GITLAB_DEPENDENCY_PROXY}ruby:2.7-alpine3.13
+  stage: test
+  needs: []
+  script:
+    - source scripts/utils.sh
+    - install_tff_gem
+    - scripts/verify-tff-mapping
+
+generate-frontend-fixtures-mapping:
+  extends:
+    - .setup:rules:generate-frontend-fixtures-mapping
+    - .use-pg12
+    - .rails-cache
+  needs: ["setup-test-env"]
+  stage: prepare
+  before_script:
+    - !reference [.default-before_script, before_script]
+    - source ./scripts/rspec_helpers.sh
+    - run_timed_command "scripts/gitaly-test-spawn"
+  script:
+    - generate_frontend_fixtures_mapping
+  artifacts:
+    expire_in: 7d
+    paths:
+      - ${FRONTEND_FIXTURES_MAPPING_PATH}
+
+.detect-test-base:
+  image: ${GITLAB_DEPENDENCY_PROXY}ruby:2.7
+  needs: []
+  stage: prepare
+  script:
+    - source ./scripts/utils.sh
+    - source ./scripts/rspec_helpers.sh
+    - install_gitlab_gem
+    - install_tff_gem
+    - retrieve_tests_mapping
+    - retrieve_frontend_fixtures_mapping
+    - |
+      if [ -n "$CI_MERGE_REQUEST_IID" ]; then
+        tooling/bin/find_changes ${CHANGES_FILE};
+        tooling/bin/find_tests ${CHANGES_FILE} ${MATCHED_TESTS_FILE};
+        tooling/bin/find_changes ${CHANGES_FILE} ${MATCHED_TESTS_FILE} ${FRONTEND_FIXTURES_MAPPING_PATH};
+        echo "Changed files: $(cat $CHANGES_FILE)";
+        echo "Related rspec tests: $(cat $MATCHED_TESTS_FILE)";
+      fi
+  artifacts:
+    expire_in: 7d
+    paths:
+      - ${CHANGES_FILE}
+      - ${MATCHED_TESTS_FILE}
+      - ${FRONTEND_FIXTURES_MAPPING_PATH}
+
+detect-tests:
+  extends:
+    - .detect-test-base
+    - .rails:rules:detect-tests
+  variables:
+    RSPEC_TESTS_MAPPING_ENABLED: "true"
+    CHANGES_FILE: tmp/changed_files.txt
+    MATCHED_TESTS_FILE: tmp/matching_tests.txt
+
+detect-tests as-if-foss:
+  extends:
+    - .detect-test-base
+    - .rails:rules:detect-tests
+    - .as-if-foss
+  variables:
+    CHANGES_FILE: tmp/changed_foss_files.txt
+    MATCHED_TESTS_FILE: tmp/matching_foss_tests.txt
+  before_script:
+    - '[ "$FOSS_ONLY" = "1" ] && rm -rf ee/ qa/spec/ee/ qa/qa/specs/features/ee/ qa/qa/ee/ qa/qa/ee.rb'
+
+detect-previous-failed-tests:
+  extends:
+    - .detect-test-base
+    - .rails:rules:detect-previous-failed-tests
+  variables:
+    PREVIOUS_FAILED_TESTS_DIR: tmp/previous_failed_tests/
+    RSPEC_PG_REGEX: /rspec .+ pg12( .+)?/
+    RSPEC_EE_PG_REGEX: /rspec-ee .+ pg12( .+)?/
+  script:
+    - source ./scripts/utils.sh
+    - source ./scripts/rspec_helpers.sh
+    - retrieve_previous_failed_tests ${PREVIOUS_FAILED_TESTS_DIR} "${RSPEC_PG_REGEX}" "${RSPEC_EE_PG_REGEX}"
+  artifacts:
+    expire_in: 7d
+    paths:
+      - ${PREVIOUS_FAILED_TESTS_DIR}
+
+add-jh-folder:
+  extends: .setup:rules:add-jh-folder
+  image: ${GITLAB_DEPENDENCY_PROXY}alpine:edge
+  stage: prepare
+  before_script:
+    - apk add --no-cache --update curl bash
+  script:
+    - curl --location -o "jh-folder.tar.gz" "https://gitlab.com/gitlab-jh/gitlab/-/archive/main-jh/gitlab-main-jh.tar.gz?path=jh"
+    - tar -xf "jh-folder.tar.gz"
+    - mv gitlab-main-jh-jh/jh/ ./
+    - cp Gemfile.lock jh/
+    - ls -l jh/
+  artifacts:
+    expire_in: 2d
+    paths:
+      - jh/

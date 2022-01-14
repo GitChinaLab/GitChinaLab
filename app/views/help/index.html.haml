@@ -1,0 +1,50 @@
+%div
+- if Gitlab::CurrentSettings.help_page_text.present?
+  .gl-mt-3.md
+    = markdown_field(Gitlab::CurrentSettings.current_application_settings, :help_page_text)
+  %hr
+
+%h1
+  = default_brand_title
+  - if user_signed_in?
+    %span= link_to_version
+    = version_status_badge
+  %hr
+
+- unless Gitlab::CurrentSettings.help_page_hide_commercial_content?
+  %p.slead
+    = _('GitLab is open source software to collaborate on code.')
+    %br
+    = _('Manage git repositories with fine-grained access controls that keep your code secure.')
+    %br
+    = _('Perform code reviews and enhance collaboration with merge requests.')
+    %br
+    = _('Each project can also have an issue tracker and a wiki.')
+    %br
+    = _('Used by more than 100,000 organizations, GitLab is the most popular solution to manage git repositories on-premises.')
+    %br
+    - link_to_promo = link_to(promo_host, promo_url, target: '_blank', rel: 'noopener noreferrer')
+    = _("Read more about GitLab at %{link_to_promo}.").html_safe % { link_to_promo: link_to_promo }
+
+%p= link_to _('Check the current instance configuration '), help_instance_configuration_url
+%hr
+
+.row.gl-mt-3
+  .col-md-8
+    .documentation-index.md
+      = markdown(@help_index)
+  .col-md-4
+    .card.links-card
+      .card-header
+        = _('Quick help')
+      %ul.content-list
+        %li= link_to _('See our website for help'), support_url
+        %li
+          %button.btn-blank.btn-link.js-trigger-search-bar{ type: 'button' }
+            = _('Use the search bar on the top of this page')
+        %li
+          %button.btn-blank.btn-link.js-trigger-shortcut{ type: 'button' }
+            = _('Use shortcuts')
+        - unless Gitlab::CurrentSettings.help_page_hide_commercial_content?
+          %li= link_to _('Get a support subscription'), "https://#{ApplicationHelper.promo_host}/pricing/"
+          %li= link_to _('Compare GitLab editions'), "https://#{ApplicationHelper.promo_host}/features/#compare"

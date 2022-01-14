@@ -1,0 +1,4 @@
+fragment DesignNotePermissions on NotePermissions {
+  adminNote
+  repositionNote
+}

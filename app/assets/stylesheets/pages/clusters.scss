@@ -1,0 +1,40 @@
+.clusters-container {
+  .empty-state .svg-content {
+    @include gl-pb-0;
+
+    img {
+      width: 100px;
+    }
+  }
+
+  .gl-card-body {
+    @include media-breakpoint-up(sm) {
+      @include gl-pt-2;
+      min-height: 372px;
+    }
+  }
+
+  @include media-breakpoint-down(xs) {
+    .nav-controls {
+      @include gl-w-full;
+      order: -1;
+
+      .gl-new-dropdown,
+      .split-content-button {
+        @include gl-w-full;
+      }
+    }
+  }
+}
+
+.agent-activity-list {
+  .system-note .timeline-entry-inner {
+    .timeline-icon {
+      @include gl-mt-1;
+    }
+  }
+
+  &.issuable-discussion .main-notes-list::before {
+    @include gl-top-3;
+  }
+}

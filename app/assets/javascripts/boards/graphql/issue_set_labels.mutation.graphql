@@ -1,0 +1,15 @@
+#import "~/graphql_shared/fragments/label.fragment.graphql"
+
+mutation issueSetLabels($input: UpdateIssueInput!) {
+  updateIssuableLabels: updateIssue(input: $input) {
+    issuable: issue {
+      id
+      labels {
+        nodes {
+          ...Label
+        }
+      }
+    }
+    errors
+  }
+}

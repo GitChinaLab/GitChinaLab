@@ -1,0 +1,24 @@
+- project_tab_filter = local_assigns.fetch(:project_tab_filter, "")
+- feature_project_list_filter_bar = Feature.enabled?(:project_list_filter_bar)
+
+= content_for :flash_message do
+  = render 'shared/project_limit'
+
+.page-title-holder.d-flex.align-items-center
+  %h1.page-title= _('Projects')
+
+  - if current_user.can_create_project?
+    .page-title-controls
+      = link_to _("New project"), new_project_path, class: "gl-button btn btn-confirm", data: { qa_selector: 'new_project_button' }
+
+.top-area.scrolling-tabs-container.inner-page-scroll-tabs
+  .fade-left= sprite_icon('chevron-lg-left', size: 12)
+  .fade-right= sprite_icon('chevron-lg-right', size: 12)
+  = render 'dashboard/projects_nav'
+  - unless feature_project_list_filter_bar
+    .nav-controls
+      = render 'shared/projects/search_form'
+      = render 'shared/projects/dropdown'
+- if feature_project_list_filter_bar
+  .project-filters
+    = render 'shared/projects/search_bar', project_tab_filter: project_tab_filter

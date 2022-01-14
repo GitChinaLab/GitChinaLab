@@ -1,0 +1,236 @@
+@import 'mixins_and_variables_and_functions';
+@import './pipeline_mixins';
+
+/**
+ * Pipeline Page Bundle
+ *
+ * Styles used to render a single pipeline page.
+ *
+ * Includes its tabs:
+ *
+ * - [data-page='projects:pipelines:show']
+ * - [data-page='projects:pipelines:dag']
+ * - [data-page='projects:pipelines:builds']
+ * - [data-page='projects:pipelines:failures']
+ * - [data-page='projects:pipelines:tests']
+ * - ...
+ */
+
+.tab-pane {
+  .ci-table {
+    thead th {
+      border-top: 0;
+    }
+  }
+}
+
+.build-failures {
+  .build-state {
+    padding: 20px 2px;
+
+    .build-name {
+      font-weight: $gl-font-weight-normal;
+    }
+
+    .stage {
+      color: var(--gray-500, $gray-500);
+      font-weight: $gl-font-weight-normal;
+      vertical-align: middle;
+    }
+  }
+
+  .build-log {
+    border: 0;
+    line-height: initial;
+  }
+
+  .build-log-row td {
+    border-top: 0;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    padding-top: 0;
+  }
+
+  .build-log {
+    width: 100%;
+    text-align: left;
+    margin-top: $gl-padding;
+  }
+
+  .build-name {
+    width: 196px;
+
+    a {
+      font-weight: $gl-font-weight-bold;
+      color: var(--gl-text-color, $gl-text-color);
+      text-decoration: none;
+
+      &:focus,
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .build-actions {
+    width: 70px;
+    text-align: right;
+  }
+
+  .build-stage {
+    width: 140px;
+  }
+
+  .ci-status-icon-failed {
+    padding: 10px 0 10px 12px;
+    width: 12px + 24px; // padding-left + svg width
+  }
+
+  .build-icon svg {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+  }
+
+  .build-state,
+  .build-log-row {
+    > td:last-child {
+      padding-right: 0;
+    }
+  }
+
+  @include media-breakpoint-down(sm) {
+    td:empty {
+      display: none;
+    }
+
+    .ci-table {
+      margin-top: 2 * $gl-padding;
+    }
+
+    .build-log-container {
+      padding-top: $gl-padding;
+      padding-bottom: $gl-padding;
+    }
+
+    .build-log {
+      margin-bottom: 0;
+      margin-top: 0;
+    }
+  }
+}
+
+
+// These are single-value classes to use with utility-class style CSS.
+// They are here to still access a variable or because they use magic values.
+// scoped to the graph. Do not add other styles.
+.gl-pipeline-min-h {
+  min-height: $dropdown-max-height-lg;
+}
+
+.gl-pipeline-job-width {
+  width: 100%;
+  max-width: 400px;
+}
+
+.gl-pipeline-job-width\! {
+  width: 100% !important;
+  max-width: 400px !important;
+}
+
+.gl-downstream-pipeline-job-width {
+  width: 240px;
+}
+
+.gl-linked-pipeline-padding {
+  padding-right: 120px;
+}
+
+.gl-ci-action-icon-container {
+  position: absolute;
+  right: 5px;
+  top: 50% !important;
+  transform: translateY(-50%);
+
+  // Action Icons in big pipeline-graph nodes
+  &.ci-action-icon-wrapper {
+    height: 30px;
+    width: 30px;
+    border-radius: 100%;
+    display: block;
+    padding: 0;
+    line-height: 0;
+  }
+}
+
+.split-report-section {
+  border-bottom: 1px solid var(--gray-50, $gray-50);
+
+  .report-block-container {
+    max-height: 500px;
+    overflow: auto;
+  }
+
+  .space-children,
+  .space-children > span {
+    display: flex;
+    align-self: center;
+  }
+
+  .media {
+    align-items: center;
+    padding: 10px;
+    line-height: 20px;
+
+    /*
+    This fixes the wrapping div of the icon in the report header.
+    Apparently the borderless status icons are half the size of the status icons with border.
+    This means we have to double the size of the wrapping div for borderless icons.
+    */
+    .space-children:first-child {
+      width: 32px;
+      height: 32px;
+      align-items: center;
+      justify-content: center;
+      margin-right: 5px;
+      margin-left: 1px;
+    }
+  }
+
+  .code-text {
+    width: 100%;
+    flex: 1;
+  }
+}
+
+.big-pipeline-graph-dropdown-menu {
+  @include pipeline-graph-dropdown-menu();
+  min-width: 195px;
+  left: 100%;
+  top: -10px;
+  box-shadow: 0 1px 5px $black-transparent;
+}
+
+.codequality-report {
+  .media {
+    padding: $gl-padding;
+  }
+
+  .media-body {
+    flex-direction: row;
+  }
+
+  .report-block-container {
+    height: auto !important;
+  }
+}
+
+.test-reports-table {
+  .build-log {
+    @include build-log();
+  }
+}
+
+.progress-bar.bg-primary {
+  background-color: var(--blue-500, $blue-500) !important;
+}

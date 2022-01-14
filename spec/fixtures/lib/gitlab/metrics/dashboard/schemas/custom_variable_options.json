@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["values"],
+  "properties": {
+    "values": {
+      "type": "array",
+      "items": { "$ref": "spec/fixtures/lib/gitlab/metrics/dashboard/schemas/custom_variable_values.json" }
+    }
+  },
+  "additionalProperties": false
+}

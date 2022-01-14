@@ -1,0 +1,29 @@
+- breadcrumb_title _("Reporting")
+- page_title _("Reporting")
+- @content_class = "limit-container-width" unless fluid_layout
+
+%section.settings.as-spam.no-animate#js-spam-settings{ class: ('expanded' if expanded_by_default?) }
+  .settings-header
+    %h4
+      = _('Spam and Anti-bot Protection')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _('Configure CAPTCHAs, IP address limits, and other anti-spam measures.')
+  .settings-content
+    = render 'spam'
+
+-# this partial is from JiHu, see details in https://gitlab.com/gitlab-jh/gitlab/-/merge_requests/135
+= render_if_exists 'admin/application_settings/content_validation_section'
+
+%section.settings.as-abuse.no-animate#js-abuse-settings{ class: ('expanded' if expanded_by_default?) }
+  .settings-header
+    %h4
+      = _('Abuse reports')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _('Receive notification of abuse reports by email.')
+      = link_to _('Learn more.'), help_page_path('user/admin_area/review_abuse_reports.md'), target: '_blank', rel: 'noopener noreferrer'
+  .settings-content
+    = render 'abuse'

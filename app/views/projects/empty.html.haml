@@ -1,0 +1,81 @@
+- @content_class = "limit-container-width" unless fluid_layout
+- default_branch_name = @project.default_branch_or_main
+- @skip_current_level_breadcrumb = true
+
+= render partial: 'flash_messages', locals: { project: @project }
+
+= render "home_panel"
+= render "archived_notice", project: @project
+
+= render "invite_members_empty_project" if can_admin_project_member?(@project)
+
+%h4.gl-mt-0.gl-mb-3
+  = _('The repository for this project is empty')
+
+- if @project.can_current_user_push_code?
+  %p
+    = _('You can get started by cloning the repository or start adding files to it with one of the following options.')
+
+.project-buttons.qa-quick-actions
+  .project-clone-holder.d-block.d-md-none.mt-2.mr-2
+    = render "shared/mobile_clone_panel"
+
+  .project-clone-holder.d-none.d-md-inline-block.mb-2.mr-2.float-left
+    = render "projects/buttons/clone"
+  = render 'stat_anchor_list', anchors: @project.empty_repo_statistics_buttons, project_buttons: true
+
+- if can?(current_user, :push_code, @project)
+  .empty-wrapper.gl-mt-4
+    %h3#repo-command-line-instructions.page-title-empty
+      = _('Command line instructions')
+    %p
+      = _('You can also upload existing files from your computer using the instructions below.')
+    .git-empty.js-git-empty
+      %fieldset
+        %h5= _('Git global setup')
+        %pre.bg-light
+          :preserve
+            git config --global user.name "#{h git_user_name}"
+            git config --global user.email "#{h git_user_email}"
+
+      %fieldset
+        %h5= _('Create a new repository')
+        %pre.bg-light
+          :preserve
+            git clone #{ content_tag(:span, default_url_to_repo, class: 'js-clone')}
+            cd #{h @project.path}
+            git switch -c #{h default_branch_name}
+            touch README.md
+            git add README.md
+            git commit -m "add README"
+          - if @project.can_current_user_push_to_default_branch?
+            %span><
+              git push -u origin #{h default_branch_name }
+
+      %fieldset
+        %h5= _('Push an existing folder')
+        %pre.bg-light
+          :preserve
+            cd existing_folder
+            git init --initial-branch=#{h default_branch_name}
+            git remote add origin #{ content_tag(:span, default_url_to_repo, class: 'js-clone')}
+            git add .
+            git commit -m "Initial commit"
+          - if @project.can_current_user_push_to_default_branch?
+            %span><
+              git push -u origin #{h default_branch_name }
+
+      %fieldset
+        %h5= _('Push an existing Git repository')
+        %pre.bg-light
+          :preserve
+            cd existing_repo
+            git remote rename origin old-origin
+            git remote add origin #{ content_tag(:span, default_url_to_repo, class: 'js-clone')}
+          - if @project.can_current_user_push_to_default_branch?
+            %span><
+              git push -u origin --all
+              git push -u origin --tags
+
+- if @project.upload_anchor_data.present?
+  = render 'projects/blob/upload', title: _('Upload New File'), placeholder: _('Upload New File'), button_title: _('Upload file'), form_path: project_create_blob_path(@project, default_branch_name), ref: default_branch_name, method: :post

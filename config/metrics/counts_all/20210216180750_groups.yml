@@ -1,0 +1,21 @@
+---
+data_category: optional
+key_path: counts.groups
+description: Total count of groups as of usage ping snapshot
+product_section: dev
+product_stage: manage
+product_group: group::access
+product_category: subgroups
+value_type: number
+status: active
+time_frame: all
+data_source: database
+distribution:
+- ce
+- ee
+tier:
+- free
+- premium
+- ultimate
+performance_indicator_type: []
+milestone: "<13.9"

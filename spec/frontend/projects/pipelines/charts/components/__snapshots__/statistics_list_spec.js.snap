@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`StatisticsList displays the counts data with labels 1`] = `
+<ul>
+  <li>
+    <span>
+      Total:
+    </span>
+     
+    <strong>
+      4 pipelines
+    </strong>
+  </li>
+  <li>
+    <span>
+      Successful:
+    </span>
+     
+    <strong>
+      2 pipelines
+    </strong>
+  </li>
+  <li>
+    <span>
+      Failed:
+    </span>
+     
+    <gl-link-stub
+      href="/flightjs/Flight/-/pipelines?page=1&scope=all&status=failed"
+    >
+      
+        2 pipelines
+      
+    </gl-link-stub>
+  </li>
+  <li>
+    <span>
+      Success ratio:
+    </span>
+     
+    <strong>
+      50.00%
+    </strong>
+  </li>
+</ul>
+`;

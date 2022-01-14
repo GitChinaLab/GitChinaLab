@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Design management index page designs renders error 1`] = `
+<div
+  class="gl-mt-5"
+  data-testid="designs-root"
+>
+  <!---->
+   
+  <div
+    class="gl-mt-6"
+  >
+    <gl-alert-stub
+      dismisslabel="Dismiss"
+      primarybuttonlink=""
+      primarybuttontext=""
+      secondarybuttonlink=""
+      secondarybuttontext=""
+      title=""
+      variant="danger"
+    >
+      
+      An error occurred while loading designs. Please try again.
+    
+    </gl-alert-stub>
+  </div>
+   
+  <router-view-stub
+    name="default"
+  />
+</div>
+`;
+
+exports[`Design management index page designs renders loading icon 1`] = `
+<div
+  class="gl-mt-5"
+  data-testid="designs-root"
+>
+  <!---->
+   
+  <div
+    class="gl-mt-6"
+  >
+    <gl-loading-icon-stub
+      color="dark"
+      label="Loading"
+      size="md"
+    />
+  </div>
+   
+  <router-view-stub
+    name="default"
+  />
+</div>
+`;

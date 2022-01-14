@@ -1,0 +1,18 @@
+---
+data_category: optional
+key_path: grafana_link_enabled
+description: Whether Grafana is enabled
+product_section: growth
+product_stage: growth
+product_group: group::product intelligence
+product_category: collection
+value_type: boolean
+status: active
+time_frame: none
+data_source: system
+distribution:
+- ce
+tier:
+- free
+performance_indicator_type: []
+milestone: "<13.9"

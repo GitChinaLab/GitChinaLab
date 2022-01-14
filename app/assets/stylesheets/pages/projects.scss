@@ -1,0 +1,1055 @@
+.new_project,
+.edit-project,
+.import-project {
+  .form-text.text-muted {
+    margin-bottom: 10px;
+  }
+
+  .project-path .form-control {
+    border-radius: $border-radius-base;
+  }
+
+  .input-group {
+    > div {
+      &:last-child {
+        padding-right: 0;
+      }
+    }
+  }
+
+  @include media-breakpoint-down(xs) {
+    .input-group > div {
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    fieldset > .form-group:first-child {
+      padding-right: 0;
+    }
+  }
+
+  .input-group-prepend,
+  .input-group-append {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: unset;
+    width: unset;
+    max-width: 50%;
+    text-align: left;
+
+    &.static-namespace {
+      height: 35px;
+      border-radius: 3px;
+      border: 1px solid $border-color;
+      max-width: 100%;
+      flex-grow: 1;
+    }
+
+    + .btn-default {
+      border-radius: 0 $border-radius-base $border-radius-base 0;
+    }
+  }
+}
+
+// INFO Scoped to project_feature_setting and settings_panel components in app/assets/javascripts/pages/projects/shared/permissions/components
+.project-repo-select {
+  transition: background 2s ease-out;
+
+  &:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .highlight-changes & {
+    background: $highlight-changes-color;
+    transition: none;
+  }
+}
+
+// INFO Scoped to project_feature_setting and settings_panel components in app/assets/javascripts/pages/projects/shared/permissions/components
+.project-feature-controls {
+  max-width: 432px;
+}
+
+// INFO Scoped to settings_panel component in app/assets/javascripts/pages/projects/shared/permissions/components
+.project-feature-setting-group {
+  .project-feature-controls {
+    max-width: 400px;
+  }
+}
+
+.nav > .project-buttons {
+  margin-top: 0;
+}
+
+.save-project-loader {
+  margin-top: 50px;
+  margin-bottom: 50px;
+  color: $gray-700;
+}
+
+.deploy-key {
+  // Ensure that the fingerprint does not overflow on small screens
+  .fingerprint {
+    word-break: break-all;
+    white-space: normal;
+  }
+
+  .deploy-project-label,
+  .key-created-at {
+    svg {
+      vertical-align: text-top;
+    }
+  }
+
+  .btn svg {
+    vertical-align: top;
+  }
+
+  .key-created-at {
+    line-height: unset;
+  }
+}
+
+.deploy-project-list {
+  margin-bottom: -$gl-padding-4;
+
+  a.deploy-project-label {
+    margin-right: $gl-padding-4;
+    margin-bottom: $gl-padding-4;
+    color: $gl-text-color-secondary;
+    background-color: $gray-50;
+    line-height: $gl-btn-line-height;
+
+    &:hover {
+      color: $blue-600;
+    }
+  }
+}
+
+.vs-public {
+  color: $blue-500;
+}
+
+.vs-internal {
+  color: $orange-500;
+}
+
+.vs-private {
+  color: $green-500;
+}
+
+.lfs-enabled {
+  color: $green-500;
+}
+
+.lfs-disabled {
+  color: $orange-500;
+}
+
+.breadcrumb.repo-breadcrumb {
+  flex: 1;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  line-height: 34px;
+  margin: 0;
+
+  a {
+    color: $gl-text-color;
+  }
+
+  .dropdown-menu {
+    width: 240px;
+  }
+}
+
+.fork-thumbnail {
+  width: calc((100% / 2) - #{$gl-padding * 2});
+
+  @include media-breakpoint-up(md) {
+    width: calc((100% / 4) - #{$gl-padding * 2});
+  }
+
+  @include media-breakpoint-up(lg) {
+    width: calc((100% / 5) - #{$gl-padding * 2});
+  }
+
+  &:hover:not(.disabled),
+  &.forked {
+    background-color: $blue-50;
+    border-color: $blue-200;
+  }
+
+  .avatar-container,
+  .identicon {
+    float: none;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  a.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+.fork-thumbnail-container {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -$gl-padding;
+  margin-right: -$gl-padding;
+
+  > h5 {
+    width: 100%;
+  }
+}
+
+.project-template {
+  > .form-group {
+    margin-bottom: 0;
+  }
+
+  .tab-pane {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .template-option {
+    padding: 16px 0;
+
+    &:not(:first-child) {
+      border-top: 1px solid $border-color;
+    }
+
+    .controls {
+      margin-left: auto;
+    }
+  }
+
+  .choose-template {
+    input {
+      position: absolute;
+      clip: rect(0, 0, 0, 0);
+    }
+  }
+
+  .project-fields-form {
+    display: none;
+
+    &.selected {
+      display: block;
+      padding: $gl-padding;
+    }
+  }
+
+  .template-input-group {
+    .input-group-prepend {
+      flex: 1;
+    }
+
+    .input-group-text {
+      width: 100%;
+      background-color: $white;
+    }
+
+    .selected-icon {
+      img {
+        display: none;
+        height: 20px;
+        width: 20px;
+      }
+    }
+  }
+}
+
+.gitlab-tab-content {
+  .import-project-pane {
+    padding-bottom: 6px;
+  }
+}
+
+.project-import {
+  .import-btn-container {
+    margin-bottom: 0;
+  }
+
+  .toggle-import-form {
+    padding-bottom: 10px;
+  }
+
+  .import-buttons {
+    padding-left: 0;
+    display: flex;
+    flex-wrap: wrap;
+
+    .btn {
+      padding: $gl-padding-8;
+      margin-right: 10px;
+    }
+
+    .btn-template-icon {
+      height: 24px;
+      width: inherit;
+      display: block;
+      margin: 0 auto 4px;
+      font-size: 24px;
+
+      @media (min-width: map-get($grid-breakpoints, sm)-1) {
+        top: 0;
+      }
+    }
+
+    @include media-breakpoint-down(xs) {
+      .btn-template-icon {
+        display: inline-block;
+        height: 14px;
+        font-size: 14px;
+        margin: 0;
+      }
+    }
+
+    > div {
+      margin-bottom: 10px;
+      padding-left: 0;
+    }
+  }
+}
+
+.project-stats,
+.project-buttons {
+  .scrolling-tabs-container {
+    .scrolling-tabs {
+      margin-top: $gl-padding-8;
+      margin-bottom: $gl-padding-8 - $browser-scrollbar-size;
+      padding-bottom: $browser-scrollbar-size;
+      flex-wrap: wrap;
+      border-bottom: 0;
+    }
+
+    .fade-left,
+    .fade-right {
+      top: 0;
+      height: calc(100% - #{$browser-scrollbar-size});
+
+      svg {
+        top: 50%;
+        margin-top: -$gl-padding-8;
+      }
+    }
+
+    .nav {
+      flex-basis: 100%;
+
+      + .nav {
+        margin: $gl-padding-8 0;
+      }
+    }
+
+    @include media-breakpoint-down(md) {
+      flex-direction: column;
+
+      .nav {
+        flex-wrap: nowrap;
+      }
+
+      .nav:first-child {
+        margin-right: $gl-padding-8;
+      }
+    }
+  }
+
+  .nav {
+    > li {
+      display: inline-block;
+
+      &:not(:last-child) {
+        margin-right: $gl-padding;
+      }
+
+      &.right {
+        vertical-align: top;
+        margin-top: 0;
+
+        @include media-breakpoint-up(lg) {
+          float: right;
+        }
+      }
+    }
+
+    .stat-text,
+    .stat-link {
+      padding: $gl-btn-vert-padding 0;
+      background-color: transparent;
+      font-size: $gl-font-size;
+      line-height: $gl-btn-line-height;
+      color: $gl-text-color-secondary;
+      white-space: pre-wrap;
+    }
+
+    .stat-link {
+      border-bottom: 0;
+      color: $black;
+
+      &:hover,
+      &:focus {
+        text-decoration: underline;
+        border-bottom: 0;
+      }
+
+      .project-stat-value {
+        color: $gl-text-color;
+      }
+
+      .icon {
+        color: $gl-text-color-secondary;
+      }
+
+      .add-license-link {
+        &,
+        .icon {
+          color: $blue-600;
+        }
+      }
+    }
+
+    .btn {
+      margin-bottom: $gl-padding-8;
+      padding: $gl-btn-vert-padding $gl-btn-padding;
+      line-height: $gl-btn-line-height;
+
+      .icon {
+        top: 0;
+      }
+    }
+  }
+}
+
+.project-buttons {
+  .nav > li:not(:last-child) {
+    margin-right: $gl-padding-8;
+  }
+}
+
+.repository-languages-bar {
+  height: 8px;
+  margin-bottom: $gl-padding-8;
+  background-color: $white;
+  border-radius: $border-radius-default;
+
+  .progress-bar {
+    margin-right: 2px;
+    padding: 0 $gl-padding-4;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+.repository-language-bar-tooltip-language {
+  font-weight: $gl-font-weight-bold;
+}
+
+.repository-language-bar-tooltip-share {
+  color: $gray-200;
+}
+
+pre.light-well {
+  border-color: $well-light-border;
+}
+
+.git-empty {
+  margin-bottom: 7px;
+
+  h5 {
+    color: $gl-text-color;
+  }
+
+  .light-well {
+    border-radius: 2px;
+
+    color: $well-light-text-color;
+    font-size: 13px;
+    line-height: 1.6em;
+  }
+}
+
+/*
+ * Projects list rendered on dashboard and user page
+ */
+.projects-list {
+  @include basic-list;
+  display: flex;
+  flex-direction: column;
+
+  // Disable Flexbox for admin page
+  &.admin-projects,
+  &.group-settings-projects {
+    display: block;
+
+    .project-row {
+      display: block;
+
+      .description > p {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .project-row {
+    @include basic-list-stats;
+    display: flex;
+    align-items: center;
+    padding: $gl-padding-12 0;
+
+    &.no-description {
+      @include media-breakpoint-up(sm) {
+        .avatar-container {
+          align-self: center;
+        }
+
+        .metadata-info {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+
+  h2 {
+    font-size: $gl-font-size;
+    font-weight: $gl-font-weight-bold;
+    margin-bottom: 0;
+
+    @include media-breakpoint-up(sm) {
+      .namespace-name {
+        font-weight: $gl-font-weight-normal;
+      }
+    }
+  }
+
+  .avatar-container {
+    flex: 0 0 auto;
+    align-self: flex-start;
+  }
+
+  .project-details {
+    min-width: 0;
+    line-height: $gl-line-height;
+
+    .flex-wrapper {
+      min-width: 0;
+      margin-top: -$gl-padding-8; // negative margin required for flex-wrap
+      flex: 1 1 100%;
+
+      .project-title {
+        line-height: 20px;
+      }
+    }
+
+    p,
+    .commit-row-message {
+      @include str-truncated(100%);
+      margin-bottom: 0;
+    }
+
+    .user-access-role {
+      margin: 0;
+    }
+
+    .description {
+      line-height: 1.5;
+      color: $gl-text-color-secondary;
+    }
+
+    @include media-breakpoint-down(md) {
+      .user-access-role {
+        line-height: $gl-line-height-14;
+      }
+    }
+  }
+
+  .ci-status-link {
+    display: inline-block;
+    line-height: 17px;
+    vertical-align: middle;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+
+  .controls {
+    @include media-breakpoint-down(xs) {
+      margin-top: $gl-padding-8;
+    }
+
+    @include media-breakpoint-up(sm) {
+      margin-top: 0;
+    }
+
+    @include media-breakpoint-up(lg) {
+      flex: 1 1 40%;
+    }
+
+    .icon-wrapper {
+      color: inherit;
+      margin-right: $gl-padding;
+
+      @include media-breakpoint-down(md) {
+        margin-right: 0;
+        margin-left: $gl-padding-8;
+      }
+
+      @include media-breakpoint-down(xs) {
+        &:first-child {
+          margin-left: 0;
+        }
+      }
+    }
+
+    &:not(.with-pipeline-status) {
+      .icon-wrapper:first-of-type {
+        @include media-breakpoint-up(lg) {
+          margin-left: $gl-padding-32;
+        }
+      }
+    }
+
+    .ci-status-link {
+      display: inline-flex;
+    }
+  }
+
+  .icon-container {
+    @include media-breakpoint-down(xs) {
+      margin-right: $gl-padding-8;
+    }
+  }
+
+  &.compact {
+    .project-row {
+      padding: $gl-padding 0;
+    }
+
+    h2 {
+      font-size: $gl-font-size;
+    }
+
+    .avatar-container {
+      @include avatar-size(40px, 10px);
+      min-height: 40px;
+      min-width: 40px;
+
+      .identicon.s48 {
+        font-size: 16px;
+      }
+    }
+
+    .controls {
+      @include media-breakpoint-up(sm) {
+        margin-top: 0;
+      }
+    }
+
+    .updated-note {
+      @include media-breakpoint-up(sm) {
+        margin-top: $gl-padding-8;
+      }
+    }
+
+    .icon-wrapper {
+      margin-left: $gl-padding-8;
+      margin-right: 0;
+
+      @include media-breakpoint-down(xs) {
+        &:first-child {
+          margin-left: 0;
+        }
+      }
+    }
+
+    .user-access-role {
+      line-height: $gl-line-height-14;
+    }
+  }
+
+  @include media-breakpoint-down(md) {
+    h2 {
+      font-size: $gl-font-size;
+    }
+
+    .avatar-container {
+      @include avatar-size(40px, 10px);
+      min-height: 40px;
+      min-width: 40px;
+
+      .identicon.s64 {
+        font-size: 16px;
+      }
+    }
+  }
+
+  @include media-breakpoint-down(md) {
+    .updated-note {
+      margin-top: $gl-padding-8;
+      text-align: right;
+    }
+  }
+
+  .forks,
+  .pipeline-status,
+  .updated-note {
+    display: flex;
+  }
+
+  @include media-breakpoint-down(md) {
+    &:not(.explore) {
+      .forks {
+        display: none;
+      }
+    }
+
+    &.explore {
+      .pipeline-status,
+      .updated-note {
+        display: none !important;
+      }
+    }
+  }
+
+  @include media-breakpoint-down(xs) {
+    .updated-note {
+      margin-top: 0;
+      text-align: left;
+    }
+  }
+}
+
+.card .projects-list li {
+  padding: 10px 15px;
+  margin: 0;
+}
+
+.git-clone-holder {
+  .clone-options {
+    display: table-cell;
+
+    a.btn {
+      width: 100%;
+    }
+  }
+
+  .form-control {
+    @include gl-font-monospace;
+    background-color: $white;
+    border-color: $border-color;
+    font-size: 14px;
+    margin-left: -1px;
+    cursor: auto;
+  }
+}
+
+.git-clone-holder,
+.mobile-git-clone {
+  .btn {
+    .icon {
+      fill: $white;
+    }
+  }
+}
+
+.new-protected-branch,
+.new-protected-tag {
+  label {
+    margin-top: 6px;
+    font-weight: $gl-font-weight-normal;
+  }
+}
+
+.protected-branches-list,
+.protected-tags-list {
+  margin-bottom: 30px;
+
+  .settings-message {
+    margin: 0;
+    border-radius: 0 0 1px 1px;
+    padding: 20px 0;
+    border: 0;
+  }
+
+  .table-bordered {
+    border-radius: 1px;
+
+    th:not(:last-child),
+    td:not(:last-child) {
+      border-right: solid 1px transparent;
+    }
+  }
+
+  .flash-container {
+    padding: 0;
+  }
+}
+
+.project-refs-form .dropdown-menu {
+  width: 300px;
+
+  @include media-breakpoint-up(sm) {
+    width: 500px;
+  }
+
+  a {
+    white-space: normal;
+  }
+}
+
+.compare-form-group {
+  .dropdown-menu,
+  .inline-input-group {
+    width: 100%;
+
+    @include media-breakpoint-up(sm) {
+      width: 300px;
+    }
+  }
+
+  + .compare-ellipsis {
+    width: 100%;
+    vertical-align: middle;
+    text-align: center;
+    margin-top: -20px;
+
+    @include media-breakpoint-up(sm) {
+      margin: 0 $gl-padding-8;
+      width: auto;
+    }
+  }
+
+  // Remove once gitlab/ui solution is implemented:
+  // https://gitlab.com/gitlab-org/gitlab-ui/-/issues/1157
+  // https://gitlab.com/gitlab-org/gitlab/-/issues/300405
+  .gl-search-box-by-type-input {
+    width: 100%;
+  }
+
+  // Remove once gitlab/ui solution is implemented
+  // https://gitlab.com/gitlab-org/gitlab-ui/-/issues/1158
+  // https://gitlab.com/gitlab-org/gitlab/-/issues/300405
+  .gl-new-dropdown-button-text {
+    @include str-truncated;
+  }
+}
+
+.compare-revision-cards {
+  @media (min-width: $breakpoint-lg) {
+    .gl-card {
+      width: calc(50% - 15px);
+    }
+
+    .compare-ellipsis {
+      width: 30px;
+    }
+  }
+}
+
+.clearable-input {
+  position: relative;
+
+  .clear-icon {
+    display: none;
+    position: absolute;
+    right: 9px;
+    top: 9px;
+  }
+
+  &.has-value {
+    .clear-icon {
+      cursor: pointer;
+      display: block;
+    }
+  }
+}
+
+.project-path {
+  .form-control {
+    min-width: 100px;
+  }
+
+  &.form-group {
+    @include media-breakpoint-up(sm) {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.project-home-empty {
+  border-top: 0;
+
+  .container-fluid {
+    background: none;
+  }
+
+  p {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 650px;
+  }
+}
+
+.project-feature {
+  padding-top: 10px;
+
+  @include media-breakpoint-up(sm) {
+    padding-left: 45px;
+  }
+
+  &.nested {
+    @include media-breakpoint-up(sm) {
+      padding-left: 90px;
+    }
+  }
+}
+
+.services-installation-info .row {
+  margin-bottom: 10px;
+}
+
+.service-installation {
+  padding: 32px;
+  margin: 32px;
+  border-radius: 3px;
+  background-color: $white;
+
+  h3 {
+    margin-top: 0;
+  }
+
+  hr {
+    margin: 32px 0;
+    border-color: $border-color;
+  }
+}
+
+.project-badge {
+  opacity: 0.9;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.project-mirror-settings {
+  .btn-show-advanced {
+    min-width: 135px;
+
+    .label-show {
+      display: none;
+    }
+
+    .label-hide {
+      display: inline;
+    }
+
+    &.show-advanced {
+      .label-show {
+        display: inline;
+      }
+
+      .label-hide {
+        display: none;
+      }
+    }
+  }
+}
+
+.project-filters {
+  .btn svg {
+    color: $gray-700;
+  }
+
+  .button-filter-group {
+    .btn {
+      width: 96px;
+    }
+
+    a {
+      color: $black;
+    }
+
+    .active {
+      background: $btn-active-gray;
+    }
+  }
+
+  .filtered-search-dropdown-label {
+    min-width: 68px;
+
+    @include media-breakpoint-down(xs) {
+      min-width: 60px;
+    }
+  }
+
+  .filtered-search {
+    min-width: 30%;
+    flex-basis: 0;
+
+    .project-filter-form .project-filter-form-field {
+      padding-right: $gl-padding-8;
+    }
+
+    .filtered-search,
+    .filtered-search-nav,
+    .filtered-search-dropdown {
+      flex-basis: 0;
+    }
+
+    @include media-breakpoint-down(lg) {
+      min-width: 15%;
+
+      .project-filter-form-field {
+        min-width: 150px;
+      }
+    }
+
+    @include media-breakpoint-down(md) {
+      min-width: 30%;
+    }
+  }
+
+  .filtered-search-box {
+    border-radius: 3px 0 0 3px;
+  }
+
+  .dropdown-menu-toggle {
+    margin-left: $gl-padding-8;
+  }
+
+  @include media-breakpoint-down(md) {
+    .extended-filtered-search-box {
+      min-width: 55%;
+    }
+
+    .filtered-search-dropdown {
+      width: 50%;
+
+      .dropdown-menu-toggle {
+        width: 100%;
+      }
+    }
+  }
+
+  @include media-breakpoint-down(xs) {
+    .filtered-search-dropdown {
+      width: 100%;
+    }
+  }
+}
+
+@include media-breakpoint-down(xs) {
+  .fork-filtered-search {
+    width: 100%;
+    margin: $gl-spacing-scale-2 0;
+  }
+}

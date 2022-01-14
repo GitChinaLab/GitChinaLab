@@ -1,0 +1,15 @@
+#import "./milestone.fragment.graphql"
+
+query projectIssueMilestone($fullPath: ID!, $iid: String!) {
+  workspace: project(fullPath: $fullPath) {
+    __typename
+    id
+    issuable: issue(iid: $iid) {
+      __typename
+      id
+      attribute: milestone {
+        ...MilestoneFragment
+      }
+    }
+  }
+}

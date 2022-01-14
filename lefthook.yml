@@ -1,0 +1,56 @@
+pre-push:
+  parallel: true
+  commands:
+    danger:
+      run: bundle exec danger dry_run
+    eslint:
+      tags: frontend style
+      files: git diff --name-only --diff-filter=d $(git merge-base origin/master HEAD)..HEAD
+      glob: '*.{js,vue}'
+      run: yarn run lint:eslint {files}
+    haml-lint:
+      tags: view haml style
+      files: git diff --name-only --diff-filter=d $(git merge-base origin/master HEAD)..HEAD
+      glob: '*.html.haml'
+      run: bundle exec haml-lint --config .haml-lint.yml {files}
+    markdownlint:
+      tags: documentation style
+      files: git diff --name-only --diff-filter=d $(git merge-base origin/master HEAD)..HEAD
+      glob: 'doc/*.md'
+      run: yarn markdownlint {files}
+    stylelint:
+      tags: stylesheet css style
+      files: git diff --name-only --diff-filter=d $(git merge-base origin/master HEAD)..HEAD
+      glob: '*.scss{,.css}'
+      run: yarn stylelint {files}
+    prettier:
+      tags: frontend style
+      files: git diff --name-only --diff-filter=d $(git merge-base origin/master HEAD)..HEAD
+      glob: '*.{js,vue,graphql}'
+      run: yarn run prettier --check {files}
+    rubocop:
+      tags: backend style
+      files: git diff --name-only --diff-filter=d $(git merge-base origin/master HEAD)..HEAD
+      glob: '*.rb'
+      run: REVEAL_RUBOCOP_TODO=0 bundle exec rubocop --parallel --force-exclusion {files}
+    graphql_docs:
+      tags: documentation
+      files: git diff --name-only --diff-filter=d $(git merge-base origin/master HEAD)..HEAD
+      glob: '{app/graphql/**/*.rb,ee/app/graphql/**/*.rb}'
+      run: bundle exec rake gitlab:graphql:check_docs
+    vale:  # Requires Vale: https://docs.gitlab.com/ee/development/documentation/#install-linters
+      tags: documentation style
+      files: git diff --name-only --diff-filter=d $(git merge-base origin/master HEAD)..HEAD
+      glob: 'doc/*.md'
+      run: if command -v vale 2> /dev/null; then vale --config .vale.ini --minAlertLevel error {files}; else echo "Vale not found. Install Vale"; fi
+    gettext:
+      skip: true  # This is disabled by default. You can enable this check by adding skip: false in lefhook-local.yml https://github.com/evilmartians/lefthook/blob/master/docs/full_guide.md#skipping-commands
+      tags: backend frontend view haml
+      files: git diff --name-only --diff-filter=d $(git merge-base origin/master HEAD)..HEAD | while read file;do git diff --unified=1 $(git merge-base origin/master HEAD)..HEAD $file | grep -Fqe '_(' && echo $file;done; true
+      glob: "*.{haml,rb,js,vue}"
+      run: bin/rake gettext:updated_check
+    docs-metadata:  # See https://docs.gitlab.com/ee/development/documentation/#metadata
+      tags: documentation style
+      files: git diff --name-only --diff-filter=d $(git merge-base origin/master HEAD)..HEAD
+      glob: 'doc/*.md'
+      run: scripts/lint-docs-metadata.sh {files}

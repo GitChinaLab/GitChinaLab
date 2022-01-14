@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Project remove modal intialized matches the snapshot 1`] = `
+<form
+  action="some/path"
+  method="post"
+>
+  <input
+    name="_method"
+    type="hidden"
+    value="delete"
+  />
+   
+  <input
+    name="authenticity_token"
+    type="hidden"
+    value="test-csrf-token"
+  />
+   
+  <gl-button-stub
+    buttontextclasses=""
+    category="primary"
+    icon=""
+    role="button"
+    size="medium"
+    tabindex="0"
+    variant="danger"
+  >
+    Delete project
+  </gl-button-stub>
+   
+  <div
+    footer-class="gl-bg-gray-10 gl-p-5"
+    ok-variant="danger"
+    title-class="gl-text-red-500"
+  >
+    Delete project. Are you ABSOLUTELY SURE?  
+    <div>
+       
+      <p
+        class="gl-mb-1"
+      >
+        Please type the following to confirm:
+      </p>
+       
+      <p>
+        <code
+          class="gl-white-space-pre-wrap"
+        >
+          foo
+        </code>
+      </p>
+       
+      <gl-form-input-stub
+        id="confirm_name_input"
+        name="confirm_name_input"
+        type="text"
+      />
+       
+    </div>
+  </div>
+</form>
+`;

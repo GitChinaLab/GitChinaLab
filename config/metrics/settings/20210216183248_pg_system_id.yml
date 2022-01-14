@@ -1,0 +1,21 @@
+---
+data_category: optional
+key_path: database.pg_system_id
+description: TBD
+product_section: enablement
+product_stage: enablement
+product_group: group::distribution
+product_category:
+value_type: number
+status: active
+time_frame: all
+data_source: system
+distribution:
+- ce
+- ee
+tier:
+- free
+- premium
+- ultimate
+performance_indicator_type: []
+milestone: "<13.9"

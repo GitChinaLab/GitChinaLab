@@ -1,0 +1,31 @@
+query getState($projectPath: ID!, $iid: String!) {
+  project(fullPath: $projectPath) {
+    id
+    archived
+    onlyAllowMergeIfPipelineSucceeds
+
+    mergeRequest(iid: $iid) {
+      id
+      autoMergeEnabled
+      commitCount
+      conflicts
+      diffHeadSha
+      mergeError
+      mergeStatus
+      mergeableDiscussionsState
+      headPipeline {
+        id
+        status
+        warnings
+      }
+      shouldBeRebased
+      sourceBranchExists
+      state
+      targetBranchExists
+      userPermissions {
+        canMerge
+      }
+      draft
+    }
+  }
+}

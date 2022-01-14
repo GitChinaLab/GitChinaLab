@@ -1,0 +1,51 @@
+@import 'mixins_and_variables_and_functions';
+
+@import '@gitlab/ui/src/scss/bootstrap';
+@import 'bootstrap-vue/src/index';
+
+@import '@gitlab/ui/src/scss/utilities';
+
+// We should only import styles that we actually use.
+@import '@gitlab/ui/src/components/base/alert/alert';
+@import '@gitlab/ui/src/components/base/avatar/avatar';
+@import '@gitlab/ui/src/components/base/button/button';
+@import '@gitlab/ui/src/components/base/icon/icon';
+@import '@gitlab/ui/src/components/base/link/link';
+@import '@gitlab/ui/src/components/base/loading_icon/loading_icon';
+@import '@gitlab/ui/src/components/base/modal/modal';
+@import '@gitlab/ui/src/components/base/pagination/pagination';
+@import '@gitlab/ui/src/components/base/table/table';
+@import '@gitlab/ui/src/components/base/tooltip/tooltip';
+@import '@gitlab/ui/src/components/base/search_box_by_type/search_box_by_type';
+
+$header-height: 40px;
+
+.jira-connect-header {
+  min-height: $header-height;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.jira-connect-user {
+  position: fixed;
+  top: 10px;
+  right: 20px;
+}
+
+.jira-connect-app {
+  margin-top: $header-height;
+  height: calc(100% - #{$header-height});
+  max-width: 1000px;
+}
+
+.jira-connect-app-body {
+  max-width: 768px;
+}
+
+// needed for external_link
+svg.s16 {
+  width: 16px;
+  height: 16px;
+}

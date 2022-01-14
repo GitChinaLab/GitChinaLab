@@ -1,0 +1,307 @@
+.issue-token-link {
+  &[href] {
+    color: $blue-600;
+  }
+
+  &:hover,
+  &:focus {
+    outline: none;
+    text-decoration: none;
+  }
+}
+
+.issue-token-reference {
+  margin-right: 1px;
+  background-color: $gray-lighter;
+  transition: background $general-hover-transition-duration $general-hover-transition-curve, color $general-hover-transition-duration $general-hover-transition-curve;
+
+  .issue-token:hover &,
+  .issue-token-link:focus > & {
+    background-color: $gray-normal;
+    color: $blue-800;
+    text-decoration: none;
+  }
+}
+
+.issue-token-title {
+  background-color: $gray-normal;
+  transition: background $general-hover-transition-duration $general-hover-transition-curve;
+
+  .issue-token:hover &,
+  .issue-token-link:focus > & {
+    background-color: $border-gray-normal;
+  }
+}
+
+.issue-token-remove-button {
+  background-color: $gray-normal;
+  transition: background $general-hover-transition-duration $general-hover-transition-curve;
+
+  &:hover,
+  &:focus,
+  .issue-token:hover &,
+  .issue-token-link:focus + & {
+    background-color: $border-gray-normal;
+    outline: none;
+  }
+}
+
+.issue-realtime-pre-pulse {
+  opacity: 0;
+}
+
+.issue-realtime-trigger-pulse {
+  transition: opacity $fade-in-duration linear;
+  opacity: 1;
+}
+
+ul.related-merge-requests > li gl-emoji {
+  font-size: 1em;
+}
+
+.merge-request-status {
+  &.merged {
+    color: $blue-500;
+  }
+
+  &.closed {
+    color: $red-500;
+  }
+
+  &.open {
+    color: $green-500;
+  }
+}
+
+.merge-request,
+.issue {
+  &.today {
+    background: $issues-today-bg;
+    border-color: $issues-today-border;
+  }
+
+  &.closed,
+  &.merged {
+    background: $gray-light;
+    border-color: $border-color;
+  }
+}
+
+.related-merge-requests {
+  .ci-status-link {
+    display: block;
+    margin-right: 5px;
+  }
+
+  svg {
+    display: block;
+  }
+}
+
+@include media-breakpoint-down(xs) {
+  .detail-page-header {
+    .issuable-meta {
+      line-height: 18px;
+    }
+  }
+}
+
+.issue-form {
+  .select2-container {
+    width: 250px !important;
+  }
+}
+
+.issues-nav-controls {
+  .btn-group:empty {
+    display: none;
+  }
+}
+
+.recaptcha {
+  margin-bottom: 30px;
+}
+
+.new-branch-col {
+  .discussion-filter-container {
+    &:not(:only-child) {
+      margin-right: $gl-padding-8;
+    }
+  }
+}
+
+.create-mr-dropdown-wrap {
+  .ref::selection {
+    color: $gl-text-color-tertiary;
+  }
+
+  .dropdown {
+    .dropdown-menu-toggle {
+      min-width: 285px;
+    }
+
+    .dropdown-select {
+      width: 285px;
+    }
+  }
+
+  .btn-group:not(.hidden) {
+    display: flex;
+  }
+
+  .js-create-merge-request {
+    flex-grow: 1;
+    flex-shrink: 0;
+  }
+
+  .create-merge-request-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    display: none;
+    margin-top: 4px;
+
+    // override dropdown item styles
+    .btn.btn-confirm {
+      @include btn-default;
+      @include btn-blue;
+
+      border-width: 1px;
+      line-height: $line-height-base;
+      width: auto;
+
+      &.disabled {
+        background-color: $gray-light;
+        border-color: $gray-100;
+        color: $gl-text-color-disabled;
+      }
+    }
+  }
+}
+
+.discussion-reply-holder,
+.note-edit-form {
+  display: block;
+}
+
+.issue-sort-dropdown {
+  .btn-group {
+    width: 100%;
+  }
+
+  .reverse-sort-btn {
+    color: $gl-text-color-secondary;
+
+    &.disabled {
+      color: $gl-text-color-disabled;
+    }
+  }
+}
+
+@include media-breakpoint-up(sm) {
+  .emoji-block .row {
+    display: flex;
+
+    .new-branch-col {
+      padding-top: 0;
+      align-self: center;
+    }
+  }
+
+  .create-mr-dropdown-wrap {
+    .btn-group:not(.hidden) {
+      display: inline-flex;
+    }
+  }
+}
+
+@include media-breakpoint-up(lg) {
+  .new-branch-col {
+    text-align: right;
+  }
+}
+
+.issue-details {
+  .card-title {
+    a.anchor {
+      left: -16px;
+      top: 4px;
+      outline: none;
+
+      &::after {
+        content: image-url('icon_anchor.svg');
+        visibility: hidden;
+      }
+    }
+
+    &:hover > a.anchor::after {
+      visibility: visible;
+    }
+  }
+}
+
+.issue-sticky-header {
+  @include gl-left-0;
+  @include gl-w-full;
+  top: $header-height;
+
+  // collapsed right sidebar
+  @include media-breakpoint-up(sm) {
+    width: calc(100% - #{$gutter-collapsed-width});
+  }
+
+  .issue-sticky-header-text {
+    max-width: $limited-layout-width;
+  }
+}
+
+.with-performance-bar .issue-sticky-header {
+  top: $header-height + $performance-bar-height;
+}
+
+@include media-breakpoint-up(md) {
+  // collapsed left sidebar + collapsed right sidebar
+  .issue-sticky-header {
+    left: $contextual-sidebar-collapsed-width;
+    width: calc(100% - #{$contextual-sidebar-collapsed-width} - #{$gutter-collapsed-width});
+  }
+
+  // collapsed left sidebar + expanded right sidebar
+  .right-sidebar-expanded .issue-sticky-header {
+    width: calc(100% - #{$contextual-sidebar-collapsed-width} - #{$gutter-width});
+  }
+}
+
+@include media-breakpoint-up(xl) {
+  // expanded left sidebar + collapsed right sidebar
+  .issue-sticky-header {
+    left: $contextual-sidebar-width;
+    width: calc(100% - #{$contextual-sidebar-width} - #{$gutter-collapsed-width});
+  }
+
+  // collapsed left sidebar + collapsed right sidebar
+  .page-with-icon-sidebar .issue-sticky-header {
+    left: $contextual-sidebar-collapsed-width;
+    width: calc(100% - #{$contextual-sidebar-collapsed-width} - #{$gutter-collapsed-width});
+  }
+
+  // expanded left sidebar + expanded right sidebar
+  .right-sidebar-expanded .issue-sticky-header {
+    width: calc(100% - #{$contextual-sidebar-width} - #{$gutter-width});
+  }
+
+  // collapsed left sidebar + expanded right sidebar
+  .right-sidebar-expanded.page-with-icon-sidebar .issue-sticky-header {
+    width: calc(100% - #{$contextual-sidebar-collapsed-width} - #{$gutter-width});
+  }
+}
+
+.issuable-header-slide-enter-active,
+.issuable-header-slide-leave-active {
+  @include gl-transition-slow;
+}
+
+.issuable-header-slide-enter,
+.issuable-header-slide-leave-to {
+  transform: translateY(-100%);
+}

@@ -1,0 +1,10 @@
+- page_title @application.name, _("Applications")
+
+%h3.page-title
+  Application: #{@application.name}
+
+= render 'shared/doorkeeper/applications/show',
+  edit_path: edit_admin_application_path(@application),
+  delete_path: admin_application_path(@application),
+  index_path: admin_applications_path,
+  show_trusted_row: true

@@ -1,0 +1,10 @@
+%ul.content-list
+  %li
+    .avatar-cell
+      = user_avatar(user: user, size: 40, user_name: user.name)
+    .user-info
+      = link_to user_path(user) do
+        .item-title
+          = user.name
+          = user_status(user)
+        .cgray= user.to_reference

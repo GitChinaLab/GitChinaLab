@@ -1,0 +1,11 @@
+- page_title _("Snippets")
+- header_title _("Snippets"), snippets_path
+- snippets_upload_path = snippets_upload_path(@snippet, current_user)
+
+- content_for :page_specific_javascripts do
+  - if snippets_upload_path
+    = javascript_tag do
+      :plain
+        window.uploads_path = "#{snippets_upload_path}";
+
+= render template: "layouts/application"

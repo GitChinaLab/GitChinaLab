@@ -1,0 +1,36 @@
+#import "~/graphql_shared/fragments/pageInfo.fragment.graphql"
+#import "../fragments/cluster_agent_token.fragment.graphql"
+
+query getClusterAgent(
+  $projectPath: ID!
+  $agentName: String!
+  $first: Int
+  $last: Int
+  $afterToken: String
+  $beforeToken: String
+) {
+  project(fullPath: $projectPath) {
+    id
+    clusterAgent(name: $agentName) {
+      id
+      createdAt
+
+      createdByUser {
+        id
+        name
+      }
+
+      tokens(first: $first, last: $last, before: $beforeToken, after: $afterToken) {
+        count
+
+        nodes {
+          ...Token
+        }
+
+        pageInfo {
+          ...PageInfo
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+query getPipelineHeaderData($fullPath: ID!, $iid: ID!) {
+  project(fullPath: $fullPath) {
+    id
+    pipeline(iid: $iid) {
+      id
+      iid
+      status
+      retryable
+      cancelable
+      userPermissions {
+        destroyPipeline
+        updatePipeline
+      }
+      detailedStatus {
+        id
+        detailsPath
+        icon
+        group
+        text
+      }
+      createdAt
+      user {
+        id
+        name
+        username
+        webPath
+        webUrl
+        email
+        avatarUrl
+        status {
+          message
+          emoji
+        }
+      }
+    }
+  }
+}

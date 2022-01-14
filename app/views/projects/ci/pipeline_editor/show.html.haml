@@ -1,0 +1,7 @@
+- add_page_specific_style 'page_bundles/pipelines'
+
+- page_title s_('Pipelines|Pipeline Editor')
+- content_for :prefetch_asset_tags do
+  - webpack_preload_asset_tag('monaco')
+
+#js-pipeline-editor{ data: js_pipeline_editor_data(@project) }

@@ -1,0 +1,21 @@
+- breadcrumb_title _('Repository')
+- page_title @blob.path, @ref
+- signatures_path = namespace_project_signatures_path(namespace_id: @project.namespace.full_path, project_id: @project.path, id: @last_commit, limit: 1)
+- content_for :prefetch_asset_tags do
+  - webpack_preload_asset_tag('monaco', prefetch: true)
+
+.js-signature-container{ data: { 'signatures-path': signatures_path } }
+
+= render 'projects/last_push'
+
+#tree-holder.tree-holder
+  = render 'blob', blob: @blob
+
+  - if can_modify_blob?(@blob)
+    = render 'projects/blob/remove'
+
+  - title = _("Replace %{blob_name}") % { blob_name: @blob.name }
+  = render 'projects/blob/upload', title: title, placeholder: title, button_title: _('Replace file'), form_path: project_update_blob_path(@project, @id), method: :put
+
+= render partial: 'pipeline_tour_success' if show_suggest_pipeline_creation_celebration?
+= render 'shared/web_ide_path'

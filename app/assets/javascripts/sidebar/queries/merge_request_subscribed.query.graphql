@@ -1,0 +1,11 @@
+query mergeRequestSubscribed($fullPath: ID!, $iid: String!) {
+  workspace: project(fullPath: $fullPath) {
+    __typename
+    id
+    issuable: mergeRequest(iid: $iid) {
+      __typename
+      id
+      subscribed
+    }
+  }
+}

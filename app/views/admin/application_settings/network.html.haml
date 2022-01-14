@@ -1,0 +1,135 @@
+- breadcrumb_title _("Network")
+- page_title _("Network")
+- @content_class = "limit-container-width" unless fluid_layout
+
+%section.settings.as-performance.no-animate#js-performance-settings{ class: ('expanded' if expanded_by_default?) }
+  .settings-header
+    %h4
+      = _('Performance optimization')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _('Various settings that affect GitLab performance.')
+  .settings-content
+    = render 'performance'
+
+%section.settings.as-ip-limits.no-animate#js-ip-limits-settings{ class: ('expanded' if expanded_by_default?), data: { qa_selector: 'ip_limits_content' } }
+  .settings-header
+    %h4
+      = _('User and IP rate limits')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _('Set limits for web and API requests.')
+      = link_to _('Learn more.'), help_page_path('user/admin_area/settings/user_and_ip_rate_limits.md'), target: '_blank', rel: 'noopener noreferrer'
+  .settings-content
+    = render 'ip_limits'
+
+%section.settings.as-packages-limits.no-animate#js-packages-limits-settings{ class: ('expanded' if expanded_by_default?), data: { qa_selector: 'packages_limits_content' } }
+  .settings-header
+    %h4
+      = _('Package registry rate limits')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _('Set rate limits for package registry API requests that supersede the general user and IP rate limits.')
+      = link_to _('Learn more.'), help_page_path('user/admin_area/settings/package_registry_rate_limits.md'), target: '_blank', rel: 'noopener noreferrer'
+  .settings-content
+    = render partial: 'network_rate_limits', locals: { anchor: 'js-packages-limits-settings', setting_fragment: 'packages_api' }
+
+%section.settings.as-files-limits.no-animate#js-files-limits-settings{ class: ('expanded' if expanded_by_default?) }
+  .settings-header
+    %h4
+      = _('Files API Rate Limits')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _('Configure specific limits for Files API requests that supersede the general user and IP rate limits.')
+  .settings-content
+    = render partial: 'network_rate_limits', locals: { anchor: 'js-files-limits-settings', setting_fragment: 'files_api' }
+
+%section.settings.as-deprecated-limits.no-animate#js-deprecated-limits-settings{ class: ('expanded' if expanded_by_default?) }
+  .settings-header
+    %h4
+      = _('Deprecated API rate limits')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _('Configure specific limits for deprecated API requests that supersede the general user and IP rate limits.')
+      = link_to _('Which API requests are affected?'), help_page_path('user/admin_area/settings/deprecated_api_rate_limits.md'), target: '_blank', rel: 'noopener noreferrer'
+  .settings-content
+    = render partial: 'network_rate_limits', locals: { anchor: 'js-deprecated-limits-settings', setting_fragment: 'deprecated_api' }
+
+%section.settings.as-git-lfs-limits.no-animate#js-git-lfs-limits-settings{ class: ('expanded' if expanded_by_default?), data: { qa_selector: 'git_lfs_limits_content' } }
+  .settings-header
+    %h4
+      = _('Git LFS Rate Limits')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _('Configure specific limits for Git LFS requests that supersede the general user and IP rate limits.')
+      = link_to _('Learn more.'), help_page_path('user/admin_area/settings/git_lfs_rate_limits.md'), target: '_blank', rel: 'noopener noreferrer'
+  .settings-content
+    = render 'git_lfs_limits'
+
+%section.settings.as-outbound.no-animate#js-outbound-settings{ class: ('expanded' if expanded_by_default?), data: { qa_selector: 'outbound_requests_content' } }
+  .settings-header
+    %h4
+      = _('Outbound requests')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _('Allow requests to the local network from hooks and services.')
+  .settings-content
+    = render 'outbound'
+
+%section.settings.as-protected-paths.no-animate#js-protected-paths-settings{ class: ('expanded' if expanded_by_default?) }
+  .settings-header
+    %h4
+      = _('Protected paths')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _('Rate limit access to specified paths.')
+      = link_to _('Learn more.'), help_page_path('user/admin_area/settings/protected_paths.md'), target: '_blank', rel: 'noopener noreferrer'
+
+  .settings-content
+    = render 'protected_paths'
+
+%section.settings.as-issue-limits.no-animate#js-issue-limits-settings{ class: ('expanded' if expanded_by_default?) }
+  .settings-header
+    %h4
+      = _('Issues Rate Limits')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _('Limit the number of issues and epics per minute a user can create through web and API requests.')
+      = link_to _('Learn more.'), help_page_path('user/admin_area/settings/rate_limit_on_issues_creation.md'), target: '_blank', rel: 'noopener noreferrer'
+  .settings-content
+    = render 'issue_limits'
+
+%section.settings.as-note-limits.no-animate#js-note-limits-settings{ class: ('expanded' if expanded_by_default?) }
+  .settings-header
+    %h4
+      = _('Notes rate limit')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _('Set the per-user rate limit for notes created by web or API requests.')
+      = link_to _('Learn more.'), help_page_path('user/admin_area/settings/rate_limit_on_notes_creation.md'), target: '_blank', rel: 'noopener noreferrer'
+  .settings-content
+    = render 'note_limits'
+
+%section.settings.as-import-export-limits.no-animate#js-import-export-limits-settings{ class: ('expanded' if expanded_by_default?) }
+  .settings-header
+    %h4
+      = _('Import and export rate limits')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _('Set per-user rate limits for imports and exports of projects and groups.')
+      = link_to _('Learn more.'), help_page_path('user/admin_area/settings/import_export_rate_limits.md'), target: '_blank', rel: 'noopener noreferrer'
+  .settings-content
+    = render 'import_export_limits'
+
+= render_if_exists 'admin/application_settings/ee_network_settings'

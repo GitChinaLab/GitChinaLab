@@ -1,0 +1,17 @@
+-# We currently only support `alert`, `notice`, `success`, 'toast', and 'raw'
+- icons = {'alert' => 'error', 'notice' => 'information-o', 'success' => 'check-circle'}
+.flash-container.flash-container-page.sticky{ data: { qa_selector: 'flash_container' } }
+  - flash.each do |key, value|
+    - if key == 'toast' && value
+      .js-toast-message{ data: { message: value } }
+    - elsif key == 'raw' && value
+      = value
+    - elsif value == I18n.t('devise.failure.unconfirmed')
+      = render 'shared/confirm_your_email_alert'
+    - elsif value
+      %div{ class: "flash-#{key} mb-2" }
+        = sprite_icon(icons[key], css_class: 'align-middle mr-1') unless icons[key].nil?
+        %span= value
+        - if %w(alert notice success).include?(key)
+          %div{ class: "close-icon-wrapper js-close-icon" }
+            = sprite_icon('close', css_class: 'close-icon gl-vertical-align-baseline!')

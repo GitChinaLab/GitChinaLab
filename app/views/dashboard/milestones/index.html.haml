@@ -1,0 +1,27 @@
+- @hide_top_links = true
+- page_title _('Milestones')
+- header_title _('Milestones'), dashboard_milestones_path
+- add_page_specific_style 'page_bundles/milestone'
+
+.page-title-holder.d-flex.align-items-center
+  %h1.page-title= _('Milestones')
+
+  - if current_user
+    .page-title-controls
+      = render 'shared/new_project_item_select',
+        path: '-/milestones/new', label: 'New milestone',
+        include_groups: true, type: :milestones
+
+.top-area
+  = render 'shared/milestones_filter', counts: @milestone_states
+  .nav-controls
+    = render 'shared/milestones/search_form'
+
+- if @milestones.blank?
+  = render 'shared/empty_states/milestones'
+- else
+  .milestones
+    %ul.content-list
+      - @milestones.each do |milestone|
+        = render 'milestone', milestone: milestone
+    = paginate @milestones, theme: 'gitlab'

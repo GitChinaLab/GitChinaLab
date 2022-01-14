@@ -1,0 +1,24 @@
+{
+  "type": "array",
+  "items": {
+    "minItems": 2,
+    "maxItems": 3,
+    "type": "object",
+    "required": ["value", "title"],
+    "properties": {
+      "value": {
+        "type": "string"
+      },
+      "title": {
+        "type": "string"
+      },
+      "unit": {
+        "type": "string"
+      },
+      "links": {
+        "type": "array"
+      }
+    },
+    "additionalProperties": false
+  }
+}

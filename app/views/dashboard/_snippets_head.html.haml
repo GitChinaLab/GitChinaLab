@@ -1,0 +1,12 @@
+.page-title-holder.d-flex.align-items-center
+  %h1.page-title= _('Snippets')
+
+  - if current_user && current_user.snippets.any? || @snippets.any?
+    .page-title-controls
+      - if can?(current_user, :create_snippet)
+        = link_to _("New snippet"), new_snippet_path, class: "gl-button btn btn-confirm", title: _("New snippet")
+
+.top-area
+  = gl_tabs_nav({ class: 'gl-border-0' }) do
+    = gl_tab_link_to _('Your snippets'), dashboard_snippets_path, { title: _('Your snippets') }
+    = gl_tab_link_to _('Explore snippets'), explore_snippets_path, { title: _('Explore snippets') }

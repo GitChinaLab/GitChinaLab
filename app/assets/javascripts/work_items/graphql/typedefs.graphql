@@ -1,0 +1,60 @@
+enum LocalWorkItemType {
+  FEATURE
+}
+
+enum LocalWidgetType {
+  TITLE
+}
+
+interface LocalWorkItemWidget {
+  type: LocalWidgetType!
+}
+
+# Replicating Relay connection type for client schema
+type LocalWorkItemWidgetEdge {
+  cursor: String!
+  node: LocalWorkItemWidget
+}
+
+type LocalWorkItemWidgetConnection {
+  edges: [LocalWorkItemWidgetEdge]
+  nodes: [LocalWorkItemWidget]
+  pageInfo: PageInfo!
+}
+
+type LocalTitleWidget implements LocalWorkItemWidget {
+  type: LocalWidgetType!
+  contentText: String!
+}
+
+type LocalWorkItem {
+  id: ID!
+  type: LocalWorkItemType!
+  widgets: [LocalWorkItemWidgetConnection]
+}
+
+input LocalCreateWorkItemInput {
+  title: String!
+}
+
+input LocalUpdateWorkItemInput {
+  id: ID!
+  title: String
+}
+
+type LocalCreateWorkItemPayload {
+  workItem: LocalWorkItem!
+}
+
+type LocalUpdateWorkItemPayload {
+  workItem: LocalWorkItem!
+}
+
+extend type Query {
+  workItem(id: ID!): LocalWorkItem!
+}
+
+extend type Mutation {
+  localCreateWorkItem(input: LocalCreateWorkItemInput!): LocalCreateWorkItemPayload!
+  localUpdateWorkItem(input: LocalUpdateWorkItemInput!): LocalUpdateWorkItemPayload!
+}

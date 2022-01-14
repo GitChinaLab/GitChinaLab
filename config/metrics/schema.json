@@ -1,0 +1,108 @@
+{
+  "type": "object",
+  "required": ["key_path", "description", "value_type", "status", "product_group", "product_section", "product_stage", "time_frame", "data_source", "distribution", "tier", "data_category", "milestone"],
+  "properties": {
+    "key_path": {
+      "type": "string"
+    },
+    "name": {
+      "type": ["string", "null"],
+      "pattern": "^([a-z]+_)*[a-z]+$"
+    },
+    "description": {
+      "type": "string"
+    },
+    "product_section": {
+      "type": ["string"]
+    },
+    "product_stage": {
+      "type": ["string"]
+    },
+    "product_group": {
+      "type": "string"
+    },
+    "product_category": {
+      "type": ["string", "null"]
+    },
+    "value_type": {
+      "type": "string",
+      "enum": ["string", "number", "boolean", "object"]
+    },
+    "status": {
+      "type": ["string"],
+      "enum": ["active", "deprecated", "removed", "broken"]
+    },
+    "milestone": {
+      "type": ["string"],
+      "pattern": "^<?[0-9]+\\.[0-9]+$"
+    },
+    "milestone_removed": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "introduced_by_url": {
+      "type": ["string", "null"]
+    },
+    "repair_issue_url": {
+      "type": ["string"]
+    },
+    "options": {
+      "type": "object"
+    },
+    "time_frame": {
+      "type": "string",
+      "enum": ["7d", "28d", "all", "none"]
+    },
+    "data_source": {
+      "type": "string",
+      "enum": ["database", "redis", "redis_hll", "prometheus", "system", "license"]
+    },
+    "data_category": {
+      "type": "string",
+      "enum": ["Operational", "Optional", "Subscription", "Standard", "operational", "optional", "subscription", "standard"]
+    },
+    "instrumentation_class": {
+      "type": "string",
+      "pattern": "^(([A-Z][a-z]+)+::)*(([A-Z]+[a-z]+)+)$"
+    },
+    "distribution": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["ee", "ce"]
+      }
+    },
+    "performance_indicator_type": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["gmau", "smau", "paid_gmau", "umau"]
+      }
+    },
+    "tier": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["free", "starter", "premium", "ultimate", "bronze", "silver", "gold"]
+      }
+    },
+    "skip_validation": {
+      "type": "boolean"
+    },
+    "value_json_schema": {
+      "type": "string"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": { "const": "broken" }
+        }
+      },
+      "then": {
+        "required": ["repair_issue_url"]
+      }
+    }
+  ]
+}

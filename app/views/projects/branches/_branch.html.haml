@@ -1,0 +1,85 @@
+- merged = local_assigns.fetch(:merged, false)
+- commit = @repository.commit(branch.dereferenced_target)
+- merge_project = merge_request_source_project_for_project(@project)
+%li{ class: "branch-item js-branch-item js-branch-#{branch.name}", data: { name: branch.name } }
+  .branch-info
+    .branch-title
+      = sprite_icon('branch', size: 12, css_class: 'gl-flex-shrink-0')
+      = link_to project_tree_path(@project, branch.name), class: 'item-title str-truncated-100 ref-name gl-ml-3 qa-branch-name' do
+        = branch.name
+      - if branch.name == @repository.root_ref
+        %span.badge.gl-badge.sm.badge-pill.badge-primary.gl-ml-2 default
+      - elsif merged
+        %span.badge.gl-badge.sm.badge-pill.badge-info.has-tooltip.gl-ml-2{ title: s_('Branches|Merged into %{default_branch}') % { default_branch: @repository.root_ref } }
+          = s_('Branches|merged')
+
+      - if protected_branch?(@project, branch)
+        %span.badge.gl-badge.sm.badge-pill.badge-success.gl-ml-2
+          = s_('Branches|protected')
+
+      = render_if_exists 'projects/branches/diverged_from_upstream', branch: branch
+
+    .block-truncated
+      - if commit
+        = render 'projects/branches/commit', commit: commit, project: @project
+      - else
+        = s_('Branches|Can’t find HEAD commit for this branch')
+
+  - if branch.name != @repository.root_ref
+    .js-branch-divergence-graph
+
+  .controls.d-none.d-md-block<
+    - if commit_status
+      = render 'ci/status/icon', size: 24, status: commit_status, option_css_classes: 'gl-display-inline-flex gl-vertical-align-middle gl-mr-5'
+    - elsif show_commit_status
+      .gl-display-inline-flex.gl-vertical-align-middle.gl-mr-5
+        %svg.s24
+
+    - if merge_project && create_mr_button?(from: @repository.root_ref, to: branch.name, source_project: @project, target_project: @project)
+      = link_to create_mr_path(from: @repository.root_ref, to: branch.name, source_project: @project, target_project: @project), class: 'gl-button btn btn-default' do
+        = _('Merge request')
+
+    - if branch.name != @repository.root_ref
+      = link_to project_compare_index_path(@project, from: @repository.root_ref, to: branch.name),
+        class: "gl-button btn btn-default js-onboarding-compare-branches #{'gl-ml-3' unless merge_project}",
+        method: :post,
+        title: s_('Branches|Compare') do
+        = s_('Branches|Compare')
+
+    = render 'projects/buttons/download', project: @project, ref: branch.name, pipeline: @refs_pipelines[branch.name], class: 'gl-vertical-align-top'
+
+    - if Feature.enabled?(:delete_branch_confirmation_modals, @project, default_enabled: :yaml)
+      = render 'projects/branches/delete_branch_modal_button', project: @project, branch: branch, merged: merged
+
+    - elsif can?(current_user, :push_code, @project)
+      - if branch.name == @project.repository.root_ref
+        - delete_default_branch_tooltip = s_('Branches|The default branch cannot be deleted')
+        %span.gl-display-inline-block.has-tooltip{ title: delete_default_branch_tooltip }
+          %button{ class: 'gl-button btn btn-default btn-icon disabled', disabled: true, 'aria-label' => delete_default_branch_tooltip }
+            = sprite_icon('remove', css_class: 'gl-button-icon gl-icon')
+      - elsif protected_branch?(@project, branch)
+        - if can?(current_user, :push_to_delete_protected_branch, @project)
+          - delete_protected_branch_tooltip = s_('Branches|Delete protected branch')
+          %button{ class: 'gl-button btn btn-default btn-icon has-tooltip',
+            title: delete_protected_branch_tooltip,
+            'aria-label' => delete_protected_branch_tooltip,
+            data: { toggle: 'modal',
+              target: '#modal-delete-branch',
+              delete_path: project_branch_path(@project, branch.name),
+              branch_name: branch.name,
+              is_merged: ('true' if merged) } }
+            = sprite_icon('remove', css_class: 'gl-button-icon gl-icon')
+        - else
+          - delete_protected_branch_disabled_tooltip = s_('Branches|Only a project maintainer or owner can delete a protected branch')
+          %span.has-tooltip{ title: delete_protected_branch_disabled_tooltip }
+            %button{ class: 'gl-button btn btn-default btn-icon disabled', disabled: true, 'aria-label' => delete_protected_branch_disabled_tooltip, data: { testid: 'remove-protected-branch' } }
+              = sprite_icon('remove', css_class: 'gl-button-icon gl-icon')
+      - else
+        = link_to project_branch_path(@project, branch.name),
+          class: 'gl-button btn btn-default btn-icon js-remove-row qa-remove-btn js-ajax-loading-spinner has-tooltip',
+          title: s_('Branches|Delete branch'),
+          method: :delete,
+          data: { confirm: s_("Branches|Deleting the '%{branch_name}' branch cannot be undone. Are you sure?") % { branch_name: branch.name } },
+          remote: true,
+          'aria-label' => s_('Branches|Delete branch') do
+          = sprite_icon('remove', css_class: 'gl-button-icon gl-icon')

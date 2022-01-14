@@ -1,0 +1,15 @@
+fragment RunnerNode on CiRunner {
+  id
+  description
+  runnerType
+  shortSha
+  version
+  revision
+  ipAddress
+  active
+  locked
+  jobCount
+  tagList
+  contactedAt
+  status(legacyMode: null)
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "title",
+    "y_label",
+    "metrics"
+  ],
+  "properties": {
+    "title": { "type": "string" },
+    "id": { "type": "string" },
+    "type": { "type": "string" },
+    "y_label": { "type": "string" },
+    "y_axis": { "$ref": "spec/fixtures/lib/gitlab/metrics/dashboard/schemas/axis.json" },
+    "max_value": { "type": "number" },
+    "metrics": {
+      "type": "array",
+      "items": { "$ref": "spec/fixtures/lib/gitlab/metrics/dashboard/schemas/metrics.json" }
+    }
+  },
+  "additionalProperties": false
+}

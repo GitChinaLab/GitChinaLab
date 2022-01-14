@@ -1,0 +1,20 @@
+- add_page_startup_graphql_call('snippet/snippet', { ids: [@snippet.to_global_id.uri] })
+- add_page_startup_graphql_call('snippet/snippet_blob_content', { ids: [@snippet.to_global_id.uri], rich: false, paths: [@snippet.file_name] })
+- if @snippet.project_id?
+  - add_page_startup_graphql_call('snippet/project_permissions', { fullPath: @snippet.project_id })
+- else
+  - add_page_startup_graphql_call('snippet/user_permissions')
+- @hide_top_links = true
+- @content_class = "limit-container-width limited-inner-width-container" unless fluid_layout
+- add_to_breadcrumbs _("Snippets"), dashboard_snippets_path
+- breadcrumb_title @snippet.to_reference
+- page_title "#{@snippet.title} (#{@snippet.to_reference})", _("Snippets")
+- content_for :prefetch_asset_tags do
+  - webpack_preload_asset_tag('monaco', prefetch: true)
+
+#js-snippet-view{ data: {'qa-selector': 'snippet_view', 'snippet-gid': @snippet.to_global_id, 'report-abuse-path': snippet_report_abuse_path(@snippet), 'can-report-spam': @snippet.submittable_as_spam_by?(current_user).to_s } }
+
+.row-content-block.top-block.content-component-block
+  = render 'award_emoji/awards_block', awardable: @snippet, inline: true
+
+#notes.limited-width-notes= render "shared/notes/notes_with_form", :autocomplete => false

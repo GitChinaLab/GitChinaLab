@@ -1,0 +1,10 @@
+query sourceContent($project: ID!, $sourcePath: String!) {
+  project(fullPath: $project) {
+    id
+    fullPath
+    file(path: $sourcePath) @client {
+      title
+      content
+    }
+  }
+}

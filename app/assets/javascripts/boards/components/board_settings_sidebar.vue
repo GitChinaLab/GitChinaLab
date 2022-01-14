@@ -1,0 +1,126 @@
+<script>
+import { GlButton, GlDrawer, GlLabel } from '@gitlab/ui';
+import { MountingPortal } from 'portal-vue';
+import { mapActions, mapState, mapGetters } from 'vuex';
+import { LIST, ListType, ListTypeTitles } from '~/boards/constants';
+import { isScopedLabel } from '~/lib/utils/common_utils';
+import { __ } from '~/locale';
+import eventHub from '~/sidebar/event_hub';
+import Tracking from '~/tracking';
+import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
+
+export default {
+  listSettingsText: __('List settings'),
+  components: {
+    GlButton,
+    GlDrawer,
+    GlLabel,
+    MountingPortal,
+    BoardSettingsSidebarWipLimit: () =>
+      import('ee_component/boards/components/board_settings_wip_limit.vue'),
+    BoardSettingsListTypes: () =>
+      import('ee_component/boards/components/board_settings_list_types.vue'),
+  },
+  mixins: [glFeatureFlagMixin(), Tracking.mixin()],
+  inject: ['canAdminList', 'scopedLabelsAvailable'],
+  inheritAttrs: false,
+  data() {
+    return {
+      ListType,
+    };
+  },
+  computed: {
+    ...mapGetters(['isSidebarOpen', 'isEpicBoard']),
+    ...mapState(['activeId', 'sidebarType', 'boardLists']),
+    isWipLimitsOn() {
+      return this.glFeatures.wipLimits && !this.isEpicBoard;
+    },
+    activeList() {
+      return this.boardLists[this.activeId] || {};
+    },
+    activeListLabel() {
+      return this.activeList.label;
+    },
+    boardListType() {
+      return this.activeList.type || this.activeList.listType || null;
+    },
+    listTypeTitle() {
+      return ListTypeTitles[ListType.label];
+    },
+    showSidebar() {
+      return this.sidebarType === LIST;
+    },
+  },
+  created() {
+    eventHub.$on('sidebar.closeAll', this.unsetActiveId);
+  },
+  beforeDestroy() {
+    eventHub.$off('sidebar.closeAll', this.unsetActiveId);
+  },
+  methods: {
+    ...mapActions(['unsetActiveId', 'removeList']),
+    showScopedLabels(label) {
+      return this.scopedLabelsAvailable && isScopedLabel(label);
+    },
+    deleteBoard() {
+      // eslint-disable-next-line no-alert
+      if (window.confirm(__('Are you sure you want to remove this list?'))) {
+        this.track('click_button', { label: 'remove_list' });
+        this.removeList(this.activeId);
+        this.unsetActiveId();
+      }
+    },
+  },
+};
+</script>
+
+<template>
+  <mounting-portal mount-to="#js-right-sidebar-portal" name="board-settings-sidebar" append>
+    <gl-drawer
+      v-if="showSidebar"
+      v-bind="$attrs"
+      class="js-board-settings-sidebar gl-absolute"
+      :open="isSidebarOpen"
+      variant="sidebar"
+      @close="unsetActiveId"
+    >
+      <template #title>
+        <h2 class="gl-my-0 gl-font-size-h2 gl-line-height-24">
+          {{ $options.listSettingsText }}
+        </h2>
+      </template>
+      <template #header>
+        <div v-if="canAdminList && activeList.id" class="gl-mt-3">
+          <gl-button
+            variant="danger"
+            category="secondary"
+            size="small"
+            data-testid="remove-list"
+            @click.stop="deleteBoard"
+            >{{ __('Remove list') }}
+          </gl-button>
+        </div>
+      </template>
+      <template v-if="isSidebarOpen">
+        <div v-if="boardListType === ListType.label">
+          <label class="js-list-label gl-display-block">{{ listTypeTitle }}</label>
+          <gl-label
+            :title="activeListLabel.title"
+            :background-color="activeListLabel.color"
+            :scoped="showScopedLabels(activeListLabel)"
+          />
+        </div>
+
+        <board-settings-list-types
+          v-else
+          :active-list="activeList"
+          :board-list-type="boardListType"
+        />
+        <board-settings-sidebar-wip-limit
+          v-if="isWipLimitsOn"
+          :max-issue-count="activeList.maxIssueCount"
+        />
+      </template>
+    </gl-drawer>
+  </mounting-portal>
+</template>

@@ -1,0 +1,23 @@
+#import "../fragments/design.fragment.graphql"
+#import "../fragments/version.fragment.graphql"
+
+mutation uploadDesign($files: [Upload!]!, $projectPath: ID!, $iid: ID!) {
+  designManagementUpload(input: { projectPath: $projectPath, iid: $iid, files: $files }) {
+    # eslint-disable-next-line @graphql-eslint/require-id-when-available
+    designs {
+      ...DesignItem
+      versions {
+        __typename
+        nodes {
+          __typename
+          ...VersionListItem
+        }
+      }
+    }
+    skippedDesigns {
+      id
+      filename
+    }
+    errors
+  }
+}

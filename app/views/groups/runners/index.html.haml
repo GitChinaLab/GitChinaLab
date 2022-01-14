@@ -1,0 +1,6 @@
+- page_title s_('Runners|Runners')
+
+%h2.page-title
+  = s_('Runners|Group Runners')
+
+#js-group-runners{ data: group_runners_data_attributes(@group).merge( { group_runners_limited_count: @group_runners_limited_count } ) }

@@ -1,0 +1,49 @@
+- parent = @group.parent
+- group_path = root_url
+- group_path << parent.full_path + '/' if parent
+
+.row
+  .form-group.group-name-holder.col-sm-12
+    = f.label :name, class: 'label-bold' do
+      = _("Group name")
+    = f.text_field :name, placeholder: _('My Awesome Group'), class: 'js-autofill-group-name form-control input-lg', data: { qa_selector: 'group_name_field' },
+      required: true,
+      title: _('Please fill in a descriptive name for your group.'),
+      autofocus: true
+
+.row
+  .form-group.col-xs-12.col-sm-8
+    = f.label :path, class: 'label-bold' do
+      = _("Group URL")
+    .input-group.gl-field-error-anchor
+      .group-root-path.input-group-prepend.has-tooltip{ title: group_path, :'data-placement' => 'bottom' }
+        .input-group-text
+          %span>= root_url
+          - if parent
+            %strong= parent.full_path + '/'
+      = f.hidden_field :parent_id
+      = f.text_field :path, placeholder: _('my-awesome-group'), class: 'form-control js-validate-group-path js-autofill-group-path', data: { qa_selector: 'group_path_field' },
+        autofocus: local_assigns[:autofocus] || false, required: true,
+        pattern: Gitlab::PathRegex::NAMESPACE_FORMAT_REGEX_JS,
+        title: group_url_error_message,
+        maxlength: ::Namespace::URL_MAX_LENGTH,
+        "data-bind-in" => "#{'create_chat_team' if Gitlab.config.mattermost.enabled}"
+    %p.validation-error.gl-field-error.field-validation.hide
+      = _("Group path is already taken. We've suggested one that is available.")
+    %p.validation-success.gl-field-success.field-validation.hide= _('Group path is available.')
+    %p.validation-pending.gl-field-error-ignore.field-validation.hide= _('Checking group URL availability...')
+
+    - if @group.persisted?
+      .gl-alert.gl-alert-warning.gl-mt-3.gl-mb-3
+        = sprite_icon('warning', size: 16, css_class: 'gl-icon gl-alert-icon gl-alert-icon-no-title')
+        .gl-alert-body
+          = _('Changing group URL can have unintended side effects.')
+          = succeed '.' do
+            = link_to _('Learn more'), help_page_path('user/group/index', anchor: 'change-a-groups-path'), target: '_blank', class: 'gl-link'
+
+- if @group.persisted?
+  .row
+    .form-group.group-name-holder.col-sm-8
+      = f.label :id, class: 'label-bold' do
+        = _("Group ID")
+      = f.text_field :id, class: 'form-control', readonly: true

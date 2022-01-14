@@ -1,0 +1,21 @@
+---
+data_category: optional
+key_path: usage_activity_by_stage_monthly.manage.projects_imported.gitea
+description: Count of projects imported from Gitea
+product_section: dev
+product_stage: manage
+product_group: group::import
+product_category: importers
+value_type: number
+status: deprecated
+time_frame: 28d
+data_source: database
+distribution:
+- ce
+- ee
+tier:
+- free
+- premium
+- ultimate
+performance_indicator_type: []
+milestone: "<13.9"

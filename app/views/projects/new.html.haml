@@ -1,0 +1,39 @@
+- @hide_breadcrumbs = true
+- @hide_top_links = true
+- page_title    _('New Project')
+- header_title  _("Projects"), dashboard_projects_path
+- add_page_specific_style 'page_bundles/new_namespace'
+
+.project-edit-container.gl-mt-5
+  .project-edit-errors
+    = render 'projects/errors'
+
+  .js-new-project-creation{ data: { is_ci_cd_available: (ci_cd_projects_available? if Gitlab.ee?).to_s, has_errors: @project.errors.any?.to_s, new_project_guidelines: brand_new_project_guidelines, push_to_create_project_command: push_to_create_project_command, working_with_projects_help_path: help_page_path("user/project/working_with_projects") } }
+
+  .row{ 'v-cloak': true }
+    #blank-project-pane.tab-pane.active
+      = form_for @project, html: { class: 'new_project gl-mt-3' } do |f|
+        = render 'new_project_fields', f: f, project_name_id: "blank-project-name"
+
+    #create-from-template-pane.tab-pane
+      .gl-card.gl-my-5
+        .gl-card-body
+          %div
+            - contributing_templates_url = 'https://gitlab.com/gitlab-org/project-templates/contributing'
+            - link_start = '<a href="%{url}" target="_blank" rel="noopener noreferrer">'.html_safe % { url: contributing_templates_url }
+            = _('Learn how to %{link_start}contribute to the built-in templates%{link_end}').html_safe % { link_start: link_start, link_end: '</a>'.html_safe }
+      = form_for @project, html: { class: 'new_project' } do |f|
+        .project-template
+          .form-group
+            %div
+              = render 'project_templates', f: f, project: @project
+
+    #import-project-pane.tab-pane.js-toggle-container
+      - if import_sources_enabled?
+        = render 'import_project_pane'
+      - else
+        .nothing-here-block
+          %h4= s_('ProjectsNew|No import options available')
+          %p= s_('ProjectsNew|Contact an administrator to enable options for importing your project.')
+
+    = render_if_exists 'projects/new_ci_cd_only_project_pane'

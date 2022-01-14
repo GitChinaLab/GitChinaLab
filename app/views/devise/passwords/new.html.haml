@@ -1,0 +1,20 @@
+.login-box
+  .login-body
+    = form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: 'gl-show-field-errors' }) do |f|
+      .devise-errors
+        = render "devise/shared/error_messages", resource: resource
+      .form-group
+        = f.label :email
+        = f.email_field :email, class: "form-control gl-form-input", required: true, value: params[:user_email], autofocus: true, title: _('Please provide a valid email address.')
+        .form-text.text-muted
+          = _('Requires your primary GitLab email address.')
+
+      %div
+      - if recaptcha_enabled?
+        = recaptcha_tags nonce: content_security_policy_nonce
+
+      .gl-mt-5
+        = f.submit _("Reset password"), class: "gl-button btn-confirm btn"
+
+.clearfix.prepend-top-20
+  = render 'devise/shared/sign_in_link'

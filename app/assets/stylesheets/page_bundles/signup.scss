@@ -1,0 +1,36 @@
+@import 'mixins_and_variables_and_functions';
+
+.signup-page {
+  .devise-errors {
+    h2 {
+      font-size: $gl-font-size;
+      color: var(--red-700, $red-700);
+    }
+  }
+
+  .omniauth-divider {
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--gray-100, $gray-100);
+      margin: $gl-padding-24 0;
+    }
+
+    &::before {
+      margin-right: $gl-padding;
+    }
+
+    &::after {
+      margin-left: $gl-padding;
+    }
+  }
+
+  .decline-page {
+    width: 350px;
+  }
+}
+
+.edit-profile {
+  max-width: 460px;
+}

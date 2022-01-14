@@ -1,0 +1,13 @@
+.form-group.row.js-template-warning.hidden.js-issuable-template-warning
+  .col-sm-12
+    .warning_message.mb-0{ role: 'alert' }
+      %btn.js-close-btn.js-dismiss-btn.close{ type: "button", "aria-hidden": "true", "aria-label": _("Close") }
+        = sprite_icon("close")
+
+      %p
+        = _("Applying a template will replace the existing issue description. Any changes you have made will be lost.")
+
+      %button.js-override-template.btn.gl-button.btn-confirm.mr-2{ type: 'button' }
+        = _("Apply template")
+      %button.js-close-btn.js-cancel-btn.btn.gl-button.btn-default{ type: 'button' }
+        = _("Cancel")

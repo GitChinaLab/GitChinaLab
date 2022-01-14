@@ -1,0 +1,24 @@
+---
+data_category: optional
+key_path: analytics_unique_visits.analytics_unique_visits_for_any_target_monthly
+description: Unique visitors to any analytics feature by month
+product_section: dev
+product_stage: manage
+product_group: group::optimize
+product_category:
+value_type: number
+status: active
+time_frame: 28d
+data_source: redis_hll
+distribution:
+- ce
+- ee
+tier:
+- free
+- premium
+- ultimate
+performance_indicator_type:
+- smau
+- gmau
+- paid_gmau
+milestone: "<13.9"

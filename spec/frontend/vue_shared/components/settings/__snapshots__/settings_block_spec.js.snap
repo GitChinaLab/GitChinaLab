@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Settings Block renders the correct markup 1`] = `
+<section
+  class="settings"
+>
+  <div
+    class="settings-header"
+  >
+    <h4>
+      <span
+        aria-controls="settings_content_3"
+        aria-expanded="false"
+        class="gl-cursor-pointer"
+        data-testid="section-title-button"
+        id="settings_label_2"
+        role="button"
+        tabindex="0"
+      >
+        <div
+          data-testid="title-slot"
+        />
+      </span>
+    </h4>
+     
+    <gl-button-stub
+      aria-controls="settings_content_3"
+      aria-expanded="false"
+      aria-label="Expand settings section"
+      buttontextclasses=""
+      category="primary"
+      icon=""
+      size="medium"
+      variant="default"
+    >
+      
+      Expand
+    
+    </gl-button-stub>
+     
+    <p>
+      <div
+        data-testid="description-slot"
+      />
+    </p>
+  </div>
+   
+  <div
+    aria-labelledby="settings_label_2"
+    class="settings-content"
+    id="settings_content_3"
+    role="region"
+    style="display: none;"
+    tabindex="-1"
+  >
+    <div
+      data-testid="default-slot"
+    />
+  </div>
+</section>
+`;

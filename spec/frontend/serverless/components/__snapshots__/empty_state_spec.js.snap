@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EmptyStateComponent should render content 1`] = `
+"<section class=\\"row empty-state text-center\\">
+  <div class=\\"col-12\\">
+    <div class=\\"svg-250 svg-content\\"><img src=\\"/image.svg\\" alt=\\"\\" role=\\"img\\" class=\\"gl-max-w-full\\"></div>
+  </div>
+  <div class=\\"col-12\\">
+    <div class=\\"text-content gl-mx-auto gl-my-0 gl-p-5\\">
+      <h1 class=\\"gl-font-size-h-display gl-line-height-36 h4\\">
+        Getting started with serverless
+      </h1>
+      <p class=\\"gl-mt-3\\">In order to start using functions as a service, you must first install Knative on your Kubernetes cluster. <gl-link-stub href=\\"/help\\">More information</gl-link-stub>
+      </p>
+      <div class=\\"gl-display-flex gl-flex-wrap gl-justify-content-center\\">
+        <!---->
+        <!---->
+      </div>
+    </div>
+  </div>
+</section>"
+`;

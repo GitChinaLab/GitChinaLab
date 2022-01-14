@@ -1,0 +1,29 @@
+workhorse:verify:
+  extends: .workhorse:rules:workhorse
+  image: ${GITLAB_DEPENDENCY_PROXY}golang:1.16
+  stage: test
+  needs: []
+  script:
+    - make -C workhorse # test build
+    - make -C workhorse verify
+
+.workhorse:test:
+  extends: .workhorse:rules:workhorse
+  variables:
+    GITALY_ADDRESS: "tcp://127.0.0.1:8075"
+  stage: test
+  needs:
+    - setup-test-env
+  script:
+    - go version
+    - apt-get update && apt-get -y install libimage-exiftool-perl
+    - scripts/gitaly-test-build
+    - make -C workhorse test
+
+workhorse:test using go 1.16:
+  extends: .workhorse:test
+  image: ${REGISTRY_HOST}/${REGISTRY_GROUP}/gitlab-build-images:ruby-2.7-golang-1.16-git-2.31
+
+workhorse:test using go 1.17:
+  extends: .workhorse:test
+  image: ${REGISTRY_HOST}/${REGISTRY_GROUP}/gitlab-build-images:ruby-2.7-golang-1.17-git-2.31

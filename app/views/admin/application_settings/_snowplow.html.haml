@@ -1,0 +1,36 @@
+- expanded = integration_expanded?('snowplow_')
+%section.settings.as-snowplow.no-animate#js-snowplow-settings{ class: ('expanded' if expanded), data: { qa_selector: 'snowplow_settings_content' } }
+  .settings-header
+    %h4
+      = _('Snowplow')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded ? _('Collapse') : _('Expand')
+    %p
+      - link_start = '<a href="%{url}">'.html_safe % { url: help_page_path('development/snowplow/index') }
+      = html_escape(_('Configure %{link} to track events. %{link_start}Learn more.%{link_end}')) % { link: link_to('Snowplow', 'https://snowplowanalytics.com/', target: '_blank', rel: 'noopener noreferrer').html_safe, link_start: link_start, link_end: '</a>'.html_safe }
+  .settings-content
+    = form_for @application_setting, url: general_admin_application_settings_path(anchor: 'js-snowplow-settings'), html: { class: 'fieldset-form', id: 'snowplow-settings' } do |f|
+      = form_errors(@application_setting) if expanded
+
+      %fieldset
+        .form-group
+          .form-check
+            = f.check_box :snowplow_enabled, class: 'form-check-input', data: { qa_selector: 'snowplow_enabled_checkbox' }
+            = f.label :snowplow_enabled, _('Enable Snowplow tracking'), class: 'form-check-label'
+        .form-group
+          = f.label :snowplow_collector_hostname, _('Collector hostname'), class: 'label-light'
+          = f.text_field :snowplow_collector_hostname, class: 'form-control gl-form-input', placeholder: 'snowplow.example.com'
+          .form-text.text-muted
+            = _('The hostname of your Snowplow collector.')
+        .form-group
+          = f.label :snowplow_app_id, _('App ID'), class: 'label-light'
+          = f.text_field :snowplow_app_id, class: 'form-control gl-form-input', placeholder: 'gitlab'
+          .form-text.text-muted
+            = _('The ID of the application.')
+        .form-group
+          = f.label :snowplow_cookie_domain, _('Cookie domain'), class: 'label-light'
+          = f.text_field :snowplow_cookie_domain, class: 'form-control gl-form-input', placeholder: '.your-gitlab-instance.com'
+          .form-text.text-muted
+            = _('The Snowplow cookie domain.')
+
+      = f.submit _('Save changes'), class: 'gl-button btn btn-confirm', data: { qa_selector: 'save_changes_button' }

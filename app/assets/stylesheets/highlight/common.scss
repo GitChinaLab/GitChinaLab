@@ -1,0 +1,124 @@
+@import '../framework/variables';
+@import './conflict_colors';
+@import 'page_bundles/mixins_and_variables_and_functions';
+
+@mixin diff-background($background, $idiff, $border) {
+  background: $background;
+
+  &.line_content span.idiff {
+    background: $idiff;
+  }
+
+  &.diff-line-num {
+    border-color: $border;
+  }
+}
+
+@mixin dark-diff-match-line {
+  color: $dark-diff-match-bg;
+  background: $dark-diff-match-color;
+}
+
+@mixin diff-expansion($background, $border, $link) {
+  background-color: $background;
+
+  .diff-td,
+  td {
+    border-top: 1px solid $border;
+    border-bottom: 1px solid $border;
+  }
+
+  a {
+    color: $link;
+  }
+}
+
+@mixin line-coverage-border-color($coverage, $no-coverage) {
+  transition: border-left 0.1s ease-out;
+
+  &.coverage {
+    border-left: 4px solid $coverage;
+  }
+
+  &.no-coverage {
+    border-left: 2px solid $no-coverage;
+  }
+}
+
+@mixin line-number-hover {
+  background-color: $purple-100;
+  border-color: $purple-200;
+
+  a {
+    color: $gray-600;
+  }
+}
+
+@mixin conflict-colors($theme) {
+  .diff-line-num {
+    &.conflict_marker_our,
+    &.conflict_our {
+      background-color: map-get($conflict-colors, #{$theme}-header-head-neutral);
+      border-color: map-get($conflict-colors, #{$theme}-header-head-neutral);
+    }
+
+    &.conflict_marker_their,
+    &.conflict_their {
+      background-color: map-get($conflict-colors, #{$theme}-header-origin-neutral);
+      border-color: map-get($conflict-colors, #{$theme}-header-origin-neutral);
+    }
+  }
+
+  .line_holder {
+    .line_content,
+    .line-coverage {
+      &.conflict_marker_our {
+        background-color: map-get($conflict-colors, #{$theme}-header-head-neutral);
+        border-color: map-get($conflict-colors, #{$theme}-header-head-neutral);
+      }
+
+      &.conflict_marker_their {
+        background-color: map-get($conflict-colors, #{$theme}-header-origin-neutral);
+        border-color: map-get($conflict-colors, #{$theme}-header-origin-neutral);
+      }
+
+      &.conflict_our {
+        background-color: map-get($conflict-colors, #{$theme}-line-head-neutral);
+        border-color: map-get($conflict-colors, #{$theme}-line-head-neutral);
+      }
+
+      &.conflict_their {
+        background-color: map-get($conflict-colors, #{$theme}-line-origin-neutral);
+        border-color: map-get($conflict-colors, #{$theme}-line-origin-neutral);
+      }
+    }
+  }
+}
+
+@mixin line-number-link($color) {
+  min-width: $gl-spacing-scale-9;
+
+  &::before {
+    @include gl-display-none;
+    @include gl-align-self-center;
+    @include gl-mt-2;
+    @include gl-mr-2;
+    @include gl-w-4;
+    @include gl-h-4;
+    @include gl-float-left;
+    background-color: $color;
+    mask-image: asset_url('icons-stacked.svg#link');
+    mask-repeat: no-repeat;
+    mask-size: cover;
+    mask-position: center;
+    content: '';
+  }
+
+  &:hover::before {
+    @include gl-display-inline-block;
+  }
+
+  &:focus::before {
+    @include gl-display-inline-block;
+  }
+}

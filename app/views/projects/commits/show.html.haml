@@ -1,0 +1,38 @@
+- breadcrumb_title _("Commits")
+
+- page_title _("Commits"), @ref
+= content_for :meta_tags do
+  = auto_discovery_link_tag(:atom, project_commits_path(@project, @ref, rss_url_options), title: "#{@project.name}:#{@ref} commits")
+
+.js-project-commits-show{ 'data-commits-limit' => @limit }
+  .tree-holder
+    .nav-block
+      .tree-ref-container
+        .tree-ref-holder
+          = render 'shared/ref_switcher', destination: 'commits'
+
+        %ul.breadcrumb.repo-breadcrumb
+          = commits_breadcrumbs
+      #js-author-dropdown{ data: { 'commits_path': project_commits_path(@project), 'project_id': @project.id } }
+      .tree-controls
+        - if @merge_request.present?
+          .control.d-none.d-md-block
+            = link_to _("View open merge request"), project_merge_request_path(@project, @merge_request), class: 'btn gl-button'
+        - elsif create_mr_button?(from: @repository.root_ref, to: @ref, source_project: @project, target_project: @project)
+          .control.d-none.d-md-block
+            = link_to _("Create merge request"), create_mr_path(from: @repository.root_ref, to: @ref, source_project: @project, target_project: @project), class: 'btn gl-button btn-success'
+
+        .control
+          = form_tag(project_commits_path(@project, @id), method: :get, class: 'commits-search-form js-signature-container', data: { 'signatures-path' => namespace_project_signatures_path }) do
+            = search_field_tag :search, params[:search], { placeholder: _('Search by message'), id: 'commits-search', class: 'form-control gl-form-input input-short gl-mt-3 gl-sm-mt-0 gl-min-w-full', spellcheck: false }
+        .control.d-none.d-md-block
+          = link_to project_commits_path(@project, @id, rss_url_options), title: _("Commits feed"), class: 'btn gl-button btn-default btn-icon' do
+            = sprite_icon('rss', css_class: 'qa-rss-icon')
+
+  = render_if_exists 'projects/commits/mirror_status'
+
+  %div{ id: dom_id(@project) }
+    %ol#commits-list.list-unstyled.content_list
+      = render 'commits', project: @project, ref: @ref
+  .loading.hide
+    = loading_icon(size: "lg")

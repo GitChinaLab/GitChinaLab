@@ -1,0 +1,29 @@
+= form_for @application_setting, url: network_admin_application_settings_path(anchor: 'js-performance-settings'), html: { class: 'fieldset-form' } do |f|
+  = form_errors(@application_setting)
+
+  %fieldset
+    .form-group
+      .form-check
+        = f.check_box :authorized_keys_enabled, class: 'form-check-input'
+        = f.label :authorized_keys_enabled, class: 'form-check-label' do
+          = _('Use authorized_keys file to authenticate SSH keys')
+        .form-text.text-muted
+          = _('Authenticate user SSH keys without requiring additional configuration. Performance of GitLab can be improved by using the GitLab database instead.')
+          = link_to _('How do I configure authentication using the GitLab database?'), help_page_path('administration/operations/fast_ssh_key_lookup'), target: '_blank', rel: 'noopener noreferrer'
+    .form-group
+      = f.label :raw_blob_request_limit, _('Raw blob request rate limit per minute'), class: 'label-bold'
+      = f.number_field :raw_blob_request_limit, class: 'form-control gl-form-input'
+      .form-text.text-muted
+        = _('Maximum number of requests per minute for each raw path (default is 300). Set to 0 to disable throttling.')
+    .form-group
+      = f.label :push_event_hooks_limit, class: 'label-bold'
+      = f.number_field :push_event_hooks_limit, class: 'form-control gl-form-input'
+      .form-text.text-muted
+        = _('Maximum number of changes (branches or tags) in a single push for which webhooks and services trigger (default is 3).')
+    .form-group
+      = f.label :push_event_activities_limit, class: 'label-bold'
+      = f.number_field :push_event_activities_limit, class: 'form-control gl-form-input'
+      .form-text.text-muted
+        = _('Threshold number of changes (branches or tags) in a single push above which a bulk push event is created (default is 3).')
+
+  = f.submit _('Save changes'), class: "gl-button btn btn-confirm"

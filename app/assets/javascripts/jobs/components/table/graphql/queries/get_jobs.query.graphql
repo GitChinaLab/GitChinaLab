@@ -1,0 +1,84 @@
+query getJobs(
+  $fullPath: ID!
+  $first: Int
+  $last: Int
+  $after: String
+  $before: String
+  $statuses: [CiJobStatus!]
+) {
+  project(fullPath: $fullPath) {
+    id
+    jobs(after: $after, before: $before, first: $first, last: $last, statuses: $statuses) {
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      nodes {
+        artifacts {
+          nodes {
+            downloadPath
+            fileType
+          }
+        }
+        allowFailure
+        status
+        scheduledAt
+        manualJob
+        triggered
+        createdByTag
+        detailedStatus {
+          id
+          detailsPath
+          group
+          icon
+          label
+          text
+          tooltip
+          action {
+            id
+            buttonTitle
+            icon
+            method
+            path
+            title
+          }
+        }
+        id
+        refName
+        refPath
+        tags
+        shortSha
+        commitPath
+        pipeline {
+          id
+          path
+          user {
+            id
+            webPath
+            avatarUrl
+          }
+        }
+        stage {
+          id
+          name
+        }
+        name
+        duration
+        finishedAt
+        coverage
+        retryable
+        playable
+        cancelable
+        active
+        stuck
+        userPermissions {
+          readBuild
+          readJobArtifacts
+          updateBuild
+        }
+      }
+    }
+  }
+}

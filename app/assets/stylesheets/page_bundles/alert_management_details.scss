@@ -1,0 +1,43 @@
+@import 'mixins_and_variables_and_functions';
+
+.alert-management-details {
+  @include media-breakpoint-down(xs) {
+    .alert-details-incident-button {
+      @include gl-w-full;
+    }
+  }
+
+  .toggle-sidebar-mobile-button {
+    @include gl-right-0;
+  }
+
+  .dropdown-menu-toggle {
+    &:hover {
+      @include gl-bg-white;
+    }
+  }
+
+  .dropdown-item {
+    &:first-child {
+      &::before {
+        @include gl-pt-0;
+      }
+    }
+
+    &::before {
+      @include gl-pt-8;
+    }
+
+    .gl-new-dropdown-item-text-wrapper {
+      @include gl-py-0;
+    }
+  }
+
+  .main-notes-list::before {
+    left: $gl-spacing-scale-5 !important;
+  }
+
+  .note-header-info {
+    @include gl-mt-1;
+  }
+}

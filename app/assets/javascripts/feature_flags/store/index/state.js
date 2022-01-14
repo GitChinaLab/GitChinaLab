@@ -1,0 +1,15 @@
+export default ({ endpoint, projectId, unleashApiInstanceId, rotateInstanceIdPath }) => ({
+  featureFlags: [],
+  alerts: [],
+  count: 0,
+  pageInfo: {},
+  isLoading: true,
+  hasError: false,
+  endpoint,
+  rotateEndpoint: rotateInstanceIdPath,
+  instanceId: unleashApiInstanceId,
+  isRotating: false,
+  hasRotateError: false,
+  options: {},
+  projectId,
+});

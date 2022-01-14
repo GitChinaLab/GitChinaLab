@@ -1,0 +1,26 @@
+---
+data_category: optional
+key_path: redis_hll_counters.issues_edit.g_project_management_issue_title_changed_weekly
+description: Count of WAU editing an issue title
+product_stage: plan
+product_group: group::project management
+product_category: issue_tracking
+product_section: 'TBD'
+value_type: number
+status: active
+milestone: "13.6"
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/issues/229918
+time_frame: 7d
+data_source: redis_hll
+instrumentation_class: RedisHLLMetric
+options:
+  events:
+  - g_project_management_issue_title_changed
+distribution:
+- ee
+- ce
+tier:
+- free
+- premium
+- ultimate
+performance_indicator_type: []

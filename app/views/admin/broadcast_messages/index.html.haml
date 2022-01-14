@@ -1,0 +1,43 @@
+- breadcrumb_title _("Messages")
+- page_title _("Broadcast Messages")
+
+%h3.page-title
+  = _('Broadcast Messages')
+%p.light
+  = _('Broadcast messages are displayed for every user and can be used to notify users about scheduled maintenance, recent upgrades and more.')
+
+= render 'form'
+
+%br.clearfix
+
+- if @broadcast_messages.any?
+  %table.table.table-responsive
+    %thead
+      %tr
+        %th= _('Status')
+        %th= _('Preview')
+        %th= _('Starts')
+        %th= _('Ends')
+        %th= _(' Target Path')
+        %th= _(' Type')
+        %th &nbsp;
+    %tbody
+      - @broadcast_messages.each do |message|
+        %tr
+          %td
+            = broadcast_message_status(message)
+          %td
+            = broadcast_message(message, preview: true)
+          %td
+            = message.starts_at
+          %td
+            = message.ends_at
+          %td
+            = message.target_path
+          %td
+            = message.broadcast_type.capitalize
+          %td.gl-white-space-nowrap.gl-display-flex
+            = link_to sprite_icon('pencil-square', css_class: 'gl-icon'), edit_admin_broadcast_message_path(message), title: _('Edit'), class: 'btn btn-icon gl-button'
+            = link_to sprite_icon('remove', css_class: 'gl-icon'), admin_broadcast_message_path(message), method: :delete, remote: true, title: _('Remove'), class: 'js-remove-tr btn btn-icon gl-button btn-danger ml-2'
+
+  = paginate @broadcast_messages, theme: 'gitlab'

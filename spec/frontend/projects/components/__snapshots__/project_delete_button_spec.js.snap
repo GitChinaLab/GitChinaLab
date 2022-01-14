@@ -1,0 +1,118 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Project remove modal initialized matches the snapshot 1`] = `
+<form
+  action="some/path"
+  method="post"
+>
+  <input
+    name="_method"
+    type="hidden"
+    value="delete"
+  />
+   
+  <input
+    name="authenticity_token"
+    type="hidden"
+  />
+   
+  <gl-button-stub
+    buttontextclasses=""
+    category="primary"
+    icon=""
+    role="button"
+    size="medium"
+    tabindex="0"
+    variant="danger"
+  >
+    Delete project
+  </gl-button-stub>
+   
+  <gl-modal-stub
+    actioncancel="[object Object]"
+    actionprimary="[object Object]"
+    dismisslabel="Close"
+    footer-class="gl-bg-gray-10 gl-p-5"
+    modalclass=""
+    modalid="fakeUniqueId"
+    ok-variant="danger"
+    size="sm"
+    title-class="gl-text-red-500"
+    titletag="h4"
+  >
+     
+    <div>
+      <gl-alert-stub
+        class="gl-mb-5"
+        dismisslabel="Dismiss"
+        primarybuttonlink=""
+        primarybuttontext=""
+        secondarybuttonlink=""
+        secondarybuttontext=""
+        title="You are about to permanently delete this project"
+        variant="danger"
+      >
+        <p>
+          This project is 
+          <strong>
+            NOT
+          </strong>
+           a fork, and has the following:
+        </p>
+         
+        <ul>
+          <li>
+            1 issue
+          </li>
+           
+          <li>
+            2 merge requests
+          </li>
+           
+          <li>
+            3 forks
+          </li>
+           
+          <li>
+            4 stars
+          </li>
+        </ul>
+         After a project is permanently deleted, it 
+        <strong>
+          cannot be recovered
+        </strong>
+        . Permanently deleting this project will 
+        <strong>
+          immediately delete
+        </strong>
+         its repositories and 
+        <strong>
+          all related resources
+        </strong>
+        , including issues, merge requests etc.
+      </gl-alert-stub>
+       
+      <p
+        class="gl-mb-1"
+      >
+        Please type the following to confirm:
+      </p>
+       
+      <p>
+        <code
+          class="gl-white-space-pre-wrap"
+        >
+          foo
+        </code>
+      </p>
+       
+      <gl-form-input-stub
+        id="confirm_name_input"
+        name="confirm_name_input"
+        type="text"
+      />
+       
+    </div>
+  </gl-modal-stub>
+</form>
+`;

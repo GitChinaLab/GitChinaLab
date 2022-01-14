@@ -1,0 +1,21 @@
+---
+data_category: optional
+key_path: object_store.external_diffs.enabled
+description: Whether Object Storage is enabled for External Diffs
+product_section: enablement
+product_stage: enablement
+product_group: group::memory
+product_category: memory
+value_type: boolean
+status: active
+time_frame: none
+data_source: system
+distribution:
+- ce
+- ee
+tier:
+- free
+- premium
+- ultimate
+performance_indicator_type: []
+milestone: "<13.9"

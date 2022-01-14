@@ -1,0 +1,134 @@
+# frozen_string_literal: true
+
+require 'digest/md5'
+
+REVIEW_ROULETTE_SECTION = <<MARKDOWN
+## Reviewer roulette
+MARKDOWN
+
+CATEGORY_TABLE = <<MARKDOWN
+
+Changes that require review have been detected!
+
+Please refer to the table below for assigning reviewers and maintainers suggested by Danger in the specified category:
+
+| Category | Reviewer | Maintainer |
+| -------- | -------- | ---------- |
+MARKDOWN
+
+POST_TABLE_MESSAGE = <<MARKDOWN
+
+To spread load more evenly across eligible reviewers, Danger has picked a candidate for each
+review slot, based on their timezone. Feel free to
+[override these selections](https://about.gitlab.com/handbook/engineering/projects/#gitlab)
+if you think someone else would be better-suited
+or use the [GitLab Review Workload Dashboard](https://gitlab-org.gitlab.io/gitlab-roulette/) to find other available reviewers.
+
+To read more on how to use the reviewer roulette, please take a look at the
+[Engineering workflow](https://about.gitlab.com/handbook/engineering/workflow/#basics)
+and [code review guidelines](https://docs.gitlab.com/ee/development/code_review.html).
+Please consider assigning a reviewer or maintainer who is a
+[domain expert](https://about.gitlab.com/handbook/engineering/projects/#gitlab) in the area of the merge request.
+
+Once you've decided who will review this merge request, assign them as a reviewer!
+Danger does not automatically notify them for you.
+MARKDOWN
+
+NO_SUGGESTIONS = <<MARKDOWN
+
+There are no reviewer and maintainer suggestions for the changes in this MR.
+MARKDOWN
+
+UNKNOWN_FILES_MESSAGE = <<MARKDOWN
+### Uncategorized files
+
+These files couldn't be categorized, so Danger was unable to suggest a reviewer.
+Please consider creating a merge request to
+[add support](https://gitlab.com/gitlab-org/gitlab/blob/master/tooling/danger/project_helper.rb)
+for them.
+MARKDOWN
+
+def group_not_available_template(slack_channel, gitlab_group)
+  <<~TEMPLATE.strip
+    No engineer is available for automated assignment, please reach out to the `#{slack_channel}` Slack channel or mention `#{gitlab_group}` for assistance.
+  TEMPLATE
+end
+
+OPTIONAL_REVIEW_TEMPLATE = '%{role} review is optional for %{category}'
+NOT_AVAILABLE_TEMPLATES = {
+  default: 'No %{role} available',
+  product_intelligence: group_not_available_template('#g_product_intelligence', '@gitlab-org/growth/product-intelligence/engineers'),
+  integrations_be: group_not_available_template('#g_ecosystem_integrations', '@gitlab-org/ecosystem-stage/integrations'),
+  integrations_fe: group_not_available_template('#g_ecosystem_integrations', '@gitlab-org/ecosystem-stage/integrations')
+}.freeze
+
+def note_for_spins_role(spins, role, category)
+  template = NOT_AVAILABLE_TEMPLATES[category] || NOT_AVAILABLE_TEMPLATES[:default]
+
+  spins.each do |spin|
+    note = note_for_spin_role(spin, role)
+
+    return note if note
+  end
+
+  template % { role: role }
+end
+
+def note_for_spin_role(spin, role)
+  if spin.optional_role == role
+    return OPTIONAL_REVIEW_TEMPLATE % { role: role.capitalize, category: helper.label_for_category(spin.category) }
+  end
+
+  spin.public_send(role)&.markdown_name(author: roulette.team_mr_author) # rubocop:disable GitlabSecurity/PublicSend
+end
+
+def markdown_row_for_spins(category, spins_array)
+  maintainer_note = note_for_spins_role(spins_array, :maintainer, category)
+  reviewer_note = note_for_spins_role(spins_array, :reviewer, category)
+
+  "| #{helper.label_for_category(category)} | #{reviewer_note} | #{maintainer_note} |"
+end
+
+changes = helper.changes_by_category
+
+# Ignore any files that are known but uncategorized. Prompt for any unknown files
+changes.delete(:none)
+# To reinstate roulette for documentation, remove this line.
+changes.delete(:docs)
+# No special review for changelog needed and changelog was never a label.
+changes.delete(:changelog)
+# No special review for feature flags needed.
+changes.delete(:feature_flag)
+categories = Set.new(changes.keys - [:unknown])
+
+# Ensure to spin for database reviewer/maintainer when ~database is applied (e.g. to review SQL queries)
+categories << :database if helper.mr_labels.include?('database')
+
+# Ensure to spin for UX reviewer for community contributions when ~UX is applied (e.g. to review changes to the UI)
+categories << :ux if (["UX", "Community contribution"] - helper.mr_labels).empty?
+
+# Ensure to spin for Product Intelligence reviewer when ~"product intelligence::review pending" is applied
+categories << :product_intelligence if helper.mr_labels.include?("product intelligence::review pending")
+
+# Skip Product intelligence reviews for growth experiment MRs
+categories.delete(:product_intelligence) if helper.mr_labels.include?("growth experiment")
+
+if changes.any?
+  random_roulette_spins = roulette.spin(nil, categories, timezone_experiment: false)
+
+  rows = random_roulette_spins.map do |spin|
+    markdown_row_for_spins(spin.category, [spin])
+  end
+
+  markdown(REVIEW_ROULETTE_SECTION)
+
+  if rows.empty?
+    markdown(NO_SUGGESTIONS)
+  else
+    markdown(CATEGORY_TABLE + rows.join("\n"))
+    markdown(POST_TABLE_MESSAGE)
+  end
+
+  unknown = changes.fetch(:unknown, [])
+  markdown(UNKNOWN_FILES_MESSAGE + helper.markdown_list(unknown)) unless unknown.empty?
+end

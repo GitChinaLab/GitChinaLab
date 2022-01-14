@@ -1,0 +1,21 @@
+---
+data_category: optional
+key_path: usage_activity_by_stage_monthly.verify.ci_triggers
+description: Total configured Triggers in project
+product_section: ops
+product_stage: verify
+product_group: group::pipeline execution
+product_category: continuous_integration
+value_type: number
+status: active
+time_frame: 28d
+data_source: database
+distribution:
+- ce
+- ee
+tier:
+- free
+- premium
+- ultimate
+performance_indicator_type: []
+milestone: "<13.9"

@@ -1,0 +1,213 @@
+.suggest-colors {
+  margin-top: 5px;
+
+  a {
+    border-radius: 4px;
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    text-decoration: none;
+  }
+
+  &.suggest-colors-dropdown {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: $border-radius-base;
+    overflow: hidden;
+
+    a {
+      border-radius: 0;
+      width: (100% / 7);
+      margin-right: 0;
+      margin-bottom: -5px;
+    }
+  }
+}
+
+.dropdown-menu-labels {
+  .dropdown-content {
+    max-height: 135px;
+  }
+
+  .dropdown-label-box {
+    flex: 0 0 auto;
+  }
+}
+
+.dropdown-new-label {
+  .dropdown-content {
+    max-height: initial;
+  }
+}
+
+.dropdown-label-color-input {
+  position: relative;
+  margin-bottom: 10px;
+
+  &.is-active {
+    padding-left: 32px;
+  }
+}
+
+.dropdown-label-color-preview {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 32px;
+  height: 32px;
+  border-top-left-radius: $border-radius-base;
+  border-bottom-left-radius: $border-radius-base;
+}
+
+.color-label {
+  padding: 0 $grid-size;
+  line-height: 16px;
+  border-radius: $label-border-radius;
+  color: $white;
+}
+
+.dropdown-labels-error {
+  padding: 5px 10px;
+  margin-bottom: 10px;
+  background-color: $red-500;
+  color: $white;
+}
+
+.manage-labels-list {
+  padding: 0;
+  margin-bottom: 0;
+
+  > li:not(.empty-message):not(.no-border) {
+    background-color: $white;
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    padding: $gl-padding;
+    border-radius: $border-radius-default;
+    border: 1px solid $gray-50;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .prioritized-labels:not(.is-not-draggable) & {
+      box-shadow: 0 1px 2px $issue-boards-card-shadow;
+      cursor: grab;
+      border: 0;
+
+      &:active {
+        cursor: grabbing;
+      }
+    }
+  }
+
+  .prepend-description-left {
+    vertical-align: top;
+    line-height: 24px;
+  }
+}
+
+.prioritized-labels .add-priority,
+.other-labels .remove-priority {
+  display: none;
+}
+
+.label-subscribe-button {
+  width: 105px;
+  font-weight: 200;
+}
+
+.labels-container {
+  border-radius: $border-radius-default;
+  padding: $gl-padding $gl-padding-8;
+}
+
+.label-actions-list {
+  list-style: none;
+  flex-shrink: 0;
+  text-align: right;
+  padding: 0;
+  position: relative;
+  margin: 0;
+}
+
+.label-badge {
+  color: $gray-900;
+  display: inline-block;
+  font-weight: $gl-font-weight-normal;
+  padding: $gl-padding-4 $gl-padding-8;
+  border-radius: $border-radius-default;
+  font-size: $label-font-size;
+}
+
+.label-list-item {
+  .label-name {
+    width: 200px;
+
+    .gl-label {
+      line-height: $gl-line-height;
+    }
+  }
+
+  .label-action {
+    color: $gray-700;
+    cursor: pointer;
+
+    &:hover {
+      color: $blue-600;
+    }
+
+    &.hover-red:hover {
+      color: $red-500;
+    }
+  }
+}
+
+@media (max-width: map-get($grid-breakpoints, md)-1) {
+  .manage-labels-list {
+    > li:not(.empty-message):not(.no-border) {
+      flex-wrap: wrap;
+    }
+
+    .label-name {
+      order: 1;
+      flex-grow: 1;
+      width: auto;
+      max-width: 100%;
+    }
+
+    .label-actions-list {
+      order: 2;
+      flex-shrink: 1;
+      text-align: left;
+    }
+
+    .label-description {
+      order: 3;
+    }
+  }
+}
+
+.priority-labels-empty-state .svg-content img {
+  max-width: $priority-label-empty-state-width;
+}
+
+.scoped-label-tooltip-title {
+  color: $indigo-300;
+}
+
+.gl-label-scoped {
+  box-shadow: 0 0 0 2px currentColor inset;
+
+  &.gl-label-sm {
+    box-shadow: 0 0 0 1px inset;
+  }
+}
+
+/* Fix scoped label padding in cases where old markdown uses the old label structure */
+.gl-label-text + .gl-label-text {
+  @include gl-pl-2;
+  @include gl-pr-3;
+}

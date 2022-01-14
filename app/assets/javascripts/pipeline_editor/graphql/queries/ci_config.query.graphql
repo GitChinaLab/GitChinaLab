@@ -1,0 +1,12 @@
+#import "~/pipelines/graphql/fragments/pipeline_stages_connection.fragment.graphql"
+
+query getCiConfigData($projectPath: ID!, $sha: String, $content: String!) {
+  ciConfig(projectPath: $projectPath, sha: $sha, content: $content) {
+    errors
+    mergedYaml
+    status
+    stages {
+      ...PipelineStagesConnection
+    }
+  }
+}

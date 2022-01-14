@@ -1,0 +1,28 @@
+= render "projects/blob/breadcrumb", blob: blob
+- project = @project.present(current_user: current_user)
+- ref = local_assigns[:ref] || @ref
+
+.info-well.d-none.d-sm-block
+  .well-segment
+    %ul.blob-commit-info
+      = render 'projects/commits/commit', commit: @last_commit, project: @project, ref: @ref
+
+  = render_if_exists 'projects/blob/owners', blob: blob
+  = render "projects/blob/auxiliary_viewer", blob: blob
+
+#blob-content-holder.blob-content-holder
+  - if @code_navigation_path
+    #js-code-navigation{ data: { code_navigation_path: @code_navigation_path, blob_path: blob.path, definition_path_prefix: project_blob_path(@project, @ref) } }
+  - if Feature.enabled?(:refactor_blob_viewer, @project, default_enabled: :yaml)
+    -# Data info will be removed once we migrate this to use GraphQL
+    -# Follow-up issue: https://gitlab.com/gitlab-org/gitlab/-/issues/330406
+    #js-view-blob-app{ data: { blob_path: blob.path,
+                              project_path: @project.full_path,
+                              target_branch: project.empty_repo? ? ref : @ref,
+                              original_branch: @ref } }
+      .gl-spinner-container
+        = loading_icon(size: 'md')
+  - else
+    %article.file-holder
+      = render 'projects/blob/header', blob: blob
+      = render 'projects/blob/content', blob: blob

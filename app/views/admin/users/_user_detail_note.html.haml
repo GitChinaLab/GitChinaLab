@@ -1,0 +1,7 @@
+- if @user.note.present?
+  - text = @user.note
+  .card
+    .card-header
+      = _('Admin Note')
+    .card-body
+      %p= text

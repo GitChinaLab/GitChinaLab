@@ -1,0 +1,103 @@
+@import 'mixins_and_variables_and_functions';
+
+.invite-users-form {
+  .btn-success {
+    margin-right: 10px;
+  }
+}
+
+.member {
+  .controls {
+    @include media-breakpoint-up(sm) {
+      display: flex;
+    }
+
+    .dropdown-menu.dropdown-menu-right {
+      margin-top: -2px;
+    }
+  }
+
+  .form-group {
+    margin-bottom: 0;
+  }
+}
+
+.members-ldap {
+  align-self: center;
+}
+
+.card {
+  .card-header {
+    .badge.badge-pill {
+      margin-top: 0;
+    }
+
+    @include media-breakpoint-down(sm) {
+      .badge.badge-pill {
+        margin-right: 0;
+        margin-left: 0;
+      }
+    }
+  }
+}
+
+.content-list.members-list li {
+  .list-item-name {
+    float: none;
+    display: flex;
+    flex: 1;
+  }
+
+  .user-info {
+    padding-right: 10px;
+  }
+
+  .member {
+    font-weight: $gl-font-weight-bold;
+    overflow-wrap: break-word;
+    word-break: break-all;
+  }
+
+  @include media-breakpoint-down(sm) {
+    .member-access-text {
+      margin: 0 0 $gl-padding-4 ($grid-size * 6);
+    }
+  }
+}
+
+
+.members-table {
+  @include media-breakpoint-up(lg) {
+    .col-meta {
+      width: px-to-rem(150px);
+    }
+
+    .col-max-role {
+      width: px-to-rem(175px);
+    }
+
+    .col-expiration {
+      width: px-to-rem(200px);
+    }
+
+    .col-actions {
+      width: px-to-rem(65px);
+    }
+  }
+
+  .gl-datepicker-input {
+    width: px-to-rem(165px);
+    max-width: 100%;
+  }
+}
+
+.card-mobile {
+  .content-list.members-list li {
+    display: block;
+
+    .member-controls {
+      float: none;
+      display: block;
+    }
+  }
+}

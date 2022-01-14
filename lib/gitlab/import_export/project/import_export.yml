@@ -1,0 +1,1090 @@
+# Model relationships to be included in the project import/export
+#
+# This list _must_ only contain relationships that are available to both CE and
+# EE. EE specific relationships must be defined in the `ee` section further
+# down below.
+tree:
+  project:
+    - labels:
+      - :priorities
+    - milestones:
+      - events:
+        - :push_event_payload
+    - issues:
+      - events:
+        - :push_event_payload
+      - :timelogs
+      - notes:
+        - :author
+        - :award_emoji
+        - :system_note_metadata
+        - events:
+          - :push_event_payload
+      - label_links:
+        - label:
+          - :priorities
+      - milestone:
+        - events:
+          - :push_event_payload
+      - resource_label_events:
+        - label:
+          - :priorities
+      - designs:
+        - notes:
+          - :author
+          - events:
+            - :push_event_payload
+      - design_versions:
+        - actions:
+          - :design # Duplicate export of issues.designs in order to link the record to both Issue and Action
+      - :issue_assignees
+      - :zoom_meetings
+      - :sentry_issue
+      - :award_emoji
+    - snippets:
+      - :award_emoji
+      - notes:
+        - :author
+        - :award_emoji
+    - releases:
+      - :links
+    - project_members:
+      - :user
+    - merge_requests:
+      - :metrics
+      - :award_emoji
+      - notes:
+        - :author
+        - :award_emoji
+        - :system_note_metadata
+        - events:
+          - :push_event_payload
+        - :suggestions
+      - merge_request_diff:
+        - merge_request_diff_commits:
+          - :commit_author
+          - :committer
+        - :merge_request_diff_files
+      - events:
+        - :push_event_payload
+      - :timelogs
+      - label_links:
+        - label:
+          - :priorities
+      - milestone:
+        - events:
+          - :push_event_payload
+      - resource_label_events:
+        - label:
+          - :priorities
+    - :external_pull_requests
+    - ci_pipelines:
+      - notes:
+        - :author
+        - events:
+          - :push_event_payload
+      - stages:
+        - :statuses
+      - :external_pull_request
+      - :merge_request
+    - :auto_devops
+    - :pipeline_schedules
+    - :container_expiration_policy
+    - protected_branches:
+      - :merge_access_levels
+      - :push_access_levels
+    - protected_tags:
+      - :create_access_levels
+    - :project_feature
+    - :custom_attributes
+    - :prometheus_metrics
+    - :project_badges
+    - :ci_cd_settings
+    - :error_tracking_setting
+    - :metrics_setting
+    - boards:
+      - lists:
+        - label:
+          - :priorities
+    - :service_desk_setting
+  group_members:
+    - :user
+
+# Only include the following attributes for the models specified.
+included_attributes:
+  user:
+    - :id
+    - :public_email
+    - :username
+  author:
+    - :name
+  ci_cd_settings:
+    - :group_runners_enabled
+  metrics_setting:
+    - :dashboard_timezone
+    - :external_dashboard_url
+    - :project_id
+  project_badges:
+    - :created_at
+    - :image_url
+    - :link_url
+    - :name
+    - :project_id
+    - :updated_at
+  pipeline_schedules:
+    - :active
+    - :created_at
+    - :cron
+    - :cron_timezone
+    - :description
+    - :next_run_at
+    - :owner_id
+    - :project_id
+    - :ref
+    - :updated_at
+  error_tracking_setting:
+    - :api_url
+    - :organization_name
+    - :project_id
+    - :project_name
+  auto_devops:
+    - :created_at
+    - :deploy_strategy
+    - :enabled
+    - :project_id
+    - :updated_at
+  boards:
+    - :project_id
+    - :created_at
+    - :updated_at
+    - :group_id
+    - :weight
+    - :name
+    - :hide_backlog_list
+    - :hide_closed_list
+  lists:
+    - :list_type
+    - :position
+    - :created_at
+    - :updated_at
+    - :user_id
+    - :max_issue_count
+    - :max_issue_weight
+    - :limit_metric
+  custom_attributes:
+    - :created_at
+    - :updated_at
+    - :project_id
+    - :key
+    - :value
+  label: &label_definition
+    - :title
+    - :color
+    - :project_id
+    - :group_id
+    - :created_at
+    - :updated_at
+    - :template
+    - :description
+    - :priority
+  labels: *label_definition
+  priorities:
+    - :project_id
+    - :priority
+    - :created_at
+    - :updated_at
+  milestone: &milestone_definition
+    - :iid
+    - :title
+    - :project_id
+    - :group_id
+    - :description
+    - :due_date
+    - :created_at
+    - :updated_at
+    - :start_date
+    - :state
+  milestones: *milestone_definition
+  protected_branches:
+    - :project_id
+    - :name
+    - :created_at
+    - :updated_at
+    - :code_owner_approval_required
+    - :allow_force_push
+  protected_tags:
+    - :project_id
+    - :name
+    - :created_at
+    - :updated_at
+  create_access_levels:
+    - :access_level
+    - :created_at
+    - :updated_at
+    - :user_id
+    - :group_id
+  merge_access_levels:
+    - :access_level
+    - :created_at
+    - :updated_at
+    - :user_id
+    - :group_id
+  push_access_levels:
+    - :access_level
+    - :created_at
+    - :updated_at
+    - :user_id
+    - :group_id
+  releases:
+    - :tag
+    - :description
+    - :project_id
+    - :author_id
+    - :created_at
+    - :updated_at
+    - :name
+    - :sha
+    - :released_at
+  links:
+    - :url
+    - :name
+    - :created_at
+    - :updated_at
+    - :filepath
+    - :link_type
+  container_expiration_policy:
+    - :created_at
+    - :updated_at
+    - :next_run_at
+    - :project_id
+    - :name_regex
+    - :cadence
+    - :older_than
+    - :keep_n
+    - :enabled
+    - :name_regex_keep
+  project_feature:
+    - :project_id
+    - :merge_requests_access_level
+    - :issues_access_level
+    - :wiki_access_level
+    - :snippets_access_level
+    - :builds_access_level
+    - :created_at
+    - :updated_at
+    - :repository_access_level
+    - :pages_access_level
+    - :forking_access_level
+    - :metrics_dashboard_access_level
+    - :operations_access_level
+    - :analytics_access_level
+    - :security_and_compliance_access_level
+    - :container_registry_access_level
+  prometheus_metrics:
+    - :created_at
+    - :updated_at
+    - :project_id
+    - :y_label
+    - :unit
+    - :legend
+    - :title
+    - :query
+    - :group
+    - :dashboard_path
+  service_desk_setting:
+    - :project_id
+    - :issue_template_key
+    - :project_key
+  snippets:
+    - :title
+    - :content
+    - :author_id
+    - :project_id
+    - :created_at
+    - :updated_at
+    - :file_name
+    - :visibility_level
+    - :description
+  project_members:
+    - :access_level
+    - :source_type
+    - :user_id
+    - :notification_level
+    - :created_at
+    - :updated_at
+    - :created_by_id
+    - :invite_email
+    - :invite_accepted_at
+    - :requested_at
+    - :expires_at
+    - :ldap
+    - :override
+  merge_request: &merge_request_definition
+    - :target_branch
+    - :source_branch
+    - :source_project_id
+    - :author_id
+    - :assignee_id
+    - :title
+    - :created_at
+    - :updated_at
+    - :state
+    - :merge_status
+    - :target_project_id
+    - :iid
+    - :description
+    - :updated_by_id
+    - :merge_error
+    - :merge_params
+    - :merge_when_pipeline_succeeds
+    - :merge_user_id
+    - :merge_commit_sha
+    - :squash_commit_sha
+    - :in_progress_merge_commit_sha
+    - :lock_version
+    - :approvals_before_merge
+    - :rebase_commit_sha
+    - :time_estimate
+    - :squash
+    - :last_edited_at
+    - :last_edited_by_id
+    - :discussion_locked
+    - :allow_maintainer_to_push
+    - :merge_ref_sha
+    - :draft
+    - :diff_head_sha
+    - :source_branch_sha
+    - :target_branch_sha
+  merge_requests: *merge_request_definition
+  award_emoji:
+    - :user_id
+    - :name
+    - :awardable_type
+    - :created_at
+    - :updated_at
+  commit_author:
+    - :name
+    - :email
+  committer:
+    - :name
+    - :email
+  events:
+    - :target_type
+    - :action
+    - :author_id
+    - :fingerprint
+    - :created_at
+    - :updated_at
+  label_links:
+    - :target_type
+    - :created_at
+    - :updated_at
+  merge_request_diff:
+    - :state
+    - :created_at
+    - :updated_at
+    - :base_commit_sha
+    - :real_size
+    - :head_commit_sha
+    - :start_commit_sha
+    - :commits_count
+    - :files_count
+    - :sorted
+    - :diff_type
+  merge_request_diff_commits:
+    - :author_name
+    - :author_email
+    - :committer_name
+    - :committer_email
+    - :relative_order
+    - :sha
+    - :authored_date
+    - :committed_date
+    - :message
+    - :trailers
+  merge_request_diff_files:
+    - :relative_order
+    - :new_file
+    - :renamed_file
+    - :deleted_file
+    - :new_path
+    - :old_path
+    - :a_mode
+    - :b_mode
+    - :too_large
+    - :binary
+  metrics:
+    - :created_at
+    - :updated_at
+    - :latest_closed_by_id
+    - :latest_closed_at
+    - :merged_by_id
+    - :merged_at
+    - :latest_build_started_at
+    - :latest_build_finished_at
+    - :first_deployed_to_production_at
+    - :first_comment_at
+    - :first_commit_at
+    - :last_commit_at
+    - :diff_size
+    - :modified_paths_size
+    - :commits_count
+    - :first_approved_at
+    - :first_reassigned_at
+    - :added_lines
+    - :target_project_id
+    - :removed_lines
+  notes:
+    - :note
+    - :noteable_type
+    - :author_id
+    - :created_at
+    - :updated_at
+    - :project_id
+    - :attachment
+    - :line_code
+    - :commit_id
+    - :system
+    - :st_diff
+    - :updated_by_id
+    - :type
+    - :position
+    - :original_position
+    - :change_position
+    - :resolved_at
+    - :resolved_by_id
+    - :resolved_by_push
+    - :discussion_id
+    - :confidential
+    - :last_edited_at
+  push_event_payload:
+    - :commit_count
+    - :action
+    - :ref_type
+    - :commit_from
+    - :commit_to
+    - :ref
+    - :commit_title
+    - :ref_count
+  resource_label_events:
+    - :action
+    - :user_id
+    - :created_at
+  suggestions:
+    - :relative_order
+    - :applied
+    - :commit_id
+    - :from_content
+    - :to_content
+    - :outdated
+    - :lines_above
+    - :lines_below
+  system_note_metadata:
+    - :commit_count
+    - :action
+    - :created_at
+    - :updated_at
+  timelogs:
+    - :time_spent
+    - :user_id
+    - :project_id
+    - :spent_at
+    - :created_at
+    - :updated_at
+    - :summary
+  external_pull_request: &external_pull_request_definition
+    - :created_at
+    - :updated_at
+    - :project_id
+    - :pull_request_iid
+    - :status
+    - :source_branch
+    - :target_branch
+    - :source_repository
+    - :target_repository
+    - :source_sha
+    - :target_sha
+  external_pull_requests: *external_pull_request_definition
+  statuses:
+    - :project_id
+    - :status
+    - :finished_at
+    - :created_at
+    - :updated_at
+    - :started_at
+    - :coverage
+    - :commit_id
+    - :name
+    - :options
+    - :allow_failure
+    - :stage
+    - :stage_idx
+    - :tag
+    - :ref
+    - :user_id
+    - :type
+    - :target_url
+    - :description
+    - :erased_at
+    - :artifacts_expire_at
+    - :environment
+    - :yaml_variables
+    - :queued_at
+    - :lock_version
+    - :coverage_regex
+    - :retried
+    - :protected
+    - :failure_reason
+    - :scheduled_at
+    - :scheduling_type
+  ci_pipelines:
+    - :ref
+    - :sha
+    - :before_sha
+    - :created_at
+    - :updated_at
+    - :tag
+    - :yaml_errors
+    - :committed_at
+    - :project_id
+    - :status
+    - :started_at
+    - :finished_at
+    - :duration
+    - :user_id
+    - :lock_version
+    - :source
+    - :protected
+    - :config_source
+    - :failure_reason
+    - :iid
+    - :source_sha
+    - :target_sha
+  stages:
+    - :name
+    - :status
+    - :position
+    - :lock_version
+    - :project_id
+    - :created_at
+    - :updated_at
+  actions:
+    - :event
+  design: &design_definition
+    - :iid
+    - :project_id
+    - :filename
+    - :relative_position
+  designs: *design_definition
+  design_versions:
+    - :created_at
+    - :sha
+    - :author_id
+  issue_assignees:
+    - :user_id
+  sentry_issue:
+    - :sentry_issue_identifier
+  zoom_meetings:
+    - :project_id
+    - :issue_status
+    - :url
+    - :created_at
+    - :updated_at
+  issues:
+    - :title
+    - :author_id
+    - :project_id
+    - :created_at
+    - :updated_at
+    - :description
+    - :state
+    - :iid
+    - :updated_by_id
+    - :confidential
+    - :closed_at
+    - :closed_by_id
+    - :due_date
+    - :lock_version
+    - :weight
+    - :time_estimate
+    - :relative_position
+    - :external_author
+    - :last_edited_at
+    - :last_edited_by_id
+    - :discussion_locked
+    - :health_status
+    - :external_key
+    - :issue_type
+  group_members:
+    - :access_level
+    - :source_type
+    - :user_id
+    - :notification_level
+    - :created_at
+    - :updated_at
+    - :created_by_id
+    - :invite_email
+    - :invite_accepted_at
+    - :requested_at
+    - :expires_at
+    - :ldap
+    - :override
+  project:
+    - :approvals_before_merge
+    - :archived
+    - :auto_cancel_pending_pipelines
+    - :autoclose_referenced_issues
+    - :build_allow_git_fetch
+    - :build_coverage_regex
+    - :build_timeout
+    - :ci_config_path
+    - :delete_error
+    - :description
+    - :disable_overriding_approvers_per_merge_request
+    - :external_authorization_classification_label
+    - :has_external_issue_tracker
+    - :has_external_wiki
+    - :issues_template
+    - :jobs_cache_index
+    - :last_repository_check_failed
+    - :merge_requests_author_approval
+    - :merge_requests_disable_committers_approval
+    - :merge_requests_ff_only_enabled
+    - :merge_requests_rebase_enabled
+    - :merge_requests_template
+    - :only_allow_merge_if_all_discussions_are_resolved
+    - :only_allow_merge_if_pipeline_succeeds
+    - :pages_https_only
+    - :pending_delete
+    - :printing_merge_request_link_enabled
+    - :public_builds
+    - :remove_source_branch_after_merge
+    - :request_access_enabled
+    - :require_password_to_approve
+    - :reset_approvals_on_push
+    - :resolve_outdated_diff_discussions
+    - :service_desk_enabled
+    - :shared_runners_enabled
+    - :suggestion_commit_message
+    - :visibility_level
+    - :hooks
+    - :issues_access_level
+    - :forking_access_level
+    - :merge_requests_access_level
+    - :wiki_access_level
+    - :snippets_access_level
+    - :builds_access_level
+    - :repository_access_level
+    - :pages_access_level
+    - :metrics_dashboard_access_level
+    - :analytics_access_level
+    - :operations_access_level
+    - :security_and_compliance_access_level
+    - :container_registry_access_level
+    - :allow_merge_on_skipped_pipeline
+    - :auto_devops_deploy_strategy
+    - :auto_devops_enabled
+    - :container_registry_enabled
+    - :issues_enabled
+    - :jobs_enabled
+    - :merge_method
+    - :merge_requests_enabled
+    - :snippets_enabled
+    - :squash_option
+    - :topics
+    - :visibility
+    - :wiki_enabled
+    - :build_git_strategy
+    - :build_enabled
+    - :security_and_compliance_enabled
+
+# Do not include the following attributes for the models specified.
+excluded_attributes:
+  project:
+    - :name
+    - :path
+    - :namespace_id
+    - :project_namespace_id
+    - :creator_id
+    - :pool_repository_id
+    - :import_url
+    - :import_status
+    - :avatar
+    - :import_type
+    - :import_source
+    - :integrations
+    - :mirror
+    - :runners_token
+    - :runners_token_encrypted
+    - :repository_storage
+    - :repository_read_only
+    - :lfs_enabled
+    - :created_at
+    - :updated_at
+    - :id
+    - :star_count
+    - :last_activity_at
+    - :last_repository_updated_at
+    - :last_repository_check_at
+    - :storage_version
+    - :remote_mirror_available_overridden
+    - :description_html
+    - :repository_languages
+    - :bfg_object_map
+    - :detected_repository_languages
+    - :tag_list
+    - :topic_list
+    - :mirror_user_id
+    - :mirror_trigger_builds
+    - :only_mirror_protected_branches
+    - :pull_mirror_available_overridden
+    - :pull_mirror_branch_prefix
+    - :mirror_overwrites_diverged_branches
+    - :packages_enabled
+    - :mirror_last_update_at
+    - :mirror_last_successful_update_at
+    - :emails_disabled
+    - :max_pages_size
+    - :max_artifacts_size
+    - :marked_for_deletion_at
+    - :marked_for_deletion_by_user_id
+    - :compliance_framework_setting
+    - :show_default_award_emojis
+    - :warn_about_potentially_unwanted_characters
+    - :services
+    - :exported_protected_branches
+    - :repository_size_limit
+    - :external_webhook_token
+  namespaces:
+    - :runners_token
+    - :runners_token_encrypted
+  project_import_state:
+    - :last_error
+    - :jid
+    - :last_update_at
+    - :last_successful_update_at
+  prometheus_metrics:
+    - :common
+    - :identifier
+  snippets:
+    - :expired_at
+    - :secret
+    - :encrypted_secret_token
+    - :encrypted_secret_token_iv
+    - :repository_read_only
+  merge_request_diff:
+    - :external_diff
+    - :stored_externally
+    - :external_diff_store
+    - :merge_request_id
+    - :verification_retry_at
+    - :verified_at
+    - :verification_retry_count
+    - :verification_checksum
+    - :verification_failure
+  merge_request_diff_commits:
+    - :merge_request_diff_id
+    - :commit_author_id
+    - :committer_id
+  merge_request_diff_commit_user:
+    - :id
+  merge_request_diff_detail:
+    - :merge_request_diff_id
+    - :verification_retry_at
+    - :verified_at
+    - :verification_retry_count
+    - :verification_checksum
+    - :verification_failure
+  merge_request_diff_files:
+    - :diff
+    - :external_diff_offset
+    - :external_diff_size
+    - :merge_request_diff_id
+  issues:
+    - :milestone_id
+    - :sprint_id
+    - :moved_to_id
+    - :sent_notifications
+    - :state_id
+    - :duplicated_to_id
+    - :promoted_to_epic_id
+    - :blocking_issues_count
+    - :service_desk_reply_to
+    - :upvotes_count
+    - :work_item_type_id
+    - :email_message_id
+  merge_request: &merge_request_excluded_definition
+    - :milestone_id
+    - :sprint_id
+    - :ref_fetched
+    - :merge_jid
+    - :rebase_jid
+    - :latest_merge_request_diff_id
+    - :head_pipeline_id
+    - :state_id
+  merge_requests: *merge_request_excluded_definition
+  award_emoji:
+    - :awardable_id
+  statuses:
+    - :trace
+    - :token
+    - :token_encrypted
+    - :when
+    - :artifacts_file
+    - :artifacts_metadata
+    - :artifacts_file_store
+    - :artifacts_metadata_store
+    - :artifacts_size
+    - :commands
+    - :runner_id
+    - :trigger_request_id
+    - :erased_by_id
+    - :auto_canceled_by_id
+    - :stage_id
+    - :upstream_pipeline_id
+    - :resource_group_id
+    - :waiting_for_resource_at
+    - :processed
+    - :id_convert_to_bigint
+    - :stage_id_convert_to_bigint
+  sentry_issue:
+    - :issue_id
+  push_event_payload:
+    - :event_id
+    - :event_id_convert_to_bigint
+  project_badges:
+    - :group_id
+  resource_label_events:
+    - :reference
+    - :reference_html
+    - :epic_id
+    - :issue_id
+    - :merge_request_id
+    - :label_id
+  runners:
+    - :token
+    - :token_encrypted
+  error_tracking_setting:
+    - :encrypted_token
+    - :encrypted_token_iv
+    - :enabled
+    - :integrated
+  service_desk_setting:
+    - :outgoing_name
+    - :file_template_project_id
+  priorities:
+    - :label_id
+  events:
+    - :target_id
+    - :id_convert_to_bigint
+  timelogs:
+    - :issue_id
+    - :merge_request_id
+    - :note_id
+  notes:
+    - :noteable_id
+    - :review_id
+  label_links:
+    - :label_id
+    - :target_id
+  issue_assignees:
+    - :issue_id
+  zoom_meetings:
+    - :issue_id
+  design: &design_excluded_definition
+    - :issue_id
+  designs: *design_excluded_definition
+  design_versions:
+    - :issue_id
+  actions:
+    - :design_id
+    - :version_id
+    - image_v432x230
+  links:
+    - :release_id
+  project_members:
+    - :source_id
+    - :invite_email_success
+    - :state
+  group_members:
+    - :state
+  metrics:
+    - :merge_request_id
+    - :pipeline_id
+  suggestions:
+    - :note_id
+  ci_pipelines:
+    - :auto_canceled_by_id
+    - :pipeline_schedule_id
+    - :merge_request_id
+    - :external_pull_request_id
+    - :ci_ref_id
+    - :locked
+  stages:
+    - :pipeline_id
+  merge_access_levels:
+    - :protected_branch_id
+  push_access_levels:
+    - :protected_branch_id
+    - :deploy_key_id
+  unprotect_access_levels:
+    - :protected_branch_id
+  create_access_levels:
+    - :protected_tag_id
+  deploy_access_levels:
+    - :protected_environment_id
+  boards:
+    - :milestone_id
+    - :iteration_id
+    - :iteration_cadence_id
+  lists:
+    - :board_id
+    - :label_id
+    - :milestone_id
+    - :iteration_id
+  epic:
+    - :start_date_sourcing_milestone_id
+    - :due_date_sourcing_milestone_id
+    - :parent_id
+    - :state_id
+    - :start_date_sourcing_epic_id
+    - :due_date_sourcing_epic_id
+  epic_issue:
+    - :epic_id
+    - :issue_id
+  system_note_metadata:
+    - :description_version_id
+    - :note_id
+methods:
+  notes:
+    - :type
+  labels:
+    - :type
+  label:
+    - :type
+  statuses:
+    - :type
+  merge_request_diff_files:
+    - :utf8_diff
+  merge_requests:
+    - :diff_head_sha
+    - :source_branch_sha
+    - :target_branch_sha
+    - :state
+  events:
+    - :action
+  push_event_payload:
+    - :action
+  project_badges:
+    - :type
+  lists:
+    - :list_type
+  ci_pipelines:
+    - :notes
+  issues:
+    - :state
+
+preloads:
+  issues:
+    project: :route
+  statuses:
+    # TODO: We cannot preload tags, as they are not part of `GenericCommitStatus`
+    # tags: # needed by tag_list
+    project: # deprecated: needed by coverage_regex of Ci::Build
+  merge_requests:
+    source_project: # needed by source_branch_sha and diff_head_sha
+    target_project: # needed by target_branch_sha
+    assignees: # needed by assigne_id that is implemented by DeprecatedAssignee
+
+# Specify a custom export reordering for a given relationship
+# For example for issues we use a custom export reordering by relative_position, so that on import, we can reset the
+# relative position value, but still keep the issues order to the order in which issues were in the exported project.
+# By default the ordering of relations is done by PK.
+# column - specify the column by which to reorder, by default it is relation's PK
+# direction - specify the ordering direction :asc or :desc, default :asc
+# nulls_position - specify where would null values be positioned. Because custom ordering column can contain nulls we
+#                  need to also specify where would the nulls be placed. It can be :nulls_last or :nulls_first, defaults
+#                  to :nulls_last
+# Example:
+# export_reorders:
+#   project:
+#     issues:
+#       column: :relative_position
+#       direction: :asc
+#       nulls_position: :nulls_last
+export_reorders:
+  project:
+    issues:
+      column: :relative_position
+      direction: :asc
+      nulls_position: :nulls_last
+
+# EE specific relationships and settings to include. All of this will be merged
+# into the previous structures if EE is used.
+ee:
+  tree:
+    project:
+      - issues:
+        - epic_issue:
+          - :epic
+        - :issuable_sla
+      - protected_branches:
+        - :unprotect_access_levels
+      - protected_environments:
+        - :deploy_access_levels
+      - :security_setting
+      - :push_rule
+      - boards:
+        - :milestone
+        - lists:
+          - :milestone
+
+  included_attributes:
+    issuable_sla:
+      - :issue
+      - :due_at
+    push_rule:
+      - :force_push_regex
+      - :delete_branch_regex
+      - :commit_message_regex
+      - :author_email_regex
+      - :file_name_regex
+      - :branch_name_regex
+      - :commit_message_negative_regex
+      - :max_file_size
+      - :deny_delete_tag
+      - :member_check
+      - :is_sample
+      - :prevent_secrets
+      - :reject_unsigned_commits
+      - :commit_committer_check
+      - :regexp_uses_re2
+    unprotect_access_levels:
+      - :access_level
+      - :user_id
+      - :group_id
+    deploy_access_levels:
+      - :created_at
+      - :updated_at
+      - :access_level
+      - :user_id
+      - :group_id
+    protected_environments:
+      - :project_id
+      - :group_id
+      - :name
+      - :created_at
+      - :updated_at
+    project_feature:
+      - :requirements_access_level
+    security_setting:
+      - :project_id
+      - :created_at
+      - :updated_at
+      - :auto_fix_container_scanning
+      - :auto_fix_dast
+      - :auto_fix_dependency_scanning
+      - :auto_fix_sast
+    project:
+    - :requirements_enabled
+    - :requirements_access_level

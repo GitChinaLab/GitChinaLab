@@ -1,0 +1,11 @@
+query mrUserPermission($projectPath: ID!, $iid: String!) {
+  project(fullPath: $projectPath) {
+    id
+    mergeRequest(iid: $iid) {
+      id
+      userPermissions {
+        updateMergeRequest
+      }
+    }
+  }
+}

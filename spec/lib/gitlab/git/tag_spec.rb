@@ -1,0 +1,186 @@
+# frozen_string_literal: true
+
+require "spec_helper"
+
+RSpec.describe Gitlab::Git::Tag, :seed_helper do
+  let(:repository) { Gitlab::Git::Repository.new('default', TEST_REPO_PATH, '', 'group/project') }
+
+  describe '#tags' do
+    describe 'first tag' do
+      let(:tag) { repository.tags.first }
+
+      it { expect(tag.name).to eq("v1.0.0") }
+      it { expect(tag.target).to eq("f4e6814c3e4e7a0de82a9e7cd20c626cc963a2f8") }
+      it { expect(tag.dereferenced_target.sha).to eq("6f6d7e7ed97bb5f0054f2b1df789b39ca89b6ff9") }
+      it { expect(tag.message).to eq("Release") }
+      it { expect(tag.has_signature?).to be_falsey }
+      it { expect(tag.signature_type).to eq(:NONE) }
+      it { expect(tag.signature).to be_nil }
+      it { expect(tag.tagger.name).to eq("Dmitriy Zaporozhets") }
+      it { expect(tag.tagger.email).to eq("dmitriy.zaporozhets@gmail.com") }
+      it { expect(tag.tagger.date).to eq(Google::Protobuf::Timestamp.new(seconds: 1393491299)) }
+      it { expect(tag.tagger.timezone).to eq("+0200") }
+    end
+
+    describe 'last tag' do
+      let(:tag) { repository.tags.last }
+
+      it { expect(tag.name).to eq("v1.2.1") }
+      it { expect(tag.target).to eq("2ac1f24e253e08135507d0830508febaaccf02ee") }
+      it { expect(tag.dereferenced_target.sha).to eq("fa1b1e6c004a68b7d8763b86455da9e6b23e36d6") }
+      it { expect(tag.message).to eq("Version 1.2.1") }
+      it { expect(tag.has_signature?).to be_falsey }
+      it { expect(tag.signature_type).to eq(:NONE) }
+      it { expect(tag.signature).to be_nil }
+      it { expect(tag.tagger.name).to eq("Douwe Maan") }
+      it { expect(tag.tagger.email).to eq("douwe@selenight.nl") }
+      it { expect(tag.tagger.date).to eq(Google::Protobuf::Timestamp.new(seconds: 1427789449)) }
+      it { expect(tag.tagger.timezone).to eq("+0200") }
+    end
+
+    describe 'signed tag' do
+      let(:project) { create(:project, :repository) }
+      let(:tag) { project.repository.find_tag('v1.1.1') }
+
+      it { expect(tag.target).to eq("8f03acbcd11c53d9c9468078f32a2622005a4841") }
+      it { expect(tag.dereferenced_target.sha).to eq("189a6c924013fc3fe40d6f1ec1dc20214183bc97") }
+      it { expect(tag.message).to eq("x509 signed tag" + "\n" + X509Helpers::User1.signed_tag_signature.chomp) }
+      it { expect(tag.has_signature?).to be_truthy }
+      it { expect(tag.signature_type).to eq(:X509) }
+      it { expect(tag.signature).not_to be_nil }
+      it { expect(tag.tagger.name).to eq("Roger Meier") }
+      it { expect(tag.tagger.email).to eq("r.meier@siemens.com") }
+      it { expect(tag.tagger.date).to eq(Google::Protobuf::Timestamp.new(seconds: 1574261780)) }
+      it { expect(tag.tagger.timezone).to eq("+0100") }
+    end
+
+    it { expect(repository.tags.size).to eq(SeedRepo::Repo::TAGS.size) }
+  end
+
+  describe '.get_message' do
+    let(:tag_ids) { %w[f4e6814c3e4e7a0de82a9e7cd20c626cc963a2f8 8a2a6eb295bb170b34c24c76c49ed0e9b2eaf34b] }
+
+    subject do
+      tag_ids.map { |id| described_class.get_message(repository, id) }
+    end
+
+    it 'gets tag messages' do
+      expect(subject[0]).to eq("Release\n")
+      expect(subject[1]).to eq("Version 1.1.0\n")
+    end
+
+    it 'gets messages in one batch', :request_store do
+      other_repository = double(:repository)
+      described_class.get_message(other_repository, tag_ids.first)
+
+      expect { subject.map(&:itself) }.to change { Gitlab::GitalyClient.get_request_count }.by(1)
+    end
+  end
+
+  describe '.extract_signature_lazily' do
+    let(:project) { create(:project, :repository) }
+
+    subject { described_class.extract_signature_lazily(project.repository, tag_id).itself }
+
+    context 'when the tag is signed' do
+      let(:tag_id) { project.repository.find_tag('v1.1.1').id }
+
+      it 'returns signature and signed text' do
+        signature, signed_text = subject
+
+        expect(signature).to eq(X509Helpers::User1.signed_tag_signature.chomp)
+        expect(signature).to be_a_binary_string
+        expect(signed_text).to eq(X509Helpers::User1.signed_tag_base_data)
+        expect(signed_text).to be_a_binary_string
+      end
+    end
+
+    context 'when the tag has no signature' do
+      let(:tag_id) { project.repository.find_tag('v1.0.0').id }
+
+      it 'returns empty signature and message as signed text' do
+        signature, signed_text = subject
+
+        expect(signature).to be_empty
+        expect(signed_text).to eq(X509Helpers::User1.unsigned_tag_base_data)
+        expect(signed_text).to be_a_binary_string
+      end
+    end
+
+    context 'when the tag cannot be found' do
+      let(:tag_id) { Gitlab::Git::BLANK_SHA }
+
+      it 'raises GRPC::Internal' do
+        expect { subject }.to raise_error(GRPC::Internal)
+      end
+    end
+
+    context 'when the tag ID is invalid' do
+      let(:tag_id) { '4b4918a572fa86f9771e5ba40fbd48e' }
+
+      it 'raises GRPC::Internal' do
+        expect { subject }.to raise_error(GRPC::Internal)
+      end
+    end
+
+    context 'when loading signatures in batch once' do
+      it 'fetches signatures in batch once' do
+        tag_ids = [project.repository.find_tag('v1.1.1').id, project.repository.find_tag('v1.0.0').id]
+        signatures = tag_ids.map do |tag_id|
+          described_class.extract_signature_lazily(repository, tag_id)
+        end
+
+        other_repository = double(:repository)
+        described_class.extract_signature_lazily(other_repository, tag_ids.first)
+
+        expect(described_class).to receive(:batch_signature_extraction)
+          .with(repository, tag_ids)
+          .once
+          .and_return({})
+
+        expect(described_class).not_to receive(:batch_signature_extraction)
+          .with(other_repository, tag_ids.first)
+
+        2.times { signatures.each(&:itself) }
+      end
+    end
+  end
+
+  describe 'tag into from Gitaly tag' do
+    context 'message_size != message.size' do
+      let(:gitaly_tag) { build(:gitaly_tag, message: ''.b, message_size: message_size) }
+      let(:tag) { described_class.new(repository, gitaly_tag) }
+
+      context 'message_size less than threshold' do
+        let(:message_size) { 123 }
+
+        it 'fetches tag message separately' do
+          expect(described_class).to receive(:get_message).with(repository, gitaly_tag.id)
+
+          tag.message
+        end
+      end
+
+      context 'message_size greater than threshold' do
+        let(:message_size) { described_class::MAX_TAG_MESSAGE_DISPLAY_SIZE + 1 }
+
+        it 'returns a notice about message size' do
+          expect(tag.message).to eq("--tag message is too big")
+        end
+      end
+    end
+  end
+
+  describe "#cache_key" do
+    subject { repository.tags.first }
+
+    it "returns a cache key that changes based on changeable values" do
+      expect(subject).to receive(:name).and_return("v1.0.0")
+      expect(subject).to receive(:message).and_return("Initial release")
+
+      digest = Digest::SHA1.hexdigest(["v1.0.0", "Initial release", subject.target, subject.target_commit.sha].join)
+
+      expect(subject.cache_key).to eq("tag:#{digest}")
+    end
+  end
+end

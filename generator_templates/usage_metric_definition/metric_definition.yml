@@ -1,0 +1,20 @@
+---
+key_path: <%= args.second %><%= metric_name_suggestion(args.second) %>
+description:
+product_section:
+product_stage:
+product_group:
+product_category:
+value_type: <%= value_type %>
+status: active
+milestone: "<%= milestone %>"
+introduced_by_url:
+time_frame: <%= time_frame %>
+data_source:
+data_category: optional
+instrumentation_class: <%= class_name %>
+performance_indicator_type:
+distribution:
+<%= distribution %>
+tier:
+<%= tier %>

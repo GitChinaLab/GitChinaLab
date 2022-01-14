@@ -1,0 +1,317 @@
+# frozen_string_literal: true
+require 'spec_helper'
+
+RSpec.describe Packages::PackageFile, type: :model do
+  using RSpec::Parameterized::TableSyntax
+
+  let_it_be(:project) { create(:project) }
+  let_it_be(:package_file1) { create(:package_file, :xml, file_name: 'FooBar') }
+  let_it_be(:package_file2) { create(:package_file, :xml, file_name: 'ThisIsATest') }
+  let_it_be(:package_file3) { create(:package_file, :xml, file_name: 'formatted.zip') }
+  let_it_be(:debian_package) { create(:debian_package, project: project) }
+
+  describe 'relationships' do
+    it { is_expected.to belong_to(:package) }
+    it { is_expected.to have_one(:conan_file_metadatum) }
+    it { is_expected.to have_many(:package_file_build_infos).inverse_of(:package_file) }
+    it { is_expected.to have_one(:debian_file_metadatum).inverse_of(:package_file).class_name('Packages::Debian::FileMetadatum') }
+    it { is_expected.to have_one(:helm_file_metadatum).inverse_of(:package_file).class_name('Packages::Helm::FileMetadatum') }
+  end
+
+  describe 'validations' do
+    it { is_expected.to validate_presence_of(:package) }
+  end
+
+  context 'with package filenames' do
+    describe '.with_file_name' do
+      let(:filename) { 'FooBar' }
+
+      subject { described_class.with_file_name(filename) }
+
+      it { is_expected.to match_array([package_file1]) }
+    end
+
+    describe '.with_file_name_like' do
+      let(:filename) { 'foobar' }
+
+      subject { described_class.with_file_name_like(filename) }
+
+      it { is_expected.to match_array([package_file1]) }
+    end
+
+    describe '.with_format' do
+      subject { described_class.with_format('zip') }
+
+      it { is_expected.to contain_exactly(package_file3) }
+    end
+  end
+
+  context 'updating project statistics' do
+    let_it_be(:package, reload: true) { create(:package) }
+
+    context 'when the package file has an explicit size' do
+      it_behaves_like 'UpdateProjectStatistics' do
+        subject { build(:package_file, :jar, package: package, size: 42) }
+      end
+    end
+
+    context 'when the package file does not have a size' do
+      it_behaves_like 'UpdateProjectStatistics' do
+        subject { build(:package_file, package: package, size: nil) }
+      end
+    end
+  end
+
+  describe '.for_package_ids' do
+    it 'returns matching packages' do
+      expect(described_class.for_package_ids([package_file1.package.id, package_file2.package.id]))
+        .to contain_exactly(package_file1, package_file2)
+    end
+  end
+
+  describe '.with_conan_package_reference' do
+    let_it_be(:non_matching_package_file) { create(:package_file, :nuget) }
+    let_it_be(:metadatum) { create(:conan_file_metadatum, :package_file) }
+    let_it_be(:reference) { metadatum.conan_package_reference}
+
+    it 'returns matching packages' do
+      expect(described_class.with_conan_package_reference(reference))
+        .to eq([metadatum.package_file])
+    end
+  end
+
+  describe '.for_rubygem_with_file_name' do
+    let_it_be(:non_ruby_package) { create(:nuget_package, project: project, package_type: :nuget) }
+    let_it_be(:ruby_package) { create(:rubygems_package, project: project, package_type: :rubygems) }
+    let_it_be(:file_name) { 'other.gem' }
+
+    let_it_be(:non_ruby_file) { create(:package_file, :nuget, package: non_ruby_package, file_name: file_name) }
+    let_it_be(:gem_file1) { create(:package_file, :gem, package: ruby_package) }
+    let_it_be(:gem_file2) { create(:package_file, :gem, package: ruby_package, file_name: file_name) }
+
+    it 'returns the matching gem file only for ruby packages' do
+      expect(described_class.for_rubygem_with_file_name(project, file_name)).to contain_exactly(gem_file2)
+    end
+  end
+
+  context 'Debian scopes' do
+    let_it_be(:debian_changes) { debian_package.package_files.last }
+    let_it_be(:debian_deb) { create(:debian_package_file, package: debian_package)}
+    let_it_be(:debian_udeb) { create(:debian_package_file, :udeb, package: debian_package)}
+
+    let_it_be(:debian_contrib) do
+      create(:debian_package_file, package: debian_package).tap do |pf|
+        pf.debian_file_metadatum.update!(component: 'contrib')
+      end
+    end
+
+    let_it_be(:debian_mipsel) do
+      create(:debian_package_file, package: debian_package).tap do |pf|
+        pf.debian_file_metadatum.update!(architecture: 'mipsel')
+      end
+    end
+
+    describe '#with_debian_file_type' do
+      it { expect(described_class.with_debian_file_type(:changes)).to contain_exactly(debian_changes) }
+    end
+
+    describe '#with_debian_component_name' do
+      it { expect(described_class.with_debian_component_name('contrib')).to contain_exactly(debian_contrib) }
+    end
+
+    describe '#with_debian_architecture_name' do
+      it { expect(described_class.with_debian_architecture_name('mipsel')).to contain_exactly(debian_mipsel) }
+    end
+  end
+
+  describe '.for_helm_with_channel' do
+    let_it_be(:project) { create(:project) }
+    let_it_be(:non_helm_package) { create(:nuget_package, project: project, package_type: :nuget) }
+    let_it_be(:helm_package1) { create(:helm_package, project: project, package_type: :helm) }
+    let_it_be(:helm_package2) { create(:helm_package, project: project, package_type: :helm) }
+    let_it_be(:channel) { 'some-channel' }
+
+    let_it_be(:non_helm_file) { create(:package_file, :nuget, package: non_helm_package) }
+    let_it_be(:helm_file1) { create(:helm_package_file, package: helm_package1) }
+    let_it_be(:helm_file2) { create(:helm_package_file, package: helm_package2, channel: channel) }
+
+    it 'returns the matching file only for Helm packages' do
+      expect(described_class.for_helm_with_channel(project, channel)).to contain_exactly(helm_file2)
+    end
+  end
+
+  describe '.most_recent!' do
+    it { expect(described_class.most_recent!).to eq(debian_package.package_files.last) }
+  end
+
+  describe '.most_recent_for' do
+    let_it_be(:package1) { create(:npm_package) }
+    let_it_be(:package2) { create(:npm_package) }
+    let_it_be(:package3) { create(:npm_package) }
+    let_it_be(:package4) { create(:npm_package) }
+
+    let_it_be(:package_file2_2) { create(:package_file, :npm, package: package2) }
+
+    let_it_be(:package_file3_2) { create(:package_file, :npm, package: package3) }
+    let_it_be(:package_file3_3) { create(:package_file, :npm, package: package3) }
+
+    let_it_be(:package_file4_2) { create(:package_file, :npm, package: package2) }
+    let_it_be(:package_file4_3) { create(:package_file, :npm, package: package2) }
+    let_it_be(:package_file4_4) { create(:package_file, :npm, package: package2) }
+
+    let(:most_recent_package_file1) { package1.package_files.recent.first }
+    let(:most_recent_package_file2) { package2.package_files.recent.first }
+    let(:most_recent_package_file3) { package3.package_files.recent.first }
+    let(:most_recent_package_file4) { package4.package_files.recent.first }
+
+    subject { described_class.most_recent_for(packages) }
+
+    where(
+      package_input1: [1, nil],
+      package_input2: [2, nil],
+      package_input3: [3, nil],
+      package_input4: [4, nil]
+    )
+
+    with_them do
+      let(:compact_inputs) { [package_input1, package_input2, package_input3, package_input4].compact }
+      let(:packages) do
+        ::Packages::Package.id_in(
+          compact_inputs.map { |pkg_number| public_send("package#{pkg_number}") }
+            .map(&:id)
+        )
+      end
+
+      let(:expected_package_files) { compact_inputs.map { |pkg_number| public_send("most_recent_package_file#{pkg_number}") } }
+
+      it { is_expected.to contain_exactly(*expected_package_files) }
+    end
+
+    context 'extra join and extra where' do
+      let_it_be(:helm_package) { create(:helm_package, without_package_files: true) }
+      let_it_be(:helm_package_file1) { create(:helm_package_file, channel: 'alpha') }
+      let_it_be(:helm_package_file2) { create(:helm_package_file, channel: 'alpha', package: helm_package) }
+      let_it_be(:helm_package_file3) { create(:helm_package_file, channel: 'beta', package: helm_package) }
+      let_it_be(:helm_package_file4) { create(:helm_package_file, channel: 'beta', package: helm_package) }
+
+      let(:extra_join) { :helm_file_metadatum }
+      let(:extra_where) { { packages_helm_file_metadata: { channel: 'alpha' } } }
+
+      subject { described_class.most_recent_for(Packages::Package.id_in(helm_package.id), extra_join: extra_join, extra_where: extra_where) }
+
+      it 'returns the most recent package for the selected channel' do
+        expect(subject).to contain_exactly(helm_package_file2)
+      end
+    end
+  end
+
+  describe '#pipelines' do
+    let_it_be_with_refind(:package_file) { create(:package_file) }
+
+    subject { package_file.pipelines }
+
+    context 'package_file without pipeline' do
+      it { is_expected.to be_empty }
+    end
+
+    context 'package_file with pipeline' do
+      let_it_be(:pipeline) { create(:ci_pipeline) }
+      let_it_be(:pipeline2) { create(:ci_pipeline) }
+
+      before do
+        package_file.package_file_build_infos.create!(pipeline: pipeline)
+        package_file.package_file_build_infos.create!(pipeline: pipeline2)
+      end
+
+      it { is_expected.to contain_exactly(pipeline, pipeline2) }
+    end
+  end
+
+  describe '#update_file_store callback' do
+    let_it_be(:package_file) { build(:package_file, :nuget, size: nil) }
+
+    subject { package_file.save! }
+
+    it 'updates metadata columns' do
+      expect(package_file)
+        .to receive(:update_file_store)
+        .and_call_original
+
+      # This expectation uses a stub because we can no longer test a change from
+      # `nil` to `1`, because the field is no longer nullable, and it defaults
+      # to `1`.
+      expect(package_file)
+        .to receive(:update_column)
+        .with(:file_store, ::Packages::PackageFileUploader::Store::LOCAL)
+
+      expect { subject }.to change { package_file.size }.from(nil).to(3513)
+    end
+  end
+
+  context 'update callbacks' do
+    subject { package_file.save! }
+
+    shared_examples 'executing the default callback' do
+      it 'executes the default callback' do
+        expect(package_file).to receive(:remove_previously_stored_file)
+        expect(package_file).not_to receive(:move_in_object_storage)
+
+        subject
+      end
+    end
+
+    context 'with object storage disabled' do
+      let(:package_file) { create(:package_file, file_name: 'file_name.txt') }
+
+      before do
+        stub_package_file_object_storage(enabled: false)
+      end
+
+      it_behaves_like 'executing the default callback'
+
+      context 'with new_file_path set' do
+        before do
+          package_file.new_file_path = 'test'
+        end
+
+        it_behaves_like 'executing the default callback'
+      end
+    end
+
+    context 'with object storage enabled' do
+      let(:package_file) do
+        create(
+          :package_file,
+          file_name: 'file_name.txt',
+          file: CarrierWaveStringFile.new_file(
+            file_content: 'content',
+            filename: 'file_name.txt',
+            content_type: 'text/plain'
+          ),
+          file_store: ::Packages::PackageFileUploader::Store::REMOTE
+        )
+      end
+
+      before do
+        stub_package_file_object_storage(enabled: true)
+      end
+
+      it_behaves_like 'executing the default callback'
+
+      context 'with new_file_path set' do
+        before do
+          package_file.new_file_path = 'test'
+        end
+
+        it 'executes the move_in_object_storage callback' do
+          expect(package_file).not_to receive(:remove_previously_stored_file)
+          expect(package_file).to receive(:move_in_object_storage).and_call_original
+          expect(package_file.file.file).to receive(:copy_to).and_call_original
+          expect(package_file.file.file).to receive(:delete).and_call_original
+
+          subject
+        end
+      end
+    end
+  end
+end

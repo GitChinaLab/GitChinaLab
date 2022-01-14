@@ -1,0 +1,4 @@
+- active = params[:tab] == 'health'
+
+= gl_tab_link_to clusterable.cluster_path(@cluster.id, params: { tab: 'health' }), { item_active: active, data: { testid: 'cluster-health-tab' } } do
+  = _('Health')

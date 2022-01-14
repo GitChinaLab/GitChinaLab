@@ -1,0 +1,14 @@
+.page-title-holder.d-flex.align-items-center
+  %h1.page-title= _('Groups')
+
+  - if current_user.can_create_group?
+    .page-title-controls
+      = link_to _("New group"), new_group_path, class: "gl-button btn btn-confirm", data: { testid: "new-group-button" }
+
+.top-area
+  = gl_tabs_nav({ class: 'gl-flex-grow-1 gl-border-0' }) do
+    = gl_tab_link_to _("Your groups"), dashboard_groups_path
+    = gl_tab_link_to _("Explore public groups"), explore_groups_path
+  .nav-controls
+    = render 'shared/groups/search_form'
+    = render 'shared/groups/dropdown'

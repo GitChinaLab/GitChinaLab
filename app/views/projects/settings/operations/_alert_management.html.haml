@@ -1,0 +1,16 @@
+- return unless can?(current_user, :admin_operations, @project)
+- expanded = expanded_by_default?
+- add_page_specific_style 'page_bundles/alert_management_settings'
+- add_page_specific_style 'page_bundles/incident_management_list'
+
+%section.settings.no-animate#js-alert-management-settings{ class: ('expanded' if expanded) }
+  .settings-header
+    %h4.settings-title.js-settings-toggle.js-settings-toggle-trigger-only
+      = _('Alerts')
+    %button.gl-button.btn.btn-default.js-settings-toggle{ type: 'button' }
+      = _('Expand')
+    %p
+      = _('Display alerts from all configured monitoring tools.')
+      = link_to _('Learn more.'), help_page_path('operations/incident_management/integrations.md'), target: '_blank', rel: 'noopener noreferrer'
+  .settings-content
+    .js-alerts-settings{ data: alerts_settings_data }

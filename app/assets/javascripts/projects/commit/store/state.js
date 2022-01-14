@@ -1,0 +1,16 @@
+export default () => ({
+  endpoint: null,
+  branchesEndpoint: null,
+  isFetching: false,
+  branches: [],
+  projects: [],
+  selectedBranch: '',
+  pushCode: false,
+  branchCollaboration: false,
+  modalTitle: '',
+  existingBranch: '',
+  defaultBranch: '',
+  branch: '',
+  targetProjectId: '',
+  targetProjectName: '',
+});

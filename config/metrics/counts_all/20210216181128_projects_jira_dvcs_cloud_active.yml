@@ -1,0 +1,21 @@
+---
+data_category: optional
+key_path: usage_activity_by_stage.plan.projects_jira_dvcs_cloud_active
+description: Distinct count of creator_id from projects with an active Jira Cloud
+  DVCS integration.
+product_section: dev
+product_stage: ecosystem
+product_group: group::integration
+product_category: integrations
+value_type: number
+status: active
+time_frame: all
+data_source: database
+distribution:
+- ce
+- ee
+tier:
+- free
+- premium
+- ultimate
+milestone: "<13.9"

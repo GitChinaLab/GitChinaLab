@@ -1,0 +1,33 @@
+# frozen_string_literal: true
+
+module Environments
+  class StopService < BaseService
+    attr_reader :ref
+
+    def execute(environment)
+      return unless can?(current_user, :stop_environment, environment)
+
+      environment.stop_with_action!(current_user)
+    end
+
+    def execute_for_branch(branch_name)
+      @ref = branch_name
+
+      return unless @ref.present?
+
+      environments.each { |environment| execute(environment) }
+    end
+
+    def execute_for_merge_request(merge_request)
+      merge_request.environments.each { |environment| execute(environment) }
+    end
+
+    private
+
+    def environments
+      @environments ||= Environments::EnvironmentsByDeploymentsFinder
+        .new(project, current_user, ref: @ref, recently_updated: true)
+        .execute
+    end
+  end
+end

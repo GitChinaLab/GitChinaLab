@@ -1,0 +1,11 @@
+%p.details
+  = html_escape(_('%{user} created an issue: %{issue_link}')) % { user: link_to(@issue.author_name, user_url(@issue.author)),
+                                                                  issue_link: issue_reference_link(@issue) }
+
+- if @issue.assignees.any?
+  %p
+    = assignees_label(@issue)
+
+- if @issue.description
+  %div
+  = markdown(@issue.description, pipeline: :email, author: @issue.author, current_user: @recipient, issuable_reference_expansion_enabled: true)

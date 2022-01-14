@@ -1,0 +1,48 @@
+- issuable = local_assigns.fetch(:issuable)
+- form = local_assigns.fetch(:form)
+
+- return unless issuable.is_a?(MergeRequest)
+- return if issuable.closed_or_merged_without_fork?
+
+- source_title, target_title = format_mr_branch_names(@merge_request)
+
+- vis010 = _('This merge request is from a private project to an internal project.')
+- vis020 = _('This merge request is from a private project to a public project.')
+- vis1020 = _('This merge request is from an internal project to a public project.')
+- i18n = { '010' => vis010, '020' => vis020, '1020' => vis1020 }
+
+- source_level = @merge_request.source_project.visibility_level
+- source_visibility = @merge_request.source_project.visibility
+- target_level = @merge_request.target_project.visibility_level
+
+- visibilityMismatchString = i18n["#{source_level}#{target_level}"]
+
+.form-group.row.d-flex.gl-px-5.branch-selector
+  .align-self-center
+    %span
+      = html_escape(_('From %{code_open}%{source_title}%{code_close} into')) % { source_title: source_title, code_open: '<code>'.html_safe, code_close: '</code>'.html_safe }
+
+    - if issuable.new_record?
+      %code#js-target-branch-title{ data: { branch_name: @merge_request.target_branch } }= target_title
+      &nbsp;
+      = link_to _('Change branches'), mr_change_branches_path(issuable)
+    - elsif issuable.for_fork?
+      %code= issuable.target_project_path + ":"
+    - if issuable.merged?
+      %code= target_title
+  - unless issuable.new_record? || issuable.merged?
+    %span.dropdown.gl-ml-2.d-inline-block
+      = form.hidden_field(:target_branch,
+        { class: 'target_branch js-target-branch-select ref-name mw-xl',
+          data: { placeholder: _('Select branch'), endpoint: refs_project_path(@project, sort: 'updated_desc', find: 'branches') }})
+
+- if source_level < target_level
+  .gl-alert.gl-alert-warning.gl-alert-not-dismissible.gl-max-content.gl-mt-4
+    .gl-alert-container
+      .gl-alert-content{ role: 'alert' }
+        = sprite_icon('warning', css_class: 'gl-icon gl-alert-icon gl-alert-icon-no-title')
+        .gl-alert-body
+          = visibilityMismatchString
+          %br
+          = _('Review the target project before submitting to avoid exposing %{source} changes.') % { source: source_visibility }
+%hr

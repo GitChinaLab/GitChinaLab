@@ -1,0 +1,1172 @@
+#######################
+# rspec job base specs
+.rails-job-base:
+  extends:
+    - .default-retry
+    - .default-before_script
+    - .rails-cache
+
+.base-script:
+  script:
+    # Only install knapsack after bundle install! Otherwise oddly some native
+    # gems could not be found under some circumstance. No idea why, hours wasted.
+    - run_timed_command "gem install knapsack --no-document"
+    - run_timed_command "scripts/gitaly-test-spawn"
+    - source ./scripts/rspec_helpers.sh
+
+.minimal-rspec-tests:
+  variables:
+    RSPEC_TESTS_MAPPING_ENABLED: "true"
+
+.decomposed-database:
+  variables:
+    DECOMPOSED_DB: "true"
+
+.decomposed-database-rspec:
+  extends: .decomposed-database
+  variables:
+    GITLAB_LOAD_BALANCING_REUSE_PRIMARY_ci: "main"
+    GITLAB_USE_MODEL_LOAD_BALANCING: "true"
+
+.rspec-base:
+  extends: .rails-job-base
+  stage: test
+  variables:
+    RUBY_GC_MALLOC_LIMIT: 67108864
+    RUBY_GC_MALLOC_LIMIT_MAX: 134217728
+    RECORD_DEPRECATIONS: "true"
+    GEO_SECONDARY_PROXY: 0
+  needs: ["setup-test-env", "retrieve-tests-metadata", "compile-test-assets", "detect-tests"]
+  script:
+    - !reference [.base-script, script]
+    - rspec_paralellized_job "--tag ~quarantine --tag ~geo --tag ~level:migration"
+  artifacts:
+    expire_in: 31d
+    when: always
+    paths:
+      - coverage/
+      - crystalball/
+      - deprecations/
+      - knapsack/
+      - rspec_flaky/
+      - rspec_profiling/
+      - tmp/capybara/
+      - tmp/memory_test/
+      - log/*.log
+    reports:
+      junit: junit_rspec.xml
+
+.rspec-base-migration:
+  extends: .rails:rules:ee-and-foss-migration
+  script:
+    - !reference [.base-script, script]
+    - rspec_paralellized_job "--tag ~quarantine --tag ~geo --tag level:migration"
+
+.rspec-base-pg11:
+  extends:
+    - .rspec-base
+    - .use-pg11
+
+.rspec-base-pg12:
+  extends:
+    - .rspec-base
+    - .use-pg12
+
+.rspec-base-pg12-as-if-foss:
+  extends:
+    - .rspec-base
+    - .as-if-foss
+    - .use-pg12
+  needs: ["setup-test-env", "retrieve-tests-metadata", "compile-test-assets as-if-foss", "detect-tests"]
+
+.rspec-base-pg12-as-if-jh:
+  extends:
+    - .rspec-base
+    - .use-pg12
+  needs: ["setup-test-env", "retrieve-tests-metadata", "compile-test-assets as-if-jh", "detect-tests", "add-jh-folder"]
+
+.rspec-base-pg13:
+  extends:
+    - .rspec-base
+    - .use-pg13
+
+.rspec-ee-base-pg11:
+  extends:
+    - .rspec-base
+    - .use-pg11-ee
+
+.rspec-ee-base-pg12:
+  extends:
+    - .rspec-base
+    - .use-pg12-ee
+
+.rspec-jh-base-pg12:
+  extends:
+    - .rspec-base-pg12-as-if-jh
+    - .use-pg12-ee
+
+.rspec-ee-base-pg13:
+  extends:
+    - .rspec-base
+    - .use-pg13-ee
+
+.rspec-ee-base-geo:
+  extends: .rspec-base
+  script:
+    - !reference [.base-script, script]
+    - rspec_paralellized_job "--tag ~quarantine --tag geo"
+
+.rspec-ee-base-geo-pg11:
+  extends:
+    - .rspec-ee-base-geo
+    - .use-pg11-ee
+
+.rspec-ee-base-geo-pg12:
+  extends:
+    - .rspec-ee-base-geo
+    - .use-pg12-ee
+
+.rspec-jh-base-geo-pg12:
+  extends:
+    - .rspec-jh-base-pg12
+  script:
+    - !reference [.rspec-ee-base-geo, script]
+
+.rspec-ee-base-geo-pg13:
+  extends:
+    - .rspec-ee-base-geo
+    - .use-pg13-ee
+
+.db-job-base:
+  extends:
+    - .rails-job-base
+    - .rails:rules:ee-and-foss-migration
+    - .use-pg12
+  stage: test
+  needs: ["setup-test-env"]
+# rspec job base specs
+######################
+
+############################
+# rspec job parallel configs
+.rspec-migration-parallel:
+  parallel: 9
+
+.rspec-ee-migration-parallel:
+  parallel: 3
+
+.rspec-unit-parallel:
+  parallel: 22
+
+.rspec-ee-unit-parallel:
+  parallel: 14
+
+.rspec-ee-unit-geo-parallel:
+  parallel: 2
+
+.rspec-integration-parallel:
+  parallel: 10
+
+.rspec-ee-integration-parallel:
+  parallel: 4
+
+.rspec-system-parallel:
+  parallel: 24
+
+.rspec-ee-system-parallel:
+  parallel: 6
+# rspec job parallel configs
+############################
+
+#######################################################
+# EE/FOSS: default refs (MRs, default branch, schedules) jobs #
+setup-test-env:
+  extends:
+    - .rails-job-base
+    - .setup-test-env-cache
+    - .rails:rules:setup-test-env
+  stage: prepare
+  variables:
+    SETUP_DB: "false"
+  script:
+    - run_timed_command "scripts/setup-test-env"
+    - echo -e "\e[0Ksection_start:`date +%s`:gitaly-test-build[collapsed=true]\r\e[0KCompiling Gitaly binaries"
+    - run_timed_command "scripts/gitaly-test-build"  # Do not use 'bundle exec' here
+    - echo -e "\e[0Ksection_end:`date +%s`:gitaly-test-build\r\e[0K"
+
+  artifacts:
+    expire_in: 7d
+    paths:
+      - config/secrets.yml
+      - tmp/tests/gitaly/_build/bin/
+      - tmp/tests/gitaly/_build/deps/git/install
+      - tmp/tests/gitaly/config.toml
+      - tmp/tests/gitaly/gitaly2.config.toml
+      - tmp/tests/gitaly/internal/
+      - tmp/tests/gitaly/internal_gitaly2/
+      - tmp/tests/gitaly/internal_sockets/
+      - tmp/tests/gitaly/Makefile
+      - tmp/tests/gitaly/praefect.config.toml
+      - tmp/tests/gitaly/ruby/
+      - tmp/tests/gitlab-elasticsearch-indexer/bin/gitlab-elasticsearch-indexer
+      - tmp/tests/gitlab-shell/
+      - tmp/tests/gitlab-test-fork/
+      - tmp/tests/gitlab-test-fork_bare/
+      - tmp/tests/gitlab-test/
+      - tmp/tests/gitlab-workhorse/gitlab-zip-metadata
+      - tmp/tests/gitlab-workhorse/gitlab-zip-cat
+      - tmp/tests/gitlab-workhorse/gitlab-workhorse
+      - tmp/tests/gitlab-workhorse/gitlab-resize-image
+      - tmp/tests/gitlab-workhorse/config.toml
+      - tmp/tests/gitlab-workhorse/WORKHORSE_TREE
+      - tmp/tests/repositories/
+      - tmp/tests/second_storage/
+    when: always
+
+update-setup-test-env-cache:
+  extends:
+    - setup-test-env
+    - .setup-test-env-cache-push
+    - .shared:rules:update-cache
+  artifacts:
+    paths: []  # This job's purpose is only to update the cache.
+
+update-gitaly-binaries-cache:
+  extends:
+    - setup-test-env
+    - .gitaly-binaries-cache-push
+    - .shared:rules:update-gitaly-binaries-cache
+  artifacts:
+    paths: []  # This job's purpose is only to update the cache.
+
+.coverage-base:
+  extends:
+    - .default-retry
+    - .coverage-cache
+  before_script:
+    - source scripts/utils.sh
+    - export BUNDLE_WITHOUT="${BUNDLE_WITHOUT}:default:test:puma:kerberos:metrics:omnibus:ed25519"
+    - bundle_install_script
+
+rspec migration pg12:
+  extends:
+    - .rspec-base-pg12
+    - .rspec-base-migration
+    - .rspec-migration-parallel
+
+rspec migration pg12 minimal:
+  extends:
+    - rspec migration pg12
+    - .minimal-rspec-tests
+    - .rails:rules:ee-and-foss-migration:minimal
+
+rspec migration pg12 decomposed:
+  extends:
+    - rspec migration pg12
+    - .decomposed-database-rspec
+    - .rails:rules:decomposed-databases
+
+rspec unit pg12:
+  extends:
+    - .rspec-base-pg12
+    - .rails:rules:ee-and-foss-unit
+    - .rspec-unit-parallel
+
+rspec unit pg12 minimal:
+  extends:
+    - rspec unit pg12
+    - .minimal-rspec-tests
+    - .rails:rules:ee-and-foss-unit:minimal
+
+rspec unit pg12 decomposed:
+  extends:
+    - rspec unit pg12
+    - .decomposed-database-rspec
+    - .rails:rules:decomposed-databases
+
+rspec integration pg12:
+  extends:
+    - .rspec-base-pg12
+    - .rails:rules:ee-and-foss-integration
+    - .rspec-integration-parallel
+
+rspec integration pg12 minimal:
+  extends:
+    - rspec integration pg12
+    - .minimal-rspec-tests
+    - .rails:rules:ee-and-foss-integration:minimal
+
+rspec integration pg12 decomposed:
+  extends:
+    - rspec integration pg12
+    - .decomposed-database-rspec
+    - .rails:rules:decomposed-databases
+
+rspec system pg12:
+  extends:
+    - .rspec-base-pg12
+    - .rails:rules:ee-and-foss-system
+    - .rspec-system-parallel
+
+rspec system pg12 minimal:
+  extends:
+    - rspec system pg12
+    - .minimal-rspec-tests
+    - .rails:rules:ee-and-foss-system:minimal
+
+rspec system pg12 decomposed:
+  extends:
+    - rspec system pg12
+    - .decomposed-database-rspec
+    - .rails:rules:decomposed-databases
+
+# Dedicated job to test DB library code against PG11.
+# Note that these are already tested against PG12 in the `rspec unit pg12` / `rspec-ee unit pg12` jobs.
+rspec db-library-code pg11:
+  extends:
+    - .rspec-base-pg11
+    - .rails:rules:ee-and-foss-db-library-code
+  script:
+    - !reference [.base-script, script]
+    - rspec_db_library_code
+
+rspec fast_spec_helper:
+  extends:
+    - .rspec-base-pg12
+    - .rails:rules:ee-and-foss-fast_spec_helper
+  script:
+    - bin/rspec spec/fast_spec_helper.rb
+
+rspec fast_spec_helper minimal:
+  extends:
+    - rspec fast_spec_helper
+    - .minimal-rspec-tests
+    - .rails:rules:ee-and-foss-fast_spec_helper:minimal
+
+db:rollback:
+  extends: .db-job-base
+  script:
+    - scripts/db_tasks db:migrate VERSION=20181228175414
+    - scripts/db_tasks db:migrate SKIP_SCHEMA_VERSION_CHECK=true
+
+db:rollback decomposed:
+  extends:
+    - db:rollback
+    - .decomposed-database
+    - .rails:rules:decomposed-databases
+
+db:migrate:reset:
+  extends: .db-job-base
+  script:
+    - bundle exec rake db:migrate:reset
+
+db:migrate-from-previous-major-version:
+  extends: .db-job-base
+  variables:
+    USE_BUNDLE_INSTALL: "false"
+    SETUP_DB: "false"
+    PROJECT_TO_CHECKOUT: "gitlab-foss"
+    TAG_TO_CHECKOUT: "v13.12.9"
+  before_script:
+    - !reference [.default-before_script, before_script]
+    - '[[ -d "ee/" ]] || export PROJECT_TO_CHECKOUT="gitlab"'
+    - '[[ -d "ee/" ]] || export TAG_TO_CHECKOUT="${TAG_TO_CHECKOUT}-ee"'
+    - retry 'git fetch https://gitlab.com/gitlab-org/$PROJECT_TO_CHECKOUT.git $TAG_TO_CHECKOUT'
+    - git checkout -f FETCH_HEAD
+    - SETUP_DB=false USE_BUNDLE_INSTALL=true bash scripts/prepare_build.sh
+    - run_timed_command "bundle exec rake db:drop db:create db:structure:load db:migrate db:seed_fu"
+    - git checkout -f $CI_COMMIT_SHA
+    - SETUP_DB=false USE_BUNDLE_INSTALL=true bash scripts/prepare_build.sh
+  script:
+    - run_timed_command "scripts/db_tasks db:migrate"
+
+db:migrate-from-previous-major-version-decomposed:
+  extends:
+    - db:migrate-from-previous-major-version
+    - .decomposed-database
+    - .rails:rules:decomposed-databases
+
+.db:check-schema-base:
+  extends:
+    - .rails:rules:ee-mr-and-default-branch-only
+  variables:
+    TAG_TO_CHECKOUT: "v14.4.0"
+  script:
+    - run_timed_command "scripts/db_tasks db:migrate"
+    - scripts/schema_changed.sh
+    - scripts/validate_migration_timestamps
+
+db:check-schema:
+  extends:
+    - db:migrate-from-previous-major-version
+    - .db:check-schema-base
+
+db:check-schema-decomposed:
+  extends:
+    - db:migrate-from-previous-major-version-decomposed
+    - .db:check-schema-base
+
+db:check-migrations:
+  extends:
+    - .db-job-base
+    - .rails:rules:ee-and-foss-mr-with-migration
+  script:
+    - git fetch origin $CI_MERGE_REQUEST_TARGET_BRANCH_NAME:$CI_MERGE_REQUEST_TARGET_BRANCH_NAME --depth 20
+    - scripts/validate_migration_schema
+  allow_failure: true
+
+db:check-migrations-decomposed:
+  extends:
+    - db:check-migrations
+    - .decomposed-database
+    - .rails:rules:decomposed-databases
+
+db:gitlabcom-database-testing:
+  extends: .rails:rules:db:gitlabcom-database-testing
+  stage: test
+  image: ruby:2.7-alpine
+  needs: []
+  allow_failure: true
+  script:
+    - source scripts/utils.sh
+    - install_gitlab_gem
+    - ./scripts/trigger-build gitlab-com-database-testing
+
+gitlab:setup:
+  extends: .db-job-base
+  variables:
+    SETUP_DB: "false"
+  script:
+    # Manually clone gitlab-test and only seed this project in
+    # db/fixtures/development/04_project.rb thanks to SIZE=1 below
+    - git clone https://gitlab.com/gitlab-org/gitlab-test.git
+       /home/git/repositories/gitlab-org/gitlab-test.git
+    - !reference [.base-script, script]
+    - force=yes SIZE=1 FIXTURE_PATH="db/fixtures/development" bundle exec rake gitlab:setup
+  artifacts:
+    when: on_failure
+    expire_in: 1d
+    paths:
+      - log/*.log
+
+db:backup_and_restore:
+  extends: .db-job-base
+  variables:
+    SETUP_DB: "false"
+    GITLAB_ASSUME_YES: "1"
+  script:
+    - . scripts/prepare_build.sh
+    - bundle exec rake db:drop db:create db:structure:load db:seed_fu
+    - mkdir -p tmp/tests/public/uploads tmp/tests/{artifacts,pages,lfs-objects,registry}
+    - bundle exec rake gitlab:backup:create
+    - date
+    - bundle exec rake gitlab:backup:restore
+  rules:
+    - changes:
+        - "lib/backup/**/*"
+        - "lib/tasks/gitlab/backup.rake"
+
+rspec:deprecations:
+  extends:
+    - .default-retry
+    - .default-before_script
+    - .static-analysis-cache
+    - .rails:rules:deprecations
+  stage: post-test
+  allow_failure: true
+  # We cannot use needs since it would mean needing 84 jobs (since most are parallelized)
+  # so we use `dependencies` here.
+  dependencies:
+    - rspec migration pg12
+    - rspec unit pg12
+    - rspec integration pg12
+    - rspec system pg12
+    - rspec-ee migration pg12
+    - rspec-ee unit pg12
+    - rspec-ee integration pg12
+    - rspec-ee system pg12
+    - rspec-ee unit pg12 geo
+    - rspec-ee integration pg12 geo
+    - rspec-ee system pg12 geo
+  variables:
+    SETUP_DB: "false"
+  script:
+    - grep -h -R "keyword" deprecations/ | awk '{$1=$1};1' | sort | uniq -c | sort
+    - grep -R "keyword" deprecations/ | wc
+    - run_timed_command "bundle exec rubocop --only Lint/LastKeywordArgument --parallel"
+  artifacts:
+    expire_in: 31d
+    when: always
+    paths:
+      - deprecations/
+
+rspec:coverage:
+  extends:
+    - .coverage-base
+    - .rails:rules:rspec-coverage
+  stage: post-test
+  # We cannot use needs since it would mean needing 84 jobs (since most are parallelized)
+  # so we use `dependencies` here.
+  dependencies:
+    - setup-test-env
+    # FOSS/EE jobs
+    - rspec migration pg12
+    - rspec unit pg12
+    - rspec integration pg12
+    - rspec system pg12
+    # FOSS/EE minimal jobs
+    - rspec migration pg12 minimal
+    - rspec unit pg12 minimal
+    - rspec integration pg12 minimal
+    - rspec system pg12 minimal
+    # FOSS/EE decomposed jobs
+    - rspec migration pg12 decomposed
+    - rspec unit pg12 decomposed
+    - rspec integration pg12 decomposed
+    - rspec system pg12 decomposed
+    # EE jobs
+    - rspec-ee migration pg12
+    - rspec-ee unit pg12
+    - rspec-ee integration pg12
+    - rspec-ee system pg12
+    # EE minimal jobs
+    - rspec-ee migration pg12 minimal
+    - rspec-ee unit pg12 minimal
+    - rspec-ee integration pg12 minimal
+    - rspec-ee system pg12 minimal
+    # EE decomposed jobs
+    - rspec-ee migration pg12 decomposed
+    - rspec-ee unit pg12 decomposed
+    - rspec-ee integration pg12 decomposed
+    - rspec-ee system pg12 decomposed
+    # Geo jobs
+    - rspec-ee unit pg12 geo
+    - rspec-ee integration pg12 geo
+    - rspec-ee system pg12 geo
+    # Geo minimal jobs
+    - rspec-ee unit pg12 geo minimal
+    - rspec-ee integration pg12 geo minimal
+    - rspec-ee system pg12 geo minimal
+    # Memory jobs
+    - memory-static
+    - memory-on-boot
+    # As-if-FOSS jobs
+    - rspec migration pg12-as-if-foss
+    - rspec migration pg12-as-if-foss minimal
+    - rspec migration pg12-as-if-foss decomposed
+    - rspec unit pg12-as-if-foss
+    - rspec unit pg12-as-if-foss minimal
+    - rspec unit pg12-as-if-foss decomposed
+    - rspec integration pg12-as-if-foss
+    - rspec integration pg12-as-if-foss minimal
+    - rspec integration pg12-as-if-foss decomposed
+    - rspec system pg12-as-if-foss
+    - rspec system pg12-as-if-foss minimal
+    - rspec system pg12-as-if-foss decomposed
+  script:
+    - run_timed_command "bundle exec scripts/merge-simplecov"
+    - run_timed_command "bundle exec scripts/gather-test-memory-data"
+  coverage: '/LOC \((\d+\.\d+%)\) covered.$/'
+  artifacts:
+    name: coverage
+    expire_in: 31d
+    paths:
+      - coverage/index.html
+      - coverage/assets/
+      - coverage/lcov/
+      - tmp/memory_test/
+    reports:
+      cobertura: coverage/coverage.xml
+
+rspec:undercoverage:
+  extends:
+    - .coverage-base
+    - .rails:rules:rspec-undercoverage
+  stage: post-test
+  needs: ["rspec:coverage"]
+  script:
+    - if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_SHA" ]; then
+        echo "Checking out \$CI_MERGE_REQUEST_SOURCE_BRANCH_SHA ($CI_MERGE_REQUEST_SOURCE_BRANCH_SHA) instead of \$CI_COMMIT_SHA (merge result commit $CI_COMMIT_SHA) so we can use $CI_MERGE_REQUEST_DIFF_BASE_SHA for undercoverage in this merged result pipeline";
+        git checkout -f ${CI_MERGE_REQUEST_SOURCE_BRANCH_SHA};
+        bundle_install_script;
+      else
+        echo "Using \$CI_COMMIT_SHA ($CI_COMMIT_SHA) for this non-merge result pipeline.";
+      fi;
+    - if [ -f scripts/undercoverage ]; then
+        run_timed_command "scripts/undercoverage";
+      fi;
+
+rspec:feature-flags:
+  extends:
+    - .coverage-base
+    - .rails:rules:rspec-feature-flags
+  stage: post-test
+  needs:
+    - job: "feature-flags-usage"
+    - job: "haml-lint foss"
+    - job: "haml-lint ee"
+      optional: true
+  script:
+    - if [ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]; then
+        run_timed_command "bundle exec scripts/used-feature-flags" || (scripts/slack master-broken "☠️ \`${CI_JOB_NAME}\` failed! ☠️ See ${CI_JOB_URL}" ci_failing "GitLab Bot" && exit 1);
+      else
+        run_timed_command "bundle exec scripts/used-feature-flags";
+      fi
+
+rspec:skipped-flaky-tests-report:
+  extends:
+    - .default-retry
+    - .rails:rules:skipped-flaky-tests-report
+  image: ruby:2.7-alpine
+  stage: post-test
+  # We cannot use needs since it would mean needing 84 jobs (since most are parallelized)
+  # so we use `dependencies` here.
+  dependencies:
+    # FOSS/EE jobs
+    - rspec migration pg12
+    - rspec unit pg12
+    - rspec integration pg12
+    - rspec system pg12
+    # FOSS/EE minimal jobs
+    - rspec migration pg12 minimal
+    - rspec unit pg12 minimal
+    - rspec integration pg12 minimal
+    - rspec system pg12 minimal
+    # EE jobs
+    - rspec-ee migration pg12
+    - rspec-ee unit pg12
+    - rspec-ee integration pg12
+    - rspec-ee system pg12
+    # EE minimal jobs
+    - rspec-ee migration pg12 minimal
+    - rspec-ee unit pg12 minimal
+    - rspec-ee integration pg12 minimal
+    - rspec-ee system pg12 minimal
+    # Geo jobs
+    - rspec-ee unit pg12 geo
+    - rspec-ee integration pg12 geo
+    - rspec-ee system pg12 geo
+    # Geo minimal jobs
+    - rspec-ee unit pg12 geo minimal
+    - rspec-ee integration pg12 geo minimal
+    - rspec-ee system pg12 geo minimal
+  variables:
+    SKIPPED_FLAKY_TESTS_REPORT: skipped_flaky_tests_report.txt
+  before_script:
+    - 'echo "SKIP_FLAKY_TESTS_AUTOMATICALLY: $SKIP_FLAKY_TESTS_AUTOMATICALLY"'
+    - mkdir -p rspec_flaky
+  script:
+    - find rspec_flaky/ -type f -name 'skipped_flaky_tests_*_report.txt' -exec cat {} + >> "${SKIPPED_FLAKY_TESTS_REPORT}"
+  artifacts:
+    expire_in: 31d
+    paths:
+      - ${SKIPPED_FLAKY_TESTS_REPORT}
+
+# EE/FOSS: default refs (MRs, default branch, schedules) jobs #
+#######################################################
+
+##################################################
+# EE: default refs (MRs, default branch, schedules) jobs #
+rspec migration pg12-as-if-foss:
+  extends:
+    - .rspec-base-pg12-as-if-foss
+    - .rspec-base-migration
+    - .rails:rules:as-if-foss-migration
+    - .rspec-migration-parallel
+
+rspec migration pg12-as-if-foss minimal:
+  extends:
+    - rspec migration pg12-as-if-foss
+    - .minimal-rspec-tests
+    - .rails:rules:as-if-foss-migration:minimal
+
+rspec migration pg12-as-if-foss decomposed:
+  extends:
+    - rspec migration pg12-as-if-foss
+    - .decomposed-database-rspec
+    - .rails:rules:decomposed-databases
+
+rspec unit pg12-as-if-foss:
+  extends:
+    - .rspec-base-pg12-as-if-foss
+    - .rails:rules:as-if-foss-unit
+    - .rspec-unit-parallel
+
+rspec unit pg12-as-if-foss minimal:
+  extends:
+    - rspec unit pg12-as-if-foss
+    - .minimal-rspec-tests
+    - .rails:rules:as-if-foss-unit:minimal
+
+rspec unit pg12-as-if-foss decomposed:
+  extends:
+    - rspec unit pg12-as-if-foss
+    - .decomposed-database-rspec
+    - .rails:rules:decomposed-databases
+
+rspec integration pg12-as-if-foss:
+  extends:
+    - .rspec-base-pg12-as-if-foss
+    - .rails:rules:as-if-foss-integration
+    - .rspec-integration-parallel
+
+rspec integration pg12-as-if-foss minimal:
+  extends:
+    - rspec integration pg12-as-if-foss
+    - .minimal-rspec-tests
+    - .rails:rules:as-if-foss-integration:minimal
+
+rspec integration pg12-as-if-foss decomposed:
+  extends:
+    - rspec integration pg12-as-if-foss
+    - .decomposed-database-rspec
+    - .rails:rules:decomposed-databases
+
+rspec system pg12-as-if-foss:
+  extends:
+    - .rspec-base-pg12-as-if-foss
+    - .rails:rules:as-if-foss-system
+    - .rspec-system-parallel
+
+rspec system pg12-as-if-foss minimal:
+  extends:
+    - rspec system pg12-as-if-foss
+    - .minimal-rspec-tests
+    - .rails:rules:as-if-foss-system:minimal
+
+rspec system pg12-as-if-foss decomposed:
+  extends:
+    - rspec system pg12-as-if-foss
+    - .decomposed-database-rspec
+    - .rails:rules:decomposed-databases
+
+rspec migration pg12-as-if-jh:
+  extends:
+    - .rspec-base-pg12-as-if-jh
+    - .rspec-base-migration
+    - .rails:rules:as-if-jh-rspec
+    - .rspec-migration-parallel
+
+rspec unit pg12-as-if-jh:
+  extends:
+    - .rspec-base-pg12-as-if-jh
+    - .rails:rules:as-if-jh-rspec
+    - .rspec-unit-parallel
+
+rspec integration pg12-as-if-jh:
+  extends:
+    - .rspec-base-pg12-as-if-jh
+    - .rails:rules:as-if-jh-rspec
+    - .rspec-integration-parallel
+
+rspec system pg12-as-if-jh:
+  extends:
+    - .rspec-base-pg12-as-if-jh
+    - .rails:rules:as-if-jh-rspec
+    - .rspec-system-parallel
+
+rspec-ee migration pg12:
+  extends:
+    - .rspec-ee-base-pg12
+    - .rspec-base-migration
+    - .rails:rules:ee-only-migration
+    - .rspec-ee-migration-parallel
+
+rspec-ee migration pg12 minimal:
+  extends:
+    - rspec-ee migration pg12
+    - .minimal-rspec-tests
+    - .rails:rules:ee-only-migration:minimal
+
+rspec-ee migration pg12 decomposed:
+  extends:
+    - rspec-ee migration pg12
+    - .decomposed-database-rspec
+    - .rails:rules:decomposed-databases
+
+rspec-ee unit pg12:
+  extends:
+    - .rspec-ee-base-pg12
+    - .rails:rules:ee-only-unit
+    - .rspec-ee-unit-parallel
+
+rspec-ee unit pg12 minimal:
+  extends:
+    - rspec-ee unit pg12
+    - .minimal-rspec-tests
+    - .rails:rules:ee-only-unit:minimal
+
+rspec-ee unit pg12 decomposed:
+  extends:
+    - rspec-ee unit pg12
+    - .decomposed-database-rspec
+    - .rails:rules:decomposed-databases
+
+rspec-ee integration pg12:
+  extends:
+    - .rspec-ee-base-pg12
+    - .rails:rules:ee-only-integration
+    - .rspec-ee-integration-parallel
+
+rspec-ee integration pg12 minimal:
+  extends:
+    - rspec-ee integration pg12
+    - .minimal-rspec-tests
+    - .rails:rules:ee-only-integration:minimal
+
+rspec-ee integration pg12 decomposed:
+  extends:
+    - rspec-ee integration pg12
+    - .decomposed-database-rspec
+    - .rails:rules:decomposed-databases
+
+rspec-ee system pg12:
+  extends:
+    - .rspec-ee-base-pg12
+    - .rails:rules:ee-only-system
+    - .rspec-ee-system-parallel
+
+rspec-ee system pg12 minimal:
+  extends:
+    - rspec-ee system pg12
+    - .minimal-rspec-tests
+    - .rails:rules:ee-only-system:minimal
+
+rspec-ee system pg12 decomposed:
+  extends:
+    - rspec-ee system pg12
+    - .decomposed-database-rspec
+    - .rails:rules:decomposed-databases
+
+rspec-ee unit pg12 geo:
+  extends:
+    - .rspec-ee-base-geo-pg12
+    - .rails:rules:ee-only-unit
+    - .rspec-ee-unit-geo-parallel
+
+rspec-ee unit pg12 geo minimal:
+  extends:
+    - rspec-ee unit pg12 geo
+    - .minimal-rspec-tests
+    - .rails:rules:ee-only-unit:minimal
+
+rspec-ee integration pg12 geo:
+  extends:
+    - .rspec-ee-base-geo-pg12
+    - .rails:rules:ee-only-integration
+
+rspec-ee integration pg12 geo minimal:
+  extends:
+    - rspec-ee integration pg12 geo
+    - .minimal-rspec-tests
+    - .rails:rules:ee-only-integration:minimal
+
+rspec-ee system pg12 geo:
+  extends:
+    - .rspec-ee-base-geo-pg12
+    - .rails:rules:ee-only-system
+
+rspec-ee system pg12 geo minimal:
+  extends:
+    - rspec-ee system pg12 geo
+    - .minimal-rspec-tests
+    - .rails:rules:ee-only-system:minimal
+
+rspec-ee migration pg12-as-if-jh:
+  extends:
+    - .rspec-jh-base-pg12
+    - .rspec-base-migration
+    - .rails:rules:as-if-jh-rspec
+    - .rspec-ee-migration-parallel
+
+rspec-ee unit pg12-as-if-jh:
+  extends:
+    - .rspec-jh-base-pg12
+    - .rails:rules:as-if-jh-rspec
+    - .rspec-ee-unit-parallel
+
+rspec-ee integration pg12-as-if-jh:
+  extends:
+    - .rspec-jh-base-pg12
+    - .rails:rules:as-if-jh-rspec
+    - .rspec-ee-integration-parallel
+
+rspec-ee system pg12-as-if-jh:
+  extends:
+    - .rspec-jh-base-pg12
+    - .rails:rules:as-if-jh-rspec
+    - .rspec-ee-system-parallel
+
+rspec-ee unit pg12-as-if-jh geo:
+  extends:
+    - .rspec-jh-base-geo-pg12
+    - .rails:rules:as-if-jh-rspec
+    - .rspec-ee-unit-geo-parallel
+
+rspec-ee integration pg12-as-if-jh geo:
+  extends:
+    - .rspec-jh-base-geo-pg12
+    - .rails:rules:as-if-jh-rspec
+
+rspec-ee system pg12-as-if-jh geo:
+  extends:
+    - .rspec-jh-base-geo-pg12
+    - .rails:rules:as-if-jh-rspec
+
+rspec-jh migration pg12-as-if-jh:
+  extends:
+    - .rspec-jh-base-pg12
+    - .rspec-base-migration
+    - .rails:rules:as-if-jh-rspec
+
+rspec-jh unit pg12-as-if-jh:
+  extends:
+    - .rspec-jh-base-pg12
+    - .rails:rules:as-if-jh-rspec
+
+rspec-jh integration pg12-as-if-jh:
+  extends:
+    - .rspec-jh-base-pg12
+    - .rails:rules:as-if-jh-rspec
+
+rspec-jh system pg12-as-if-jh:
+  extends:
+    - .rspec-jh-base-pg12
+    - .rails:rules:as-if-jh-rspec
+
+rspec-jh unit pg12-as-if-jh geo:
+  extends:
+    - .rspec-jh-base-geo-pg12
+    - .rails:rules:as-if-jh-rspec
+
+rspec-jh integration pg12-as-if-jh geo:
+  extends:
+    - .rspec-jh-base-geo-pg12
+    - .rails:rules:as-if-jh-rspec
+
+rspec-jh system pg12-as-if-jh geo:
+  extends:
+    - .rspec-jh-base-geo-pg12
+    - .rails:rules:as-if-jh-rspec
+
+db:rollback geo:
+  extends:
+    - db:rollback
+    - .rails:rules:ee-only-migration
+  script:
+    - bundle exec rake db:migrate:geo VERSION=20170627195211
+    - bundle exec rake db:migrate:geo
+# EE: default refs (MRs, default branch, schedules) jobs #
+##################################################
+
+##########################################
+# EE/FOSS: default branch nightly scheduled jobs #
+
+# PG11
+rspec migration pg11:
+  extends:
+    - .rspec-base-pg11
+    - .rspec-base-migration
+    - .rails:rules:default-branch-schedule-nightly--code-backstage
+    - .rspec-migration-parallel
+
+rspec unit pg11:
+  extends:
+    - .rspec-base-pg11
+    - .rails:rules:default-branch-schedule-nightly--code-backstage
+    - .rspec-unit-parallel
+
+rspec integration pg11:
+  extends:
+    - .rspec-base-pg11
+    - .rails:rules:default-branch-schedule-nightly--code-backstage
+    - .rspec-integration-parallel
+
+rspec system pg11:
+  extends:
+    - .rspec-base-pg11
+    - .rails:rules:default-branch-schedule-nightly--code-backstage
+    - .rspec-system-parallel
+
+# PG13
+rspec migration pg13:
+  extends:
+    - .rspec-base-pg13
+    - .rspec-base-migration
+    - .rails:rules:default-branch-schedule-nightly--code-backstage
+    - .rspec-migration-parallel
+
+rspec unit pg13:
+  extends:
+    - .rspec-base-pg13
+    - .rails:rules:default-branch-schedule-nightly--code-backstage
+    - .rspec-unit-parallel
+
+rspec integration pg13:
+  extends:
+    - .rspec-base-pg13
+    - .rails:rules:default-branch-schedule-nightly--code-backstage
+    - .rspec-integration-parallel
+
+rspec system pg13:
+  extends:
+    - .rspec-base-pg13
+    - .rails:rules:default-branch-schedule-nightly--code-backstage
+    - .rspec-system-parallel
+
+# EE/FOSS: default branch nightly scheduled jobs #
+##########################################
+
+#####################################
+# EE: default branch nightly scheduled jobs #
+
+# PG11
+rspec-ee migration pg11:
+  extends:
+    - .rspec-ee-base-pg11
+    - .rspec-base-migration
+    - .rails:rules:default-branch-schedule-nightly--code-backstage-ee-only
+    - .rspec-ee-migration-parallel
+
+rspec-ee unit pg11:
+  extends:
+    - .rspec-ee-base-pg11
+    - .rails:rules:default-branch-schedule-nightly--code-backstage-ee-only
+    - .rspec-ee-unit-parallel
+
+rspec-ee integration pg11:
+  extends:
+    - .rspec-ee-base-pg11
+    - .rails:rules:default-branch-schedule-nightly--code-backstage-ee-only
+    - .rspec-ee-integration-parallel
+
+rspec-ee system pg11:
+  extends:
+    - .rspec-ee-base-pg11
+    - .rails:rules:default-branch-schedule-nightly--code-backstage-ee-only
+    - .rspec-ee-system-parallel
+
+rspec-ee unit pg11 geo:
+  extends:
+    - .rspec-ee-base-geo-pg11
+    - .rails:rules:default-branch-schedule-nightly--code-backstage-ee-only
+    - .rspec-ee-unit-geo-parallel
+
+rspec-ee integration pg11 geo:
+  extends:
+    - .rspec-ee-base-geo-pg11
+    - .rails:rules:default-branch-schedule-nightly--code-backstage-ee-only
+
+rspec-ee system pg11 geo:
+  extends:
+    - .rspec-ee-base-geo-pg11
+    - .rails:rules:default-branch-schedule-nightly--code-backstage-ee-only
+
+# PG13
+rspec-ee migration pg13:
+  extends:
+    - .rspec-ee-base-pg13
+    - .rspec-base-migration
+    - .rails:rules:default-branch-schedule-nightly--code-backstage-ee-only
+    - .rspec-ee-migration-parallel
+
+rspec-ee unit pg13:
+  extends:
+    - .rspec-ee-base-pg13
+    - .rails:rules:default-branch-schedule-nightly--code-backstage-ee-only
+    - .rspec-ee-unit-parallel
+
+rspec-ee integration pg13:
+  extends:
+    - .rspec-ee-base-pg13
+    - .rails:rules:default-branch-schedule-nightly--code-backstage-ee-only
+    - .rspec-ee-integration-parallel
+
+rspec-ee system pg13:
+  extends:
+    - .rspec-ee-base-pg13
+    - .rails:rules:default-branch-schedule-nightly--code-backstage-ee-only
+    - .rspec-ee-system-parallel
+
+rspec-ee unit pg13 geo:
+  extends:
+    - .rspec-ee-base-geo-pg13
+    - .rails:rules:default-branch-schedule-nightly--code-backstage-ee-only
+    - .rspec-ee-unit-geo-parallel
+
+rspec-ee integration pg13 geo:
+  extends:
+    - .rspec-ee-base-geo-pg13
+    - .rails:rules:default-branch-schedule-nightly--code-backstage-ee-only
+
+rspec-ee system pg13 geo:
+  extends:
+    - .rspec-ee-base-geo-pg13
+    - .rails:rules:default-branch-schedule-nightly--code-backstage-ee-only
+# EE: default branch nightly scheduled jobs #
+#####################################
+
+##################################################
+# EE: Canonical MR pipelines
+rspec fail-fast:
+  extends:
+    - .rspec-ee-base-pg12  # This job also runs EE spec which needs elasticsearch
+    - .rails:rules:rspec fail-fast
+  stage: test
+  needs: ["setup-test-env", "retrieve-tests-metadata", "compile-test-assets", "detect-tests"]
+  script:
+    - !reference [.base-script, script]
+    - rspec_fail_fast tmp/matching_tests.txt "--tag ~quarantine"
+  artifacts:
+    expire_in: 7d
+    paths:
+      - tmp/capybara/
+
+rspec foss-impact:
+  extends:
+    - .rspec-base-pg12-as-if-foss
+    - .rails:rules:rspec-foss-impact
+  needs: ["setup-test-env", "retrieve-tests-metadata", "compile-test-assets as-if-foss", "detect-tests as-if-foss"]
+  script:
+    - !reference [.base-script, script]
+    - rspec_matched_foss_tests tmp/matching_foss_tests.txt "--tag ~quarantine"
+  artifacts:
+    expire_in: 7d
+    paths:
+      - tmp/capybara/
+
+fail-pipeline-early:
+  extends:
+    - .rails:rules:fail-pipeline-early
+  stage: post-test
+  needs:
+    - job: rspec fail-fast
+      artifacts: false
+  variables:
+    GIT_DEPTH: 1
+  before_script:
+    - source scripts/utils.sh
+    - install_gitlab_gem
+  script:
+    - fail_pipeline_early
+
+rspec rspec-pg12-rerun-previous-failed-tests:
+  extends:
+    - .rspec-base-pg12
+    - .rails:rules:rerun-previous-failed-tests
+  stage: test
+  needs: ["setup-test-env", "compile-test-assets", "detect-previous-failed-tests"]
+  script:
+    - !reference [.base-script, script]
+    - rspec_rerun_previous_failed_tests tmp/previous_failed_tests/rspec_failed_files.txt
+
+rspec rspec-ee-pg12-rerun-previous-failed-tests:
+  extends:
+    - "rspec rspec-pg12-rerun-previous-failed-tests"
+    - .rspec-ee-base-pg12
+  script:
+    - !reference [.base-script, script]
+    - rspec_rerun_previous_failed_tests tmp/previous_failed_tests/rspec_ee_failed_files.txt
+
+# EE: Canonical MR pipelines
+##################################################

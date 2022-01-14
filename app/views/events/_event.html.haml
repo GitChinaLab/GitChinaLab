@@ -1,0 +1,21 @@
+- event = event.present
+
+- if event.visible_to_user?(current_user)
+  .event-item
+    .event-item-timestamp
+      #{time_ago_with_tooltip(event.created_at)}
+
+    - if event.wiki_page?
+      = render "events/event/wiki", event: event
+    - elsif event.design?
+      = render 'events/event/design', event: event
+    - elsif event.created_project_action?
+      = render "events/event/created_project", event: event
+    - elsif event.push_action?
+      = render "events/event/push", event: event
+    - elsif event.commented_action?
+      = render "events/event/note", event: event
+    - else
+      = render "events/event/common", event: event
+- elsif @user&.include_private_contributions?
+  = render "events/event/private", event: event

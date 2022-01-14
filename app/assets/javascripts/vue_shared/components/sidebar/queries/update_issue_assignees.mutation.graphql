@@ -1,0 +1,18 @@
+#import "~/graphql_shared/fragments/user.fragment.graphql"
+#import "~/graphql_shared/fragments/user_availability.fragment.graphql"
+
+mutation issueSetAssignees($iid: String!, $assigneeUsernames: [String!]!, $fullPath: ID!) {
+  issuableSetAssignees: issueSetAssignees(
+    input: { iid: $iid, assigneeUsernames: $assigneeUsernames, projectPath: $fullPath }
+  ) {
+    issuable: issue {
+      id
+      assignees {
+        nodes {
+          ...User
+          ...UserAvailability
+        }
+      }
+    }
+  }
+}

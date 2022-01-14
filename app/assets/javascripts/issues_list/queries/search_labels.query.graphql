@@ -1,0 +1,20 @@
+#import "./label.fragment.graphql"
+
+query searchLabels($fullPath: ID!, $search: String, $isProject: Boolean = false) {
+  group(fullPath: $fullPath) @skip(if: $isProject) {
+    id
+    labels(searchTerm: $search, includeAncestorGroups: true, includeDescendantGroups: true) {
+      nodes {
+        ...Label
+      }
+    }
+  }
+  project(fullPath: $fullPath) @include(if: $isProject) {
+    id
+    labels(searchTerm: $search, includeAncestorGroups: true) {
+      nodes {
+        ...Label
+      }
+    }
+  }
+}

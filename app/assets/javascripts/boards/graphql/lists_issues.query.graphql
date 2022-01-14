@@ -1,0 +1,61 @@
+#import "ee_else_ce/boards/graphql/issue.fragment.graphql"
+
+query BoardListsEE(
+  $fullPath: ID!
+  $boardId: ID!
+  $id: ID
+  $filters: BoardIssueInput
+  $isGroup: Boolean = false
+  $isProject: Boolean = false
+  $after: String
+  $first: Int
+) {
+  group(fullPath: $fullPath) @include(if: $isGroup) {
+    id
+    board(id: $boardId) {
+      id
+      lists(id: $id, issueFilters: $filters) {
+        nodes {
+          id
+          issuesCount
+          listType
+          issues(first: $first, filters: $filters, after: $after) {
+            edges {
+              node {
+                ...IssueNode
+              }
+            }
+            pageInfo {
+              endCursor
+              hasNextPage
+            }
+          }
+        }
+      }
+    }
+  }
+  project(fullPath: $fullPath) @include(if: $isProject) {
+    id
+    board(id: $boardId) {
+      id
+      lists(id: $id, issueFilters: $filters) {
+        nodes {
+          id
+          issuesCount
+          listType
+          issues(first: $first, filters: $filters, after: $after) {
+            edges {
+              node {
+                ...IssueNode
+              }
+            }
+            pageInfo {
+              endCursor
+              hasNextPage
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,22 @@
+---
+data_category: operational
+key_path: counts.issues
+description: Count of Issues created
+product_section: dev
+product_stage: plan
+product_group: group::project management
+product_category: issue_tracking
+value_type: number
+status: active
+time_frame: all
+data_source: database
+instrumentation_class: CountIssuesMetric
+distribution:
+- ce
+- ee
+tier:
+- free
+- premium
+- ultimate
+performance_indicator_type: []
+milestone: "<13.9"

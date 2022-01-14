@@ -1,0 +1,6 @@
+- page_title _("GitLab.com import")
+%h3.page-title
+  = sprite_icon('heart', css_class: 'gl-vertical-align-middle')
+  = _('Import projects from GitLab.com')
+
+= render 'import/githubish_status', provider: 'gitlab', filterable: false

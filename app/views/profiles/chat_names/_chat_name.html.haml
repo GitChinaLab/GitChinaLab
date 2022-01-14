@@ -1,0 +1,27 @@
+- integration = chat_name.integration
+- project = integration.project
+%tr
+  %td
+    %strong
+      - if can?(current_user, :read_project, project)
+        = link_to project.full_name, project_path(project)
+      - else
+        .light= _('N/A')
+  %td
+    %strong
+      - if can?(current_user, :admin_project, project)
+        = link_to integration.title, edit_project_service_path(project, integration)
+      - else
+        = integration.title
+  %td
+    = chat_name.team_domain
+  %td
+    = chat_name.chat_name
+  %td
+    - if chat_name.last_used_at
+      = time_ago_with_tooltip(chat_name.last_used_at)
+    - else
+      = _('Never')
+
+  %td
+    = link_to _('Remove'), profile_chat_name_path(chat_name), method: :delete, class: 'gl-button btn btn-danger float-right', data: { confirm: _('Are you sure you want to revoke this nickname?') }

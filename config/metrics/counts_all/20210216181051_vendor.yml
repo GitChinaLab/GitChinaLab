@@ -1,0 +1,21 @@
+---
+data_category: optional
+key_path: container_registry_server.vendor
+description: Identifies if a user is using an external container registry and what
+  type
+product_section: ops
+product_stage: package
+product_group: group::package
+product_category: container registry
+value_type: number
+status: active
+time_frame: all
+data_source: database
+distribution:
+- ee
+- ce
+tier:
+- free
+- premium
+- ultimate
+milestone: "<13.9"

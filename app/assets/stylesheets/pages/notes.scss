@@ -1,0 +1,976 @@
+$system-note-icon-size: 32px;
+$system-note-svg-size: 16px;
+
+@mixin vertical-line($left) {
+  &::before {
+    content: '';
+    border-left: 2px solid $gray-50;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: $left;
+    height: calc(100% - 20px);
+  }
+}
+
+@mixin outline-comment() {
+  margin: $gl-padding $gl-padding 0;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-default;
+}
+
+.note-wrapper {
+  padding: $gl-padding;
+
+  &.outlined {
+    @include outline-comment();
+  }
+}
+
+.issuable-discussion {
+  .main-notes-list {
+    @include vertical-line(36px);
+  }
+}
+
+.notes {
+  display: block;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+
+  &.timeline > .timeline-entry {
+    border: 1px solid $border-color;
+    border-radius: $border-radius-default;
+    margin: $gl-padding 0;
+
+    &.system-note,
+    &.note-form {
+      border: 0;
+    }
+
+    &.note-form {
+      margin-left: 0;
+
+      .timeline-content {
+        margin-left: 0;
+      }
+    }
+
+    .notes-content {
+      border: 0;
+      border-top: 1px solid $border-color;
+    }
+  }
+
+  > .note-discussion {
+    .card {
+      border: 0;
+    }
+  }
+
+  .replies-toggle {
+    background-color: $gray-light;
+    padding: $gl-padding-8 $gl-padding;
+    border-top: 1px solid $gray-100;
+    border-bottom: 1px solid $gray-100;
+
+    .collapse-replies-btn:hover {
+      color: $blue-600;
+    }
+
+    &.collapsed {
+      color: $gl-text-color-secondary;
+      border-radius: 0 0 $border-radius-default $border-radius-default;
+
+      img {
+        margin: -2px 4px 0 0;
+      }
+
+      .author-link {
+        color: $gl-text-color;
+      }
+    }
+
+    .user-avatar-link {
+      &:last-child img {
+        margin-right: $gl-padding-8;
+      }
+    }
+
+    .btn-link {
+      border: 0;
+      vertical-align: baseline;
+    }
+  }
+
+  .discussion-toggle-replies {
+    border-top: 0;
+    border-radius: 4px 4px 0 0;
+
+    &.collapsed {
+      border-radius: 4px;
+    }
+  }
+
+  .note-created-ago,
+  .note-updated-at {
+    white-space: normal;
+  }
+
+  .discussion-body {
+    .card {
+      margin-bottom: 0;
+    }
+  }
+
+  .timeline-discussion-body {
+    margin-top: -$gl-padding-8;
+  }
+
+  .discussion {
+    display: block;
+    position: relative;
+
+    .timeline-discussion-body {
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+
+    .diff-content {
+      overflow: visible;
+      padding: 0;
+    }
+  }
+
+  > li {
+    display: block;
+    position: relative;
+
+    &.being-posted {
+      pointer-events: none;
+      opacity: 0.5;
+      padding: $gl-padding;
+
+      .dummy-avatar {
+        background-color: $gray-100;
+        border: 1px solid darken($gray-100, 25%);
+      }
+
+      .note-headline-light {
+        margin-left: 3px;
+      }
+    }
+
+    .editing-spinner {
+      display: none;
+    }
+
+    &.is-requesting {
+      .note-timestamp {
+        display: none;
+      }
+
+      .editing-spinner {
+        display: inline-block;
+      }
+    }
+
+    &.is-editing {
+      .note-header,
+      .note-text,
+      .edited-text {
+        display: none;
+      }
+
+      .user-avatar-link img {
+        margin-top: $gl-padding-8;
+      }
+
+      .note-edit-form {
+        display: block;
+        margin-left: 0;
+
+        &.current-note-edit-form + .note-awards {
+          display: none;
+        }
+      }
+    }
+
+    .note-body {
+      overflow-x: auto;
+      overflow-y: hidden;
+
+      .note-text {
+        word-wrap: break-word;
+      }
+    }
+
+    .note-awards {
+      .js-awards-block {
+        margin-top: 16px;
+      }
+    }
+
+    .note-emoji-button {
+      position: relative;
+      line-height: 1;
+    }
+  }
+
+  .system-note {
+    padding: $gl-padding-4 20px;
+    margin: $gl-padding 0;
+    background-color: transparent;
+
+    .note-header-info {
+      padding-bottom: 0;
+    }
+
+    &.timeline-entry::after {
+      clear: none;
+    }
+
+    .system-note-message {
+      &::first-letter {
+        text-transform: lowercase;
+      }
+
+      a:not(.gl-link) {
+        color: $blue-600;
+      }
+
+      p {
+        display: inline;
+        margin: 0;
+
+        &::first-letter {
+          text-transform: lowercase;
+        }
+      }
+    }
+
+    .timeline-content {
+      @include notes-media('min', map-get($grid-breakpoints, sm)) {
+        margin-left: 30px;
+      }
+    }
+
+    .note-header {
+      padding-bottom: 0;
+    }
+
+    .note-body {
+      overflow: hidden;
+
+      .description-version {
+        position: relative;
+
+        .btn.delete-description-history {
+          position: absolute;
+          top: 18px;
+          right: 10px;
+        }
+
+        pre {
+          max-height: $dropdown-max-height-lg;
+          white-space: pre-wrap;
+          padding-right: 30px;
+        }
+      }
+
+      .system-note-commit-list-toggler {
+        color: $blue-600;
+        padding: 10px 0 0;
+        cursor: pointer;
+        position: relative;
+        z-index: 2;
+
+        &:hover {
+          color: $blue-600;
+          text-decoration: underline;
+        }
+      }
+
+      .note-text {
+        p:first-child {
+          display: none;
+        }
+
+        &.system-note-commit-list:not(.hide-shade) {
+          max-height: 70px;
+          overflow: hidden;
+          display: block;
+
+          ul {
+            margin: 3px 0 3px 16px !important;
+          }
+
+          p:first-child {
+            display: none;
+          }
+
+          &::after {
+            content: '';
+            height: 70px;
+            position: absolute;
+            left: $gl-padding-24;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(rgba($white, 0.1) -100px, $body-bg 100%);
+          }
+        }
+      }
+    }
+  }
+
+  .timeline-icon {
+    float: left;
+  }
+
+  .system-note,
+  .discussion-filter-note {
+    .timeline-icon {
+      display: flex;
+      align-items: center;
+      background-color: $white;
+      width: $system-note-icon-size;
+      height: $system-note-icon-size;
+      border: 1px solid $border-color;
+      border-radius: $system-note-icon-size;
+      margin: -6px 20px 0 0;
+
+      svg {
+        width: $system-note-svg-size;
+        height: $system-note-svg-size;
+        fill: $gray-darkest;
+        display: block;
+        margin: 0 auto;
+      }
+    }
+  }
+
+  .discussion-filter-note {
+    .timeline-icon {
+      width: $system-note-icon-size + 6;
+      height: $system-note-icon-size + 6;
+      margin-top: -8px;
+    }
+  }
+}
+
+// Diff code in discussion view
+.discussion-body .diff-file {
+  .file-title {
+    cursor: default;
+    border-top: 1px solid $border-color;
+    border-radius: 0;
+
+    @media (min-width: map-get($grid-breakpoints, md)) {
+      top: $mr-tabs-height + $header-height;
+
+      .with-performance-bar & {
+        top: 123px;
+      }
+    }
+
+    &:hover {
+      background-color: $gray-light;
+    }
+
+    .btn-clipboard {
+      top: 10px;
+    }
+  }
+
+  .line_content {
+    white-space: pre-wrap;
+  }
+}
+
+.tab-pane.notes {
+  .diff-file .notes .system-note {
+    margin: 0;
+  }
+}
+
+.tab-pane.diffs {
+  .system-note {
+    padding: 0 $gl-padding;
+    margin-left: 20px;
+  }
+
+  .notes > .note-discussion li.note.system-note {
+    border-bottom: 0;
+    padding: 0;
+  }
+}
+
+.diff-file {
+  .diff-grid-left:hover,
+  .diff-grid-right:hover,
+  .is-over {
+    .add-diff-note {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+
+  .discussion-notes {
+    &:not(:last-child) {
+      margin-bottom: 0;
+    }
+
+    .system-note {
+      background-color: $white;
+      padding: $gl-padding;
+    }
+  }
+
+  // Merge request notes in diffs
+  // Diff is inline
+  .notes-content .note-header .note-headline-light {
+    display: inline-block;
+    position: relative;
+  }
+
+  .notes-content .discussion-notes.diff-discussions {
+    border-bottom: 1px solid $border-color;
+
+    &:nth-last-child(1) {
+      border-bottom: 0;
+    }
+  }
+
+  .notes_holder {
+    font-family: $regular-font;
+
+    .diff-td,
+    td {
+      border: 1px solid $border-color;
+      border-left: 0;
+
+      &.notes-content {
+        border-width: 1px 0;
+        padding: 0;
+        vertical-align: top;
+        white-space: normal;
+
+        // Fixes subpixel rounding issue https://gitlab.com/gitlab-org/gitlab-foss/issues/53973
+        // background-color is needed for dark code preference
+        padding-bottom: 1px;
+        background-color: $white;
+
+        &.parallel {
+          border-width: 1px;
+
+          &.new {
+            border-right-width: 0;
+          }
+        }
+
+        .notes {
+          background-color: $white;
+        }
+
+        a code {
+          top: 0;
+          margin-right: 0;
+        }
+      }
+    }
+  }
+}
+
+.diffs {
+  .discussion-notes {
+    margin-left: 0;
+    border-left: 0;
+  }
+
+  .note-wrapper {
+    &.system-note {
+      border: 0;
+      margin-left: 20px;
+    }
+  }
+
+  .discussion-reply-holder {
+    border-radius: 0 0 $border-radius-default $border-radius-default;
+    position: relative;
+
+    .discussion-form {
+      width: 100%;
+      background-color: $gray-light;
+      padding: 0;
+    }
+
+    .disabled-comment {
+      padding: $gl-vert-padding 0;
+      width: 100%;
+    }
+  }
+}
+
+.code-commit .notes-content,
+.diff-viewer > .image ~ .note-container {
+  background-color: $white;
+}
+
+.diff-viewer > .image ~ .note-container form.new-note {
+  margin-left: 0;
+}
+
+.discussion-header,
+.note-header-info {
+  a {
+    color: inherit;
+
+    &:hover,
+    &.hover {
+      color: $blue-600;
+    }
+
+    &:focus,
+    &:hover {
+      text-decoration: none;
+
+      .note-header-author-name {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .author-link {
+    color: $gl-text-color;
+  }
+
+  // Prevent flickering of link when hovering between `author-name-link` and `.author-username-link`
+  .author-name-link + .author-username .author-username-link {
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      right: 100%;
+      width: 0.25rem;
+      height: 100%;
+      top: 0;
+      bottom: 0;
+    }
+  }
+}
+
+.discussion-header {
+  min-height: $line-height-base * 2em;
+  box-sizing: content-box;
+
+  .note-header-info {
+    padding-bottom: 0;
+  }
+
+  .timeline-content {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  &.note-wrapper {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.note-header {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  > .note-header-info,
+  > .note-actions {
+    flex-grow: 1;
+    flex-shrink: 1;
+  }
+}
+
+.note {
+  @include notes-media('max', map-get($grid-breakpoints, sm) - 1) {
+    .note-header {
+      .note-actions {
+        flex-wrap: wrap;
+        margin-bottom: $gl-padding-12;
+
+        > :first-child {
+          margin-left: 0;
+        }
+      }
+    }
+
+    .note-header-author-name {
+      display: block;
+    }
+  }
+}
+
+.note-header-info {
+  min-width: 0;
+
+  &.discussion {
+    padding-bottom: 0;
+  }
+}
+
+.note-header-info,
+.note-actions {
+  padding-bottom: $gl-padding-8;
+}
+
+.system-note .note-header-info {
+  padding-bottom: 0;
+}
+
+.note-headline-light {
+  display: inline;
+}
+
+.note-headline-light,
+.discussion-headline-light {
+  color: $gl-text-color-secondary;
+}
+
+.discussion-headline-light {
+  a {
+    color: $blue-600;
+  }
+}
+
+.note-headline-meta {
+  .system-note-separator {
+    color: $gray-500;
+  }
+
+  .note-timestamp {
+    white-space: nowrap;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  .gl-label-link:hover {
+    text-decoration: none;
+    color: inherit;
+
+    .gl-label-text:last-of-type {
+      text-decoration: underline;
+    }
+  }
+}
+
+/**
+ * Actions for Discussions/Notes
+ */
+
+.discussion-actions {
+  float: right;
+  color: $gray-darkest;
+
+  @include media-breakpoint-down(xs) {
+    width: 100%;
+    margin: 0 0 $gl-padding-8;
+  }
+
+  .btn-group > .discussion-next-btn {
+    margin-left: -1px;
+  }
+
+  .btn-group > .discussion-create-issue-btn {
+    margin-left: -2px;
+  }
+
+  svg {
+    height: 15px;
+  }
+}
+
+.note-actions {
+  align-self: flex-start;
+  justify-content: flex-end;
+  flex-shrink: 1;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 10px;
+  color: $gray-400;
+  margin-top: -4px;
+
+  @include notes-media('max', map-get($grid-breakpoints, sm) - 1) {
+    float: none;
+    margin-left: 0;
+  }
+}
+
+.more-actions {
+  display: flex;
+  align-items: flex-end;
+
+  .tooltip {
+    white-space: nowrap;
+  }
+}
+
+.more-actions-toggle {
+  &:hover .icon,
+  &:focus .icon {
+    color: $blue-600;
+  }
+}
+
+.more-actions-dropdown {
+  width: 180px;
+  min-width: 180px;
+}
+
+.note-actions-item {
+  margin-left: 12px;
+  display: flex;
+  align-items: center;
+
+  &.more-actions {
+    // compensate for narrow icon
+    margin-left: 10px;
+  }
+}
+
+.note-action-button {
+  @include emoji-menu-toggle-button;
+}
+
+.discussion-toggle-button {
+  padding: 0;
+  background-color: transparent;
+  border: 0;
+  line-height: 20px;
+  font-size: 13px;
+  transition: color 0.1s linear;
+
+  &:hover {
+    color: $blue-600;
+  }
+
+  &:focus {
+    text-decoration: underline;
+    outline: none;
+    color: $blue-600;
+  }
+}
+
+.note-role {
+  margin: 0 8px;
+}
+
+/**
+ * Line note button on the side of diffs
+ */
+
+.diff-grid-left:hover,
+.diff-grid-right:hover,
+.line_holder .is-over:not(.no-comment-btn) {
+  .add-diff-note {
+    opacity: 1;
+    z-index: 101;
+  }
+}
+
+.tooltip-wrapper.add-diff-note {
+  margin-left: -52px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+.note-button.add-diff-note {
+  @include btn-comment-icon;
+  opacity: 0;
+  will-change: opacity;
+
+  &[disabled] {
+    background: $white;
+    border-color: $gray-200;
+    color: $gray-300;
+    cursor: not-allowed;
+  }
+}
+
+.unified-diff-components-diff-note-button {
+  &::before {
+    background-color: $blue-500;
+    mask-image: asset_url('icons-stacked.svg#comment');
+    mask-repeat: no-repeat;
+    mask-size: cover;
+    mask-position: center;
+    content: '';
+    width: 12px;
+    height: 12px;
+  }
+
+  &:hover,
+  &.inverted {
+    &::before {
+      background-color: $white;
+    }
+  }
+}
+
+.disabled-comment {
+  background-color: $gray-light;
+  border-radius: $border-radius-base;
+  border: 1px solid $border-gray-normal;
+  color: $note-disabled-comment-color;
+  padding: $gl-padding-8 0;
+
+  &.discussion-locked {
+    border: 0;
+    background-color: $white;
+  }
+
+  a:not(.learn-more) {
+    color: $blue-600;
+  }
+}
+
+.line-resolve-all-container {
+  > div {
+    white-space: nowrap;
+  }
+
+  .btn-group .btn:first-child {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}
+
+.line-resolve-all {
+  vertical-align: middle;
+  display: inline-block;
+  padding: $gl-padding-8 $gl-padding-12;
+  background-color: $gray-light;
+  border: 1px solid $border-color;
+  border-right: 0;
+  border-radius: $border-radius-default;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  font-size: $gl-font-size;
+  line-height: 1rem;
+
+  @include media-breakpoint-down(xs) {
+    flex: 1;
+  }
+}
+
+.line-resolve-btn {
+  position: relative;
+  top: 0;
+  padding: 0;
+  background-color: transparent;
+  border: 0;
+  outline: 0;
+  transition: color $general-hover-transition-duration $general-hover-transition-curve;
+
+  &[disabled] {
+    padding: 0 8px !important;
+    box-shadow: none !important;
+
+    .gl-button-loading-indicator {
+      margin-right: 0 !important;
+    }
+  }
+
+  &.is-disabled {
+    cursor: default;
+  }
+
+  &:not(.is-disabled) {
+    &:hover,
+    &:focus {
+      svg {
+        color: $green-600;
+      }
+    }
+  }
+
+  &.is-active {
+    svg {
+      @include gl-text-green-500;
+    }
+
+    &:hover,
+    &:focus {
+      svg {
+        color: $green-700;
+      }
+    }
+  }
+
+  .loading {
+    margin: 0;
+    height: auto;
+  }
+}
+
+// Vue refactored diff discussion adjustments
+.files {
+  .diff-discussions {
+    .note-discussion.timeline-entry {
+      padding-left: 0;
+
+      &:last-child {
+        border-bottom: 0;
+      }
+
+      > .timeline-entry-inner {
+        padding: 0;
+
+        > .timeline-content {
+          margin-left: 0;
+        }
+
+        > .timeline-icon {
+          display: none;
+        }
+      }
+
+      .discussion-body {
+        padding-top: 0;
+
+        .discussion-wrapper {
+          border: 0;
+        }
+      }
+    }
+  }
+
+  .diff-comment-form {
+    display: block;
+  }
+}
+
+.discussion-filter-container {
+  .dropdown-menu {
+    margin-bottom: $gl-padding-4;
+  }
+}
+
+//This needs to be deleted when Snippet/Commit comments are convered to Vue
+// See https://gitlab.com/gitlab-org/gitlab-foss/issues/53918#note_117038785
+.unstyled-comments {
+  .discussion-header {
+    padding: $gl-padding;
+    border-bottom: 1px solid $border-color;
+  }
+
+  .discussion-form-container {
+    padding: $gl-padding;
+  }
+}

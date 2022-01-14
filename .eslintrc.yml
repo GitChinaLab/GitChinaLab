@@ -1,0 +1,141 @@
+extends:
+  - plugin:@gitlab/default
+  - plugin:@gitlab/i18n
+  - plugin:no-jquery/slim
+  - plugin:no-jquery/deprecated-3.4
+  - ./tooling/eslint-config/conditionally_ignore.js
+globals:
+  __webpack_public_path__: true
+  gl: false
+  gon: false
+  localStorage: false
+  IS_EE: false
+plugins:
+  - no-jquery
+settings:
+  import/resolver:
+    webpack:
+      config: './config/webpack.config.js'
+rules:
+  import/no-commonjs: error
+  import/no-default-export: off
+  no-underscore-dangle:
+    - error
+    - allow:
+        - __
+        - _links
+  import/no-unresolved:
+    - error
+  # Disabled for now, to make the airbnb-base 12.1.0 -> 13.1.0 update smoother
+  no-else-return:
+    - error
+    - allowElseIf: true
+  lines-between-class-members: off
+  # all offenses of no-jquery/no-animate-toggle are false positives ( $toast.show() )
+  no-jquery/no-animate-toggle: off
+  no-jquery/no-event-shorthand: off
+  no-jquery/no-serialize: error
+  promise/always-return: off
+  promise/no-callback-in-promise: off
+  '@gitlab/no-global-event-off': error
+  no-param-reassign:
+    - error
+    - props: true
+      ignorePropertyModificationsFor:
+        - acc
+        - accumulator
+        - el
+        - element
+        - state
+      ignorePropertyModificationsForRegex:
+        - '^draft'
+  import/order:
+    - error
+    - groups:
+        - builtin
+        - external
+        - internal
+        - parent
+        - sibling
+        - index
+      pathGroups:
+        - pattern: ~/**
+          group: internal
+        - pattern: emojis/**
+          group: internal
+        - pattern: '{ee_,jh_,}empty_states/**'
+          group: internal
+        - pattern: '{ee_,jh_,}icons/**'
+          group: internal
+        - pattern: '{ee_,jh_,}images/**'
+          group: internal
+        - pattern: vendor/**
+          group: internal
+        - pattern: shared_queries/**
+          group: internal
+        - pattern: '{ee_,}spec/**'
+          group: internal
+        - pattern: '{ee_,jh_,}jest/**'
+          group: internal
+        - pattern: '{ee_,jh_,any_}else_ce/**'
+          group: internal
+        - pattern: ee/**
+          group: internal
+        - pattern: '{ee_,jh_,}component/**'
+          group: internal
+        - pattern: jh_else_ee/**
+          group: internal
+        - pattern: jh/**
+          group: internal
+        - pattern: '{test_,}helpers/**'
+          group: internal
+        - pattern: test_fixtures/**
+          group: internal
+      alphabetize:
+        order: ignore
+overrides:
+  - files:
+      - '**/spec/**/*'
+    rules:
+      '@gitlab/require-i18n-strings': off
+      '@gitlab/no-runtime-template-compiler': off
+  - files:
+      - 'config/**/*'
+      - 'scripts/**/*'
+      - '*.config.js'
+      - '*.config.*.js'
+      - 'jest_resolver.js'
+      - storybook/config/*.js
+    rules:
+      '@gitlab/require-i18n-strings': off
+      import/no-extraneous-dependencies: off
+      import/no-commonjs: off
+      import/no-nodejs-modules: off
+      filenames/match-regex: off
+      no-console: off
+  - files:
+      - '*.stories.js'
+    rules:
+      filenames/match-regex: off
+  - files:
+      - '*.graphql'
+    plugins:
+      - '@graphql-eslint'
+    parserOptions:
+      parser: '@graphql-eslint/eslint-plugin'
+      operations:
+        - '{,ee/,jh/}app/**/*.graphql'
+        # You can run `bundle exec rake gitlab:graphql:schema:dump` and then uncomment this line
+        # schema: './tmp/tests/graphql/gitlab_schema.graphql'
+    rules:
+      filenames/match-regex: off
+      spaced-comment: off
+      # TODO: We need a way to include this rule + support ee_else_ce fragments
+      #'@graphql-eslint/unique-fragment-name': error
+      # TODO: Uncomment these rules when then `schema` is available
+      #'@graphql-eslint/fragments-on-composite-type': error
+      #'@graphql-eslint/known-argument-names': error
+      #'@graphql-eslint/known-type-names': error
+      '@graphql-eslint/no-anonymous-operations': error
+      '@graphql-eslint/unique-operation-name': error
+      '@graphql-eslint/require-id-when-available': error

@@ -1,0 +1,31 @@
+- remove_form_id = 'js-remove-group-form'
+= render 'groups/settings/export', group: @group
+
+.sub-section
+  %h4.warning-title= s_('GroupSettings|Change group URL')
+  = form_for @group, html: { multipart: true, class: 'gl-show-field-errors' }, authenticity_token: true do |f|
+    = form_errors(@group)
+    .form-group
+      %p
+        = s_("GroupSettings|Changing a group's URL can have unintended side effects.")
+        = link_to _('Learn more.'), help_page_path('user/group/index', anchor: 'change-a-groups-path'), target: '_blank', rel: 'noopener noreferrer'
+
+      .input-group.gl-field-error-anchor
+        .group-root-path.input-group-prepend.has-tooltip{ title: group_path(@group), :'data-placement' => 'bottom' }
+          .input-group-text
+            %span>= root_url
+            - if @group.parent
+              %strong= @group.parent.full_path + '/'
+        = f.hidden_field :parent_id
+        = f.text_field :path, placeholder: 'open-source', class: 'form-control',
+          autofocus: local_assigns[:autofocus] || false, required: true,
+          pattern: Gitlab::PathRegex::NAMESPACE_FORMAT_REGEX_JS,
+          title: group_url_error_message,
+          maxlength: ::Namespace::URL_MAX_LENGTH,
+          "data-bind-in" => "#{'create_chat_team' if Gitlab.config.mattermost.enabled}"
+    = f.submit s_('GroupSettings|Change group URL'), class: 'btn gl-button btn-warning'
+
+= render 'groups/settings/transfer', group: @group
+= render 'groups/settings/remove', group: @group, remove_form_id: remove_form_id
+= render_if_exists 'groups/settings/restore', group: @group
+= render_if_exists 'groups/settings/immediately_remove', group: @group, remove_form_id: remove_form_id

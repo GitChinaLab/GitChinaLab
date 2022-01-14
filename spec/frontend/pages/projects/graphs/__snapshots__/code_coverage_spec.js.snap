@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Code Coverage when fetching data is successful matches the snapshot 1`] = `
+<div>
+  <div
+    class="gl-mt-3 gl-mb-3"
+  >
+    <!---->
+     
+    <!---->
+     
+    <gl-dropdown-stub
+      category="primary"
+      clearalltext="Clear all"
+      clearalltextclass="gl-px-5"
+      headertext=""
+      hideheaderborder="true"
+      highlighteditemstitle="Selected"
+      highlighteditemstitleclass="gl-px-5"
+      size="medium"
+      text="rspec"
+      variant="default"
+    >
+      <gl-dropdown-item-stub
+        avatarurl=""
+        iconcolor=""
+        iconname=""
+        iconrightarialabel=""
+        iconrightname=""
+        ischecked="true"
+        ischeckitem="true"
+        secondarytext=""
+        value="rspec"
+      >
+        
+        rspec
+      
+      </gl-dropdown-item-stub>
+      <gl-dropdown-item-stub
+        avatarurl=""
+        iconcolor=""
+        iconname=""
+        iconrightarialabel=""
+        iconrightname=""
+        ischeckitem="true"
+        secondarytext=""
+        value="cypress"
+      >
+        
+        cypress
+      
+      </gl-dropdown-item-stub>
+      <gl-dropdown-item-stub
+        avatarurl=""
+        iconcolor=""
+        iconname=""
+        iconrightarialabel=""
+        iconrightname=""
+        ischeckitem="true"
+        secondarytext=""
+        value="karma"
+      >
+        
+        karma
+      
+      </gl-dropdown-item-stub>
+    </gl-dropdown-stub>
+  </div>
+   
+  <gl-area-chart-stub
+    annotations=""
+    data="[object Object]"
+    formattooltiptext="[Function]"
+    height="200"
+    includelegendavgmax="true"
+    legendaveragetext="Avg"
+    legendcurrenttext="Current"
+    legendlayout="inline"
+    legendmaxtext="Max"
+    legendmintext="Min"
+    option="[object Object]"
+    thresholds=""
+  />
+</div>
+`;

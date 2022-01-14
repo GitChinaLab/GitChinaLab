@@ -1,0 +1,22 @@
+---
+data_category: optional
+key_path: counts.templates_pivotaltracker_active
+description: Count of active service templates for Pivotal Tracker
+product_section: dev
+product_stage: ecosystem
+product_group: group::integrations
+product_category: integrations
+value_type: number
+status: removed
+milestone_removed: '14.4'
+time_frame: all
+data_source: database
+distribution:
+- ce
+- ee
+tier:
+- free
+- premium
+- ultimate
+performance_indicator_type: []
+milestone: "<13.9"

@@ -1,0 +1,98 @@
+- breadcrumb_title _("Preferences")
+- page_title _("Preferences")
+- @content_class = "limit-container-width" unless fluid_layout
+
+%section.settings.as-email.no-animate#js-email-settings{ class: ('expanded' if expanded_by_default?), data: { qa_selector: 'email_content' } }
+  .settings-header
+    %h4
+      = _('Email')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _('Various email settings.')
+  .settings-content
+    = render 'email'
+
+%section.settings.as-whats-new-page.no-animate#js-whats-new-settings{ class: ('expanded' if expanded_by_default?) }
+  .settings-header
+    %h4
+      = _("What's new")
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _("Configure %{italic_start}What's new%{italic_end} drawer and content.").html_safe % { italic_start: '<i>'.html_safe, italic_end: '</i>'.html_safe }
+  .settings-content
+    = render 'whats_new'
+
+%section.settings.as-help-page.no-animate#js-help-settings{ class: ('expanded' if expanded_by_default?) }
+  .settings-header
+    %h4
+      = _('Sign-in and Help page')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _('Additional text for the sign-in and Help page.')
+      = link_to s_('Learn more.'), help_page_path('user/admin_area/settings/help_page.md'), target: '_blank', rel: 'noopener noreferrer'
+  .settings-content
+    = render 'help_page'
+
+%section.settings.as-pages.no-animate#js-pages-settings{ class: ('expanded' if expanded_by_default?) }
+  .settings-header
+    %h4
+      = _('Pages')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = s_('AdminSettings|Size and domain settings for Pages static sites.')
+  .settings-content
+    = render 'pages'
+
+%section.settings.as-realtime.no-animate#js-realtime-settings{ class: ('expanded' if expanded_by_default?) }
+  .settings-header
+    %h4
+      = _('Polling interval multiplier')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _('Adjust how frequently the GitLab UI polls for updates.')
+      = link_to _('Learn more.'), help_page_path('administration/polling.md'), target: '_blank', rel: 'noopener noreferrer'
+  .settings-content
+    = render 'realtime'
+
+%section.settings.as-gitaly.no-animate#js-gitaly-settings{ class: ('expanded' if expanded_by_default?) }
+  .settings-header
+    %h4
+      = _('Gitaly timeouts')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _('Configure Gitaly timeouts.')
+      %span
+        = link_to _('Learn more.'), help_page_path('user/admin_area/settings/gitaly_timeouts.md'), target: '_blank', rel: 'noopener noreferrer'
+  .settings-content
+    = render 'gitaly'
+
+%section.settings.as-localization.no-animate#js-localization-settings{ class: ('expanded' if expanded_by_default?) }
+  .settings-header
+    %h4
+      = _('Localization')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _('Configure the default first day of the week and time tracking units.')
+  .settings-content
+    = render 'localization'
+
+%section.settings.as-sidekiq-job-limits.no-animate#js-sidekiq-job-limits-settings{ class: ('expanded' if expanded_by_default?) }
+  .settings-header
+    %h4
+      = _('Sidekiq job size limits')
+    %button.btn.gl-button.btn-default.js-settings-toggle{ type: 'button' }
+      = expanded_by_default? ? _('Collapse') : _('Expand')
+    %p
+      = _('Limit the size of Sidekiq jobs stored in Redis.')
+      %span
+        = link_to _('Learn more.'), help_page_path('user/admin_area/settings/sidekiq_job_limits.md'), target: '_blank', rel: 'noopener noreferrer'
+
+  .settings-content
+    = render 'sidekiq_job_limits'

@@ -1,0 +1,19 @@
+= render 'devise/shared/tab_single', tab_title: 'Resend confirmation instructions'
+.login-box
+  .login-body
+    = form_for(resource, as: resource_name, url: confirmation_path(resource_name), html: { method: :post, class: 'gl-show-field-errors' }) do |f|
+      .devise-errors
+        = render "devise/shared/error_messages", resource: resource
+      .form-group
+        = f.label :email
+        = f.email_field :email, class: "form-control gl-form-input", required: true, title: _('Please provide a valid email address.'), value: nil
+
+      %div
+      - if recaptcha_enabled?
+        = recaptcha_tags nonce: content_security_policy_nonce
+
+      .gl-mt-5
+        = f.submit _("Resend"), class: 'gl-button btn btn-confirm'
+
+.clearfix.prepend-top-20
+  = render 'devise/shared/sign_in_link'

@@ -1,0 +1,12 @@
+- breadcrumb_title _('Edit')
+- page_title _('Edit'), "##{@runner.id} (#{@runner.short_sha})"
+- add_to_breadcrumbs _('CI/CD Settings'), group_settings_ci_cd_path(@group)
+- add_to_breadcrumbs "#{@runner.short_sha}", group_runner_path(@group, @runner)
+
+%h2.page-title
+  = s_('Runners|Runner #%{runner_id}' % { runner_id: @runner.id })
+  = render 'shared/runners/runner_type_badge', runner: @runner
+
+= render 'shared/runners/runner_type_alert', runner: @runner
+
+= render 'shared/runners/form', runner: @runner, runner_form_url: group_runner_path(@group, @runner)

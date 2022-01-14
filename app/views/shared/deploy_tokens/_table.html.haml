@@ -1,0 +1,32 @@
+%h5= s_("DeployTokens|Active Deploy Tokens (%{active_tokens})") % { active_tokens: active_tokens.length }
+
+- if active_tokens.present?
+  .table-responsive.deploy-tokens
+    %table.table
+      %thead
+        %tr
+          %th= s_('DeployTokens|Name')
+          %th= s_('DeployTokens|Username')
+          %th= s_('DeployTokens|Created')
+          %th= s_('DeployTokens|Expires')
+          %th= s_('DeployTokens|Scopes')
+          %th
+      %tbody
+        - active_tokens.each do |token|
+          %tr
+            %td= token.name
+            %td= token.username
+            %td= token.created_at.to_date.to_s(:medium)
+            %td
+              - if token.expires?
+                %span{ class: ('text-warning' if token.expires_soon?) }
+                  = time_ago_with_tooltip(token.expires_at)
+              - else
+                %span.token-never-expires-label= _('Never')
+            %td= token.scopes.present? ? token.scopes.join(', ') : _('no scopes selected')
+            %td
+              .js-deploy-token-revoke-button{ data: { button_class: 'float-right', token: token.to_json, revoke_path: revoke_deploy_token_path(group_or_project, token) } }
+
+- else
+  .settings-message.text-center
+    = s_('DeployTokens|This %{entity_type} has no active Deploy Tokens.') % { entity_type: group_or_project.class.name.downcase }

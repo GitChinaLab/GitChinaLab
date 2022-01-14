@@ -1,0 +1,63 @@
+- page_title _('Emails')
+- @content_class = "limit-container-width" unless fluid_layout
+
+.row.gl-mt-3
+  .col-lg-4.profile-settings-sidebar
+    %h4.gl-mt-0
+      = page_title
+    %p
+      = _('Control emails linked to your account')
+  .col-lg-8
+    %h4.gl-mt-0
+      = _('Add email address')
+    = form_for 'email', url: profile_emails_path do |f|
+      .form-group
+        = f.label :email, _('Email'), class: 'label-bold'
+        = f.text_field :email, class: 'form-control gl-form-input', data: { qa_selector: 'email_address_field' }
+      .gl-mt-3
+        = f.submit _('Add email address'), class: 'gl-button btn btn-confirm', data: { qa_selector: 'add_email_address_button' }
+    %hr
+    %h4.gl-mt-0
+      = _('Linked emails (%{email_count})') % { email_count: @emails.load.size + 1 }
+    .account-well.gl-mb-3
+      %ul
+        %li
+          - profile_message = _('Your primary email is used for avatar detection. You can change it in your %{openingTag}profile settings%{closingTag}.') % { openingTag: "<a href='#{profile_path}'>".html_safe, closingTag: '</a>'.html_safe}
+          = profile_message.html_safe
+        %li
+          = _('Your commit email is used for web based operations, such as edits and merges.')
+        %li
+          - notification_message = _('Your default notification email is used for account notifications if a %{openingTag}group-specific email address%{closingTag} is not set.') % { openingTag: "<a href='#{profile_notifications_path}'>".html_safe, closingTag: '</a>'.html_safe}
+          = notification_message.html_safe
+        %li
+          = _('Your public email will be displayed on your public profile.')
+        %li
+          = _('All email addresses will be used to identify your commits.')
+    %ul.content-list
+      %li
+        = render partial: 'shared/email_with_badge', locals: { email: @primary_email, verified: current_user.confirmed? }
+        %span.float-right
+          %span.badge.badge-muted.badge-pill.gl-badge.badge-success= s_('Profiles|Primary email')
+          - if @primary_email === current_user.commit_email_or_default
+            %span.badge.badge-muted.badge-pill.gl-badge.badge-info= s_('Profiles|Commit email')
+          - if @primary_email === current_user.public_email
+            %span.badge.badge-muted.badge-pill.gl-badge.badge-info= s_('Profiles|Public email')
+          - if @primary_email === current_user.notification_email_or_default
+            %span.badge.badge-muted.badge-pill.gl-badge.badge-info= s_('Profiles|Default notification email')
+      - @emails.reject(&:user_primary_email?).each do |email|
+        %li{ data: { qa_selector: 'email_row_content' } }
+          = render partial: 'shared/email_with_badge', locals: { email: email.email, verified: email.confirmed? }
+          %span.float-right
+            - if email.email === current_user.commit_email_or_default
+              %span.badge.badge-muted.badge-pill.gl-badge.badge-info= s_('Profiles|Commit email')
+            - if email.email === current_user.public_email
+              %span.badge.badge-muted.badge-pill.gl-badge.badge-info= s_('Profiles|Public email')
+            - if email.email === current_user.notification_email_or_default
+              %span.badge.badge-muted.badge-pill.gl-badge.badge-info= s_('Profiles|Notification email')
+            - unless email.confirmed?
+              - confirm_title = "#{email.confirmation_sent_at ? _('Resend confirmation email') : _('Send confirmation email')}"
+              = link_to confirm_title, resend_confirmation_instructions_profile_email_path(email), method: :put, class: 'gl-button btn btn-sm btn-warning gl-ml-3'
+
+            = link_to profile_email_path(email), data: { confirm: _('Are you sure?'), qa_selector: 'delete_email_link'}, method: :delete, class: 'gl-button btn btn-sm btn-danger gl-ml-3' do
+              %span.sr-only= _('Remove')
+              = sprite_icon('remove')

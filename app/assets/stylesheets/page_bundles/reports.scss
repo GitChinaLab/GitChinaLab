@@ -1,0 +1,84 @@
+@import 'mixins_and_variables_and_functions';
+
+.mr-widget-grouped-section {
+  .report-block-container {
+    max-height: 170px;
+    overflow: auto;
+  }
+}
+
+.report-block-container {
+  border-top: 1px solid var(--border-color, $border-color);
+  padding: $gl-padding - 2;
+  background-color: var(--gray-50, $gray-10);
+
+  // Clean MR widget CSS
+  line-height: 20px;
+}
+
+.report-block-list {
+  list-style: none;
+  padding: 0 1px;
+  margin: 0;
+}
+
+.report-block-list-icon {
+  display: flex;
+
+  &.failed svg {
+    color: var(--red-500, $red-500);
+  }
+
+  &.success svg {
+    color: var(--green-500, $green-500);
+  }
+
+  &.neutral svg {
+    color: var(--gray-500, $gray-500);
+  }
+
+  .ci-status-icon {
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+
+.report-block-list-issue {
+  display: flex;
+}
+
+.report-block-list-issue-description-text::after {
+  content: '\00a0';
+}
+
+.report-block-list-issue-description {
+  align-content: space-around;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  display: flex;
+  align-self: center;
+}
+
+.report-block {
+  .break-link {
+    word-wrap: break-word;
+    word-break: break-all;
+  }
+}
+
+.report-block-issue-code {
+  width: 600px;
+}
+
+.modal-security-report-dast {
+  .modal-dialog {
+    max-width: $modal-lg;
+  }
+
+  // This is temporary till we get the new modals hooked up
+  &.modal-hide-footer .modal-footer {
+    display: none;
+  }
+}

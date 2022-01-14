@@ -1,0 +1,53 @@
+- merge_request = local_assigns.fetch(:merge_request, nil)
+- project = local_assigns.fetch(:project) { merge_request&.project }
+- ref = local_assigns.fetch(:ref) { merge_request&.source_branch }
+- can_update_merge_request = can?(current_user, :update_merge_request, @merge_request)
+
+- commits = @commits&.map { |commit| commit.present(current_user: current_user) }
+- context_commits = @context_commits&.map { |commit| commit.present(current_user: current_user) }
+- hidden = @hidden_commit_count
+
+- commits.chunk { |c| c.committed_date.in_time_zone.to_date }.each do |day, daily_commits|
+  %li.commit-header.js-commit-header{ data: { day: day } }
+    %span.day= l(day, format: '%d %b, %Y')
+    %span.commits-count= n_("%d commit", "%d commits", daily_commits.size) % daily_commits.size
+
+  %li.commits-row{ data: { day: day } }
+    %ul.content-list.commit-list.flex-list
+      - if Feature.enabled?(:cached_commits, project, default_enabled: :yaml)
+        = render partial: 'projects/commits/commit', collection: daily_commits, locals: { project: project, ref: ref, merge_request: merge_request }, cached: -> (commit) { commit_partial_cache_key(commit, ref: ref, merge_request: merge_request, request: request) }
+      - else
+        = render partial: 'projects/commits/commit', collection: daily_commits, locals: { project: project, ref: ref, merge_request: merge_request }
+
+- if context_commits.present?
+  %li.commit-header.js-commit-header
+    %span.font-weight-bold= n_("%d previously merged commit", "%d previously merged commits", context_commits.count) % context_commits.count
+    - if project.context_commits_enabled? && can_update_merge_request
+      %button.gl-button.btn.btn-default.ml-3.add-review-item-modal-trigger{ type: "button", data: { context_commits_empty: 'false' } }
+        = _('Add/remove')
+
+  %li.commits-row
+    %ul.content-list.commit-list.flex-list
+      - if Feature.enabled?(:cached_commits, project, default_enabled: :yaml)
+        = render partial: 'projects/commits/commit', collection: context_commits, locals: { project: project, ref: ref, merge_request: merge_request }, cached: -> (commit) { commit_partial_cache_key(commit, ref: ref, merge_request: merge_request, request: request) }
+      - else
+        = render partial: 'projects/commits/commit', collection: context_commits, locals: { project: project, ref: ref, merge_request: merge_request }
+
+- if hidden > 0
+  %li.gl-alert.gl-alert-warning
+    .gl-alert-container
+      = sprite_icon('warning', size: 16, css_class: 'gl-icon gl-alert-icon gl-alert-icon-no-title')
+      .gl-alert-content
+        = n_('%s additional commit has been omitted to prevent performance issues.', '%s additional commits have been omitted to prevent performance issues.', hidden) % number_with_delimiter(hidden)
+
+- if project.context_commits_enabled? && can_update_merge_request && context_commits&.empty?
+  %button.gl-button.btn.btn-default.mt-3.add-review-item-modal-trigger{ type: "button", data: { context_commits_empty: 'true' } }
+    = _('Add previously merged commits')
+
+- if commits.size == 0 && context_commits.nil?
+  .commits-empty.gl-mt-6
+    = custom_icon('illustration_no_commits')
+    %h4
+      = _('Your search didn\'t match any commits.')
+    %p
+      = _('Try changing or removing filters.')

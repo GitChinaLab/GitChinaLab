@@ -1,0 +1,55 @@
+.ajax-users-select {
+  width: 400px;
+
+  &.input-large {
+    width: 210px;
+  }
+
+  &.input-clamp {
+    max-width: 100%;
+  }
+}
+
+.group-result {
+  .group-image {
+    float: left;
+  }
+
+  .group-name {
+    font-weight: $gl-font-weight-bold;
+  }
+
+  .group-path {
+    color: $gray-300;
+  }
+}
+
+.project-result {
+  .project-name {
+    font-weight: $gl-font-weight-bold;
+  }
+
+  .project-path {
+    color: $gray-300;
+  }
+}
+
+.user-result {
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+
+  .user-image {
+    float: left;
+  }
+
+  &.no-username {
+    .user-name {
+      line-height: 24px;
+    }
+  }
+}
+
+.ajax-users-dropdown {
+  min-width: 250px !important;
+}

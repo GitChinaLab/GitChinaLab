@@ -1,0 +1,48 @@
+gl-emoji {
+  font-style: normal;
+  display: inline-flex;
+  vertical-align: baseline;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  font-size: 1.2em;
+  line-height: 1;
+}
+
+.user-status-emoji {
+  margin-right: $gl-padding-4;
+
+  gl-emoji {
+    font-size: 1em;
+    line-height: 16px;
+    vertical-align: baseline;
+  }
+}
+
+.emoji-picker-category-header {
+  @include gl-sticky;
+  background-color: $white-transparent;
+}
+
+.emoji-picker-emoji {
+  height: 30px;
+  // Create a width that fits 9 emojis per row
+  width: 100 / 9 * 1%;
+  transition: transform 0.15s cubic-bezier(0.3, 0, 0.2, 2) !important;
+  will-change: transform;
+
+  &:hover,
+  &:focus {
+    transform: scale(1.3);
+  }
+}
+
+.emoji-picker .gl-new-dropdown .dropdown-menu {
+  width: 350px;
+}
+
+.emoji-picker-category-tab {
+  border-bottom-color: transparent;
+}
+
+.emoji-picker .gl-new-dropdown-inner > :last-child {
+  padding-bottom: 0;
+}

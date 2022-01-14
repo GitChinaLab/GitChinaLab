@@ -1,0 +1,20 @@
+---
+data_category: optional
+key_path: usage_activity_by_stage.verify.ci_pipeline_config_auto_devops
+description: Total pipelines from an Auto DevOps template
+product_section: ops
+product_stage: configure
+product_group: group::configure
+product_category: auto_devops
+value_type: number
+status: active
+time_frame: all
+data_source: database
+distribution:
+- ce
+- ee
+tier:
+- free
+- premium
+- ultimate
+milestone: "<13.9"

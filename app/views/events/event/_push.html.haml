@@ -1,0 +1,49 @@
+- project = event.project
+
+= icon_for_profile_event(event)
+
+= event_user_info(event)
+
+.event-title.d-flex.flex-wrap
+  = inline_event_icon(event)
+  - many_refs = event.ref_count.to_i > 1
+  %span.event-type.d-inline-block.gl-mr-2.pushed= many_refs ? "#{event.action_name} #{event.ref_count} #{event.ref_type.pluralize}" : "#{event.action_name} #{event.ref_type}"
+  - unless many_refs
+    %span.gl-mr-2.text-truncate
+      - commits_link = project_commits_path(project, event.ref_name)
+      - should_link = event.tag? ? project.repository.tag_exists?(event.ref_name) : project.repository.branch_exists?(event.ref_name)
+      = link_to_if should_link, event.ref_name, commits_link, class: 'ref-name'
+
+  = render "events/event_scope", event: event
+
+- if event.push_with_commits?
+  .event-body
+    %ul.content-list.event-commits
+      = render "events/commit", project: project, event: event
+
+      - create_mr = event.new_ref? && create_mr_button?(from: project.default_branch, to: event.ref_name, source_project: project, target_project: project) && event.authored_by?(current_user)
+      - create_mr_path = create_mr_path(from: project.default_branch, to: event.ref_name, source_project: project, target_project: project) if create_mr
+      - if event.commits_count > 1
+        %li.commits-stat
+          %span ... and #{pluralize(event.commits_count - 1, 'more commit')}.
+
+          - if event.md_ref?
+            - from = event.commit_from
+            - from_label = truncate_sha(from)
+          - else
+            - from = project.default_branch
+            - from_label = from
+
+          = link_to project_compare_path(project, from: from, to: event.commit_to) do
+            %span Compare
+            %span.commit-sha #{from_label}...#{truncate_sha(event.commit_to)}
+
+          - if create_mr
+            %span
+              or
+              = link_to create_mr_path do
+                create a merge request
+      - elsif create_mr
+        %li.commits-stat
+          = link_to create_mr_path do
+            Create merge request

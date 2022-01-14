@@ -1,0 +1,61 @@
+- page_title _('Notifications')
+- @content_class = "limit-container-width" unless fluid_layout
+
+%div
+  - if @user.errors.any?
+    .gl-alert.gl-alert-danger.gl-my-5
+      .gl-alert-container
+        %button.js-close.btn.gl-dismiss-btn.btn-default.btn-sm.gl-button.btn-default-tertiary.btn-icon{ type: 'button', 'aria-label' => _('Dismiss') }
+          = sprite_icon('close', css_class: 'gl-icon')
+        = sprite_icon('error', css_class: 'gl-icon gl-alert-icon gl-alert-icon-no-title')
+        .gl-alert-content
+          .gl-alert-body
+            %ul
+              - @user.errors.full_messages.each do |msg|
+                %li= msg
+
+  = hidden_field_tag :notification_type, 'global'
+  .row.gl-mt-3
+    .col-lg-4.profile-settings-sidebar
+      %h4.gl-mt-0
+        = page_title
+      %p
+        = _('You can specify notification level per group or per project.')
+      %p
+        = _('By default, all projects and groups will use the global notifications setting.')
+    .col-lg-8
+      %h5.gl-mt-0
+        = _('Global notification settings')
+
+      = form_for @user, url: profile_notifications_path, method: :put, html: { class: 'update-notifications gl-mt-3' } do |f|
+        = render_if_exists 'profiles/notifications/email_settings', form: f
+
+      = label_tag :global_notification_level, "Global notification level", class: "label-bold"
+      %br
+      .clearfix
+      .form-group.float-left.global-notification-setting
+        - if @global_notification_setting
+          .js-vue-notification-dropdown{ data: { dropdown_items: notification_dropdown_items(@global_notification_setting).to_json, notification_level: @global_notification_setting.level, help_page_path: help_page_path('user/profile/notifications'), show_label: 'true' } }
+
+      .clearfix
+
+      = form_for @user, url: profile_notifications_path, method: :put do |f|
+        %label{ for: 'user_notified_of_own_activity' }
+          = f.check_box :notified_of_own_activity
+          %span= _('Receive notifications about your own activity')
+
+      %hr
+      %h5
+        = _('Groups (%{count})') % { count: @user_groups.total_count }
+      %div
+        - @group_notifications.each do |setting|
+          = render 'group_settings', setting: setting, group: setting.source
+        = paginate @user_groups, theme: 'gitlab'
+      %h5
+        = _('Projects (%{count})') % { count: @project_notifications.size }
+      %p.account-well
+        = _('To specify the notification level per project of a group you belong to, you need to visit project page and change notification level there.')
+      .gl-mb-3
+        %ul.bordered-list
+          - @project_notifications.each do |setting|
+            = render 'project_settings', setting: setting, project: setting.source

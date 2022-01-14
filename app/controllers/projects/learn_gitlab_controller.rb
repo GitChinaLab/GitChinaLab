@@ -1,0 +1,27 @@
+# frozen_string_literal: true
+
+class Projects::LearnGitlabController < Projects::ApplicationController
+  before_action :authenticate_user!
+  before_action :check_experiment_enabled?
+  before_action :enable_invite_for_help_continuous_onboarding_experiment
+
+  feature_category :users
+
+  def index
+  end
+
+  private
+
+  def check_experiment_enabled?
+    return access_denied! unless helpers.learn_gitlab_enabled?(project)
+  end
+
+  def enable_invite_for_help_continuous_onboarding_experiment
+    return unless current_user.can?(:admin_group_member, project.namespace)
+
+    experiment(:invite_for_help_continuous_onboarding, namespace: project.namespace) do |e|
+      e.candidate {}
+      e.publish_to_database
+    end
+  end
+end

@@ -1,0 +1,21 @@
+---
+data_category: optional
+key_path: counts.auto_devops_disabled
+description: Projects with Auto DevOps template disabled
+product_section: ops
+product_stage: configure
+product_group: group::configure
+product_category: auto_devops
+value_type: number
+status: active
+time_frame: all
+data_source: database
+distribution:
+- ce
+- ee
+tier:
+- free
+- premium
+- ultimate
+performance_indicator_type: []
+milestone: "<13.9"

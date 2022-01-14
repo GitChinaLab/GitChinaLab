@@ -1,0 +1,491 @@
+@import 'mixins_and_variables_and_functions';
+
+.user-can-drag {
+  cursor: grab;
+}
+
+.is-ghost {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.dropdown-projects {
+  .dropdown-content {
+    max-height: 200px;
+  }
+}
+
+.issue-board-dropdown-content {
+  margin: 0;
+  padding: $gl-padding-4 $gl-padding $gl-padding;
+  border-bottom: 0;
+  color: var(--gray-500, $gray-500);
+}
+
+[data-page$='epic_boards:index'],
+[data-page$='epic_boards:show'],
+.issue-boards-page {
+  .content-wrapper {
+    padding-bottom: 0;
+  }
+}
+
+[data-page$='epic_boards:index'],
+[data-page$='epic_boards:show'] {
+  .filtered-search-wrapper {
+    display: none !important;
+  }
+}
+
+.boards-app {
+  @include media-breakpoint-up(sm) {
+    transition: width $sidebar-transition-duration;
+    width: 100%;
+
+    &.is-compact {
+      width: calc(100% - #{$gutter-width});
+    }
+  }
+}
+
+.boards-list,
+.board-swimlanes {
+  height: calc(100vh - #{$issue-board-list-difference-xs});
+  overflow-x: scroll;
+  min-height: 200px;
+
+  @include media-breakpoint-only(sm) {
+    height: calc(100vh - #{$issue-board-list-difference-sm});
+  }
+
+  @include media-breakpoint-up(md) {
+    height: calc(100vh - #{$issue-board-list-difference-md});
+  }
+
+  @include media-breakpoint-up(lg) {
+    height: calc(100vh - #{$issue-board-list-difference-lg});
+  }
+
+  .with-performance-bar & {
+    height: calc(100vh - #{$issue-board-list-difference-xs} - #{$performance-bar-height});
+
+    @include media-breakpoint-only(sm) {
+      height: calc(100vh - #{$issue-board-list-difference-sm} - #{$performance-bar-height});
+    }
+
+    @include media-breakpoint-up(md) {
+      height: calc(100vh - #{$issue-board-list-difference-md} - #{$performance-bar-height});
+    }
+
+    @include media-breakpoint-up(lg) {
+      height: calc(100vh - #{$issue-board-list-difference-lg} - #{$performance-bar-height});
+    }
+  }
+}
+
+.board {
+  width: calc(85vw - 15px);
+
+  @include media-breakpoint-up(sm) {
+    width: 400px;
+  }
+
+  .board-title-caret {
+    border-radius: $border-radius-default;
+    line-height: $gl-spacing-scale-5;
+
+    &.btn svg {
+      top: 0;
+    }
+
+    &:hover {
+      background-color: var(--gray-50, $gray-50);
+      transition: background-color 0.1s linear;
+    }
+  }
+
+  &:not(.is-collapsed) {
+    .board-title-caret {
+      margin-right: $gl-padding-4;
+    }
+  }
+
+  &.is-collapsed {
+    width: 50px;
+
+    .board-title-caret {
+      margin-top: 1px;
+    }
+
+    .board-title-text > span,
+    .issue-count-badge > span {
+      height: 16px;
+
+      // Force the height to be equal to the parent's width while centering the contents.
+      // The contents *should* be about 16 px.
+      // We do this because the flow of elements isn't affected by the rotate transform, so we must ensure that a
+      // rotated element has square dimensions so it won't overlap with its siblings.
+      margin: calc(50% - 8px) 0;
+
+      transform: rotate(90deg);
+      transform-origin: center;
+    }
+  }
+}
+
+.board-inner {
+  font-size: $issue-boards-font-size;
+  background: var(--gray-10, $gray-10);
+  border: 1px solid var(--gray-100, $gray-100);
+}
+
+// to highlight columns we have animated pulse of box-shadow
+// we don't want to actually animate the box-shadow property
+// because that causes costly repaints. Instead we can add a
+// pseudo-element that is the same size as our element, then
+// animate opacity/transform to give a soothing single pulse
+.board-column-highlighted::after {
+  @include gl-focus;
+  content: '';
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  left: -1px;
+  right: -1px;
+  pointer-events: none;
+  opacity: 0;
+  border-radius: $border-radius-default;
+  animation-name: board-column-flash-border;
+  animation-duration: 1.2s;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-in-out;
+}
+
+@keyframes board-column-flash-border {
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  25%,
+  75% {
+    opacity: 1;
+  }
+}
+
+.board-header {
+  &.has-border::before {
+    border-top: 3px solid;
+    border-color: inherit;
+    border-top-left-radius: $border-radius-default;
+    border-top-right-radius: $border-radius-default;
+    content: '';
+    position: absolute;
+    width: calc(100% + 2px);
+    top: 0;
+    left: 0;
+    margin-top: -1px;
+    margin-right: -1px;
+    margin-left: -1px;
+    padding-top: 1px;
+    padding-right: 1px;
+    padding-left: 1px;
+
+    .board-title {
+      padding-top: ($gl-padding - 3px);
+      padding-bottom: $gl-padding;
+    }
+  }
+}
+
+.board-title {
+  border-bottom: 1px solid var(--gray-100, $gray-100);
+  height: 3rem;
+
+  .js-max-issue-size::before {
+    content: '/';
+  }
+}
+
+.board-list-component {
+  min-height: 0; // firefox fix
+}
+
+.board-list {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.board-list-loading {
+  margin-top: 10px;
+  font-size: (26px / $issue-boards-font-size) * 1em;
+}
+
+.board-card {
+  background: var(--white, $white);
+  border: 1px solid var(--gray-100, $gray-100);
+  box-shadow: 0 1px 2px rgba(var(--black, $black), 0.1);
+  line-height: $gl-padding;
+  list-style: none;
+  position: relative;
+
+  &:not(:last-child) {
+    margin-bottom: $gl-padding-8;
+  }
+
+  &.is-active,
+  &.is-active .board-card-assignee:hover a {
+    background-color: var(--blue-50, $blue-50);
+  }
+
+  &.multi-select {
+    border-color: var(--blue-200, $blue-200);
+    background-color: var(--blue-50, $blue-50);
+  }
+
+  .gl-label {
+    margin-top: 4px;
+    margin-right: 4px;
+  }
+
+  .confidential-icon,
+  .hidden-icon {
+    color: var(--orange-500, $orange-500);
+    cursor: help;
+  }
+
+  .issue-blocked-icon {
+    color: var(--red-500, $red-500);
+  }
+
+  @include media-breakpoint-down(md) {
+    padding: $gl-padding-8;
+  }
+}
+
+.board-card-title {
+  @include overflow-break-word();
+  font-size: 1em;
+
+  a {
+    color: var(--gray-900, $gray-900);
+  }
+
+  @include media-breakpoint-down(md) {
+    font-size: $label-font-size;
+  }
+}
+
+.board-card-assignee {
+  margin-top: -$gl-padding-4;
+  margin-bottom: -$gl-padding-4;
+
+  .avatar-counter {
+    vertical-align: middle;
+    line-height: $gl-padding-24;
+    min-width: $gl-padding-24;
+    height: $gl-padding-24;
+    border-radius: $gl-padding-24;
+    background-color: var(--gray-400, $gray-400);
+    font-size: $gl-font-size-xs;
+    cursor: help;
+    font-weight: $gl-font-weight-bold;
+    margin-left: -$gl-padding-4;
+    border: 0;
+    padding: 0 $gl-padding-4;
+
+    @include media-breakpoint-down(md) {
+      min-width: auto;
+      height: $gl-padding;
+      border-radius: $gl-padding;
+      line-height: $gl-padding;
+    }
+  }
+
+  img {
+    vertical-align: top;
+  }
+
+  .user-avatar-link:not(:only-child) {
+    margin-left: -$gl-padding-4;
+
+    &:nth-of-type(1) {
+      z-index: 2;
+    }
+
+    &:nth-of-type(2) {
+      z-index: 1;
+    }
+  }
+
+  .avatar {
+    @include media-breakpoint-down(md) {
+      width: $gl-padding;
+      height: $gl-padding;
+    }
+  }
+
+  @include media-breakpoint-down(md) {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}
+
+.board-card-number {
+  font-size: $gl-font-size-xs;
+  color: var(--gray-500, $gray-500);
+
+  @include media-breakpoint-up(md) {
+    font-size: $label-font-size;
+  }
+}
+
+.board-list-count {
+  padding: 10px 0;
+  color: var(--gray-500, $gray-500);
+  font-size: 13px;
+}
+
+.board-new-issue-form {
+  z-index: 4;
+  margin: 5px;
+}
+
+.right-sidebar.boards-sidebar {
+  .gutter-toggle {
+    bottom: 15px;
+    width: 22px;
+    padding-left: $gl-padding-32;
+
+    svg {
+      position: absolute;
+      top: 50%;
+      right: 0;
+      margin-top: (-11px / 2);
+      height: $gl-font-size-12;
+      width: $gl-font-size-12;
+    }
+  }
+
+  .issuable-header-text {
+    @include overflow-break-word();
+    padding-right: 35px;
+  }
+}
+
+.right-sidebar.right-sidebar-expanded {
+  &.boards-sidebar-slide-enter-active,
+  &.boards-sidebar-slide-leave-active {
+    transition: width $sidebar-transition-duration, padding $sidebar-transition-duration;
+  }
+
+  &.boards-sidebar-slide-enter,
+  &.boards-sidebar-slide-leave-active {
+    width: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+.board-card-info {
+  color: var(--gray-500, $gray-500);
+  white-space: nowrap;
+  margin-right: $gl-padding-8;
+
+  &:not(.board-card-weight) {
+    cursor: help;
+  }
+
+  &.board-card-weight {
+    color: var(--gray-500, $gray-500);
+    cursor: pointer;
+
+    &:hover {
+      color: initial;
+      text-decoration: underline;
+    }
+  }
+
+  .board-card-info-icon {
+    color: var(--gray-500, $gray-500);
+    margin-right: $gl-padding-4;
+    vertical-align: text-top;
+  }
+
+  @include media-breakpoint-down(md) {
+    font-size: $label-font-size;
+  }
+}
+
+.board-item-path.js-show-tooltip {
+  cursor: help;
+}
+
+.board-labels-toggle-wrapper,
+.board-swimlanes-toggle-wrapper {
+  /**
+   * Make the wrapper the same height as a button so it aligns properly when the
+   * filtered-search-box input element increases in size on Linux smaller breakpoints
+   */
+  height: $input-height;
+}
+
+.issue-boards-content:not(.breadcrumbs) {
+  isolation: isolate;
+}
+
+.issue-boards-content.is-focused {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: var(--white, $white);
+  z-index: 9000;
+
+  @include media-breakpoint-down(sm) {
+    padding-top: 10px;
+  }
+
+  .boards-list {
+    height: calc(100vh - #{$issue-boards-filter-height});
+    overflow-x: scroll;
+  }
+
+  .boards-sidebar {
+    height: 100%;
+    top: 0;
+  }
+}
+
+.boards-sidebar {
+  .sidebar-collapsed-icon {
+    display: none;
+  }
+
+  .gl-drawer-header {
+    align-items: flex-start;
+  }
+
+  .labels-select-wrapper.is-embedded .labels-select-wrapper.is-embedded {
+    width: auto;
+  }
+
+  .show.dropdown .dropdown-menu {
+    @include gl-w-full;
+  }
+}
+
+.board-header-collapsed-info-icon:hover {
+  color: var(--gray-900, $gray-900);
+}
+
+.board-card-skeleton {
+  height: 110px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+  .board-card-skeleton-inner {
+    width: 340px;
+    height: 100px;
+  }
+}

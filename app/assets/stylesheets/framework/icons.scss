@@ -1,0 +1,66 @@
+.ci-status-icon-success,
+.ci-status-icon-passed {
+  svg {
+    fill: $green-500;
+  }
+}
+
+.ci-status-icon-error,
+.ci-status-icon-failed {
+  svg {
+    fill: $red-500;
+  }
+}
+
+.ci-status-icon-pending,
+.ci-status-icon-waiting-for-resource,
+.ci-status-icon-failed-with-warnings,
+.ci-status-icon-success-with-warnings {
+  svg {
+    fill: $orange-500;
+  }
+}
+
+.ci-status-icon-running {
+  svg {
+    fill: $blue-400;
+  }
+}
+
+.ci-status-icon-canceled,
+.ci-status-icon-disabled,
+.ci-status-icon-scheduled,
+.ci-status-icon-manual {
+  svg {
+    fill: $gl-text-color;
+  }
+}
+
+.ci-status-icon-notification,
+.ci-status-icon-preparing,
+.ci-status-icon-created,
+.ci-status-icon-skipped,
+.ci-status-icon-notfound {
+  svg {
+    fill: var(--gray-400, $gray-400);
+  }
+}
+
+.icon-link {
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.user-avatar-link {
+  text-decoration: none;
+}
+
+.circle-icon-container {
+  $border-size: 1px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $gray-500;
+}

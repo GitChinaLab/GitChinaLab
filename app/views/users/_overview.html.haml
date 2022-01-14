@@ -1,0 +1,50 @@
+- activity_pane_class = Feature.enabled?(:security_auto_fix) && @user.bot? ? "col-12" : "col-md-12 col-lg-6"
+
+.row.d-none.d-sm-flex
+  .col-12.calendar-block.gl-my-3
+    .user-calendar.light{ data: { calendar_path: user_calendar_path(@user, :json), calendar_activities_path: user_calendar_activities_path, utc_offset: local_timezone_instance(@user.timezone).now.utc_offset } }
+      .gl-spinner.gl-spinner-md.gl-my-8
+      .user-calendar-error.invisible
+        = _('There was an error loading users activity calendar.')
+        %a.js-retry-load{ href: '#' }
+          = s_('UserProfile|Retry')
+    .user-calendar-activities
+- if @user.user_readme&.rich_viewer
+  .row.justify-content-center
+    .col-12.col-md-10.col-lg-8.gl-my-6
+      .gl-display-flex
+        %ol.breadcrumb.gl-breadcrumb-list.gl-mb-4
+          %li.breadcrumb-item.gl-breadcrumb-item
+            = link_to @user.username, project_path(@user.user_project)
+            %span.gl-breadcrumb-separator
+              = sprite_icon("chevron-right", size: 16)
+          %li.breadcrumb-item.gl-breadcrumb-item
+            = link_to @user.user_readme.path, @user.user_project.readme_url
+        - if current_user == @user
+          .gl-ml-auto
+            = link_to _('Edit'), edit_blob_path(@user.user_project, @user.user_project.default_branch, @user.user_readme.path)
+      = render 'projects/blob/viewer', viewer: @user.user_readme.rich_viewer, load_async: false
+.row
+  %div{ class: activity_pane_class }
+    - if can?(current_user, :read_cross_project)
+      .activities-block
+        .gl-mt-5
+          .gl-display-flex.gl-align-items-center.gl-border-b-1.gl-border-b-gray-100.gl-border-b-solid
+            %h4.gl-flex-grow-1
+              = Feature.enabled?(:security_auto_fix) && @user.bot? ? s_('UserProfile|Bot activity') : s_('UserProfile|Activity')
+            = link_to s_('UserProfile|View all'), user_activity_path, class: "hide js-view-all"
+          .overview-content-list{ data: { href: user_activity_path, qa_selector: 'user_activity_content' } }
+            .center.light.loading
+              .gl-spinner.gl-spinner-md
+
+  - unless Feature.enabled?(:security_auto_fix) && @user.bot?
+    .col-md-12.col-lg-6
+      .projects-block
+        .gl-mt-5
+          .gl-display-flex.gl-align-items-center.gl-border-b-1.gl-border-b-gray-100.gl-border-b-solid
+            %h4.gl-flex-grow-1
+              = s_('UserProfile|Personal projects')
+            = link_to s_('UserProfile|View all'), user_projects_path, class: "hide js-view-all"
+          .overview-content-list{ data: { href: user_projects_path } }
+            .center.light.loading
+              .gl-spinner.gl-spinner-md

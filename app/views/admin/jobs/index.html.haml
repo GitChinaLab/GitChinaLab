@@ -1,0 +1,21 @@
+- add_page_specific_style 'page_bundles/ci_status'
+- add_page_specific_style 'page_bundles/admin/jobs_index'
+
+- breadcrumb_title _("Jobs")
+- page_title _("Jobs")
+
+.top-area.scrolling-tabs-container.inner-page-scroll-tabs
+  - build_path_proc = ->(scope) { admin_jobs_path(scope: scope) }
+  = render "shared/builds/tabs", build_path_proc: build_path_proc, all_builds: @all_builds, scope: @scope
+
+  - if @all_builds.running_or_pending.any?
+    #js-stop-jobs-modal
+    .nav-controls
+      %button#js-stop-jobs-button.btn.gl-button.btn-danger{ data: { url: cancel_all_admin_jobs_path } }
+        = s_('AdminArea|Stop all jobs')
+
+.row-content-block.second-block
+  #{(@scope || 'all').capitalize} jobs
+
+%ul.content-list.builds-content-list.admin-builds-table
+  = render "projects/jobs/table", builds: @builds, admin: true

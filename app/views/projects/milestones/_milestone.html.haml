@@ -1,0 +1,4 @@
+= render 'shared/milestones/milestone',
+          issues_path: project_issues_path(milestone.project, milestone_title: milestone.title),
+          merge_requests_path: project_merge_requests_path(milestone.project, milestone_title: milestone.title),
+          milestone: milestone

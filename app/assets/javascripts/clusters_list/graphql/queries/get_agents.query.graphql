@@ -1,0 +1,45 @@
+#import "~/graphql_shared/fragments/pageInfo.fragment.graphql"
+#import "../fragments/cluster_agent.fragment.graphql"
+
+query getAgents(
+  $defaultBranchName: String!
+  $projectPath: ID!
+  $first: Int
+  $last: Int
+  $afterAgent: String
+  $afterTree: String
+  $beforeAgent: String
+  $beforeTree: String
+) {
+  project(fullPath: $projectPath) {
+    id
+    clusterAgents(first: $first, last: $last, before: $beforeAgent, after: $afterAgent) {
+      nodes {
+        ...ClusterAgentFragment
+      }
+
+      pageInfo {
+        ...PageInfo
+      }
+
+      count
+    }
+
+    repository {
+      tree(path: ".gitlab/agents", ref: $defaultBranchName) {
+        trees(first: $first, last: $last, after: $afterTree, before: $beforeTree) {
+          nodes {
+            id
+            name
+            path
+            webPath
+          }
+
+          pageInfo {
+            ...PageInfo
+          }
+        }
+      }
+    }
+  }
+}

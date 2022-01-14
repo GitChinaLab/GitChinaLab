@@ -1,0 +1,12 @@
+.light.gl-mt-3
+  %p
+    = _("Register as many runners as you want. You can register runners as separate users, on separate servers, and on your local machine. Runners are either:")
+
+  %div
+    %ul
+      %li
+        = gl_badge_tag s_("Runners|active"), variant: :success, size: :sm
+        = _('- Available to run jobs.')
+      %li
+        = gl_badge_tag s_("Runners|paused"), variant: :danger, size: :sm
+        = _('- Not available to run jobs.')

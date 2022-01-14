@@ -1,0 +1,11 @@
+- page_title _("Background Jobs")
+
+%h3.page-title= _('Background Jobs')
+%p.light
+  - sidekiq_link_url = 'http://sidekiq.org/'
+  - sidekiq_link_start = '<a href="%{url}" target="_blank" rel="noopener noreferrer">'.html_safe % { url: sidekiq_link_url }
+  = html_escape(_('GitLab uses %{linkStart}Sidekiq%{linkEnd} to process background jobs')) % { linkStart: sidekiq_link_start, linkEnd: '</a>'.html_safe }
+
+%hr
+.card.gl-rounded-0
+  %iframe{ src: sidekiq_path, width: '100%', height: 970, style: "border: 0" }

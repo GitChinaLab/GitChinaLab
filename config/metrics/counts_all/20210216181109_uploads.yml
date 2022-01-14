@@ -1,0 +1,21 @@
+---
+data_category: optional
+key_path: counts.uploads
+description: Count of Uploads via Notes and Descriptions
+product_section: dev
+product_stage: plan
+product_group: group::project management
+product_category: issue_tracking
+value_type: number
+status: active
+time_frame: all
+data_source: database
+distribution:
+- ce
+- ee
+tier:
+- free
+- premium
+- ultimate
+performance_indicator_type: []
+milestone: "<13.9"

@@ -1,0 +1,21 @@
+---
+data_category: standard
+key_path: version
+description: Version of GitLab instance
+product_section: enablement
+product_stage: enablement
+product_group: group::distribution
+product_category: collection
+value_type: string
+status: active
+milestone: "<13.9"
+time_frame: none
+data_source: system
+distribution:
+- ce
+- ee
+tier:
+- free
+- premium
+- ultimate
+performance_indicator_type: []

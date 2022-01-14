@@ -1,0 +1,71 @@
+.whats-new-drawer {
+  margin-top: $header-height;
+  @include gl-shadow-none;
+  overflow-y: hidden;
+  width: 500px;
+
+  .gl-infinite-scroll-legend {
+    @include gl-display-none;
+  }
+
+  .gl-tabs {
+    @include gl-overflow-y-auto;
+  }
+
+  .gl-tabs-nav {
+    flex-wrap: nowrap;
+    overflow-x: scroll;
+    align-items: stretch;
+
+    .nav-item {
+      @include gl-flex-shrink-0;
+
+      a {
+        @include gl-h-full;
+        line-height: 1.5;
+      }
+    }
+  }
+
+  .gl-spinner-container {
+    @include gl-w-full;
+    @include gl-absolute;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+.with-performance-bar .whats-new-drawer {
+  margin-top: $performance-bar-height + $header-height;
+}
+
+.with-system-header .whats-new-drawer {
+  margin-top: $system-header-height + $header-height;
+}
+
+.with-performance-bar.with-system-header .whats-new-drawer {
+  margin-top: $performance-bar-height + $system-header-height + $header-height;
+}
+
+.gl-badge.whats-new-item-badge {
+  background-color: $purple-light;
+  color: $purple;
+  @include gl-font-weight-bold;
+}
+
+.whats-new-item-title-link {
+  &:hover,
+  &:focus,
+  &:active {
+    @include gl-text-gray-900;
+  }
+}
+
+.whats-new-item-image {
+  border-color: $gray-50;
+  height: 250px;
+}
+
+.whats-new-modal-backdrop {
+  z-index: 699;
+}

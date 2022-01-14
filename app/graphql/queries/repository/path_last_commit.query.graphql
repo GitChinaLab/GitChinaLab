@@ -1,0 +1,52 @@
+query pathLastCommit($projectPath: ID!, $path: String, $ref: String!) {
+  project(fullPath: $projectPath) {
+    __typename
+    id
+    repository {
+      __typename
+      tree(path: $path, ref: $ref) {
+        __typename
+        lastCommit {
+          __typename
+          id
+          sha
+          title
+          titleHtml
+          descriptionHtml
+          message
+          webPath
+          authoredDate
+          authorName
+          authorGravatar
+          author {
+            __typename
+            id
+            name
+            avatarUrl
+            webPath
+          }
+          signatureHtml
+          pipelines(ref: $ref, first: 1) {
+            __typename
+            edges {
+              __typename
+              node {
+                __typename
+                id
+                detailedStatus {
+                  __typename
+                  id
+                  detailsPath
+                  icon
+                  tooltip
+                  text
+                  group
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+---
+data_category: optional
+key_path: reply_by_email_enabled
+description: Whether incoming email is setup
+product_section: dev
+product_stage: plan
+product_group: group::certify
+product_category: collection
+value_type: boolean
+status: active
+time_frame: none
+data_source: system
+distribution:
+- ce
+- ee
+tier:
+- free
+- premium
+- ultimate
+performance_indicator_type: []
+milestone: "<13.9"

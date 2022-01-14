@@ -1,0 +1,207 @@
+- add_page_specific_style 'page_bundles/members'
+- add_to_breadcrumbs _("Projects"), admin_projects_path
+- breadcrumb_title @project.full_name
+- page_title @project.full_name, _("Projects")
+- @content_class = "admin-projects"
+- current_user_is_group_owner = @group && @group.has_owner?(current_user)
+
+%h3.page-title
+  = _('Project: %{name}') % { name: @project.full_name }
+  = link_to edit_project_path(@project), class: "btn btn-default gl-button float-right" do
+    = sprite_icon('pencil-square', css_class: 'gl-icon')
+    = _('Edit')
+%hr
+- if @project.last_repository_check_failed?
+  .row
+    .col-md-12
+      = render 'shared/global_alert',
+        variant: :danger,
+        alert_class: 'gl-mb-5',
+        alert_data: { testid: 'last-repository-check-failed-alert' },
+        is_container: true do
+        .gl-alert-body
+          - last_check_message = _("Last repository check (%{last_check_timestamp}) failed. See the 'repocheck.log' file for error messages.")
+          - last_check_message = last_check_message % { last_check_timestamp: time_ago_with_tooltip(@project.last_repository_check_at) }
+          = last_check_message.html_safe
+.row
+  .col-md-6
+    .card
+      .card-header
+        = _('Project info:')
+      %ul.content-list
+        %li
+          %span.light
+            = _('Name:')
+          %strong
+            = link_to @project.name, project_path(@project)
+        %li
+          %span.light
+            = _('Namespace:')
+          %strong
+            - if @project.namespace
+              = link_to @project.namespace.human_name, [:admin, @project.group || @project.owner]
+            - else
+              = s_('ProjectSettings|Global')
+        %li
+          %span.light
+            = _('Owned by:')
+          %strong
+            - if @project.owner
+              = link_to @project.owner_name, [:admin, @project.owner]
+            - else
+              = _('(deleted)')
+
+        %li
+          %span.light
+            = _('Created by:')
+          %strong
+            = @project.creator.try(:name) || _('(deleted)')
+
+        %li
+          %span.light
+            = _('Created on:')
+          %strong
+            = @project.created_at.to_s(:medium)
+
+        %li
+          %span.light
+            = _('ID:')
+          %strong
+            = @project.id
+
+        %li
+          %span.light
+            = _('http:')
+          %strong
+            = link_to @project.http_url_to_repo, project_path(@project)
+        %li
+          %span.light
+            = _('ssh:')
+          %strong
+            = link_to @project.ssh_url_to_repo, project_path(@project)
+        - if @project.repository.exists?
+          %li
+            %span.light
+              = _('Gitaly storage name:')
+            %strong
+              = @project.repository.storage
+          %li
+            %span.light
+              = _('Gitaly relative path:')
+            %strong
+              = @project.repository.relative_path
+
+          %li
+            = render 'shared/storage_counter_statistics', storage_size: @project.statistics&.storage_size, storage_details: @project.statistics
+
+          %li
+            %span.light
+              = _('last commit:')
+            %strong
+              = last_commit(@project)
+
+          %li
+            %span.light
+              = _('Git LFS status:')
+            %strong
+              = project_lfs_status(@project)
+              = link_to sprite_icon('question-o'), help_page_path('topics/git/lfs/index')
+        - else
+          %li
+            %span.light
+              = _('repository:')
+            %strong.cred
+              = _('does not exist')
+
+        - if @project.archived?
+          %li
+            %span.light
+              = _('archived:')
+            %strong
+              = _('project is read-only')
+
+        = render_if_exists "shared_runner_status", project: @project
+
+        %li
+          %span.light
+            = _('access:')
+          %strong
+            %span{ class: visibility_level_color(@project.visibility_level) }
+              = visibility_level_icon(@project.visibility_level)
+              = visibility_level_label(@project.visibility_level)
+
+    = render 'shared/custom_attributes', custom_attributes: @project.custom_attributes
+
+    = render_if_exists 'admin/projects/geo_status_widget', locals: { project: @project }
+
+    .card
+      .card-header
+        = s_('ProjectSettings|Transfer project')
+      .card-body
+        = form_for @project, url: transfer_admin_project_path(@project), method: :put do |f|
+          .form-group.row
+            .col-sm-3.col-form-label
+              = f.label :new_namespace_id, _("Namespace")
+            .col-sm-9
+              - placeholder = _('Search for Namespace')
+              %button.dropdown-menu-toggle.btn.btn-default.btn-md.gl-button.js-namespace-select{ data: { field_name: 'new_namespace_id', placeholder: placeholder }, type: 'button' }
+                %span.gl-new-dropdown-button-text
+                  = placeholder
+
+          .form-group.row
+            .offset-sm-3.col-sm-9
+              = f.submit _('Transfer'), class: 'gl-button btn btn-confirm'
+
+    .card.repository-check
+      .card-header
+        = _("Repository check")
+      .card-body
+        = form_for @project, url: repository_check_admin_project_path(@project), method: :post do |f|
+          .form-group
+            - if @project.last_repository_check_at.nil?
+              = _("This repository has never been checked.")
+            - elsif @project.last_repository_check_failed?
+              - failed_message = _("This repository was last checked %{last_check_timestamp}. The check %{strong_start}failed.%{strong_end} See the 'repocheck.log' file for error messages.")
+              - failed_message = failed_message % { last_check_timestamp: @project.last_repository_check_at.to_s(:medium), strong_start: "<strong class='cred'>", strong_end: "</strong>" }
+              = failed_message.html_safe
+            - else
+              = _("This repository was last checked %{last_check_timestamp}. The check passed.") % { last_check_timestamp: @project.last_repository_check_at.to_s(:medium) }
+
+            = link_to sprite_icon('question-o'), help_page_path('administration/repository_checks')
+
+          .form-group
+            = f.submit _('Trigger repository check'), class: 'gl-button btn btn-confirm'
+
+  .col-md-6
+    - if @group
+      .card
+        .card-header
+          %strong= @group.name
+          = _('group members')
+          = gl_badge_tag @group_members.size
+          = render 'shared/members/manage_access_button', path: group_group_members_path(@group)
+        %ul.content-list.members-list
+          = render partial: 'shared/members/member',
+                   collection: @group_members, as: :member,
+                   locals: { membership_source: @project,
+                             group: @group,
+                             current_user_is_group_owner: current_user_is_group_owner }
+        .card-footer
+          = paginate @group_members, param_name: 'group_members_page', theme: 'gitlab'
+
+    = render 'shared/members/requests', membership_source: @project, group: @group, requesters: @requesters
+
+    .card
+      .card-header
+        %strong= @project.name
+        = _('project members')
+        = gl_badge_tag @project.users.size
+        = render 'shared/members/manage_access_button', path: project_project_members_path(@project)
+      %ul.content-list.project_members.members-list
+        = render partial: 'shared/members/member',
+                 collection: @project_members, as: :member,
+                 locals: { membership_source: @project,
+                           group: @group,
+                           current_user_is_group_owner: current_user_is_group_owner }
+      .card-footer
+        = paginate @project_members, param_name: 'project_members_page', theme: 'gitlab'

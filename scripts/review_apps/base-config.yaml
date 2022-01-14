@@ -1,0 +1,188 @@
+global:
+  appConfig:
+    enableUsagePing: false
+  image:
+    pullPolicy: Always
+  ingress:
+    annotations:
+      external-dns.alpha.kubernetes.io/ttl: 10
+    configureCertmanager: false
+    tls:
+      secretName: review-apps-tls
+  initialRootPassword:
+    secret: shared-gitlab-initial-root-password
+  nodeSelector:
+    preemptible: "true"
+certmanager:
+  install: false
+gitlab:
+  gitaly:
+    resources:
+      requests:
+        cpu: 2400m
+        memory: 1000M
+      limits:
+        cpu: 3600m
+        memory: 1500M
+    persistence:
+      size: 10G
+      storageClass: ssd
+    nodeSelector:
+      preemptible: "false"
+  gitlab-exporter:
+    enabled: false
+  mailroom:
+    enabled: false
+  migrations:
+    resources:
+      requests:
+        cpu: 350m
+        memory: 200M
+      limits:
+        cpu: 700m
+  gitlab-shell:
+    resources:
+      requests:
+        cpu: 500m
+        memory: 100M
+      limits:
+        cpu: 750m
+        memory: 150M
+    maxReplicas: 3
+    hpa:
+      targetAverageValue: 500m
+    deployment:
+      livenessProbe:
+        timeoutSeconds: 5
+  sidekiq:
+    resources:
+      requests:
+        cpu: 855m
+        memory: 1927M
+      limits:
+        cpu: 1282m
+        memory: 2890M
+    hpa:
+      targetAverageValue: 650m
+  toolbox:
+    resources:
+      requests:
+        cpu: 300m
+        memory: 1927M
+      limits:
+        cpu: 450m
+        memory: 2890M
+  webservice:
+    resources:
+      requests:
+        cpu: 746m
+        memory: 2809M
+      limits:
+        cpu: 1119m
+        memory: 4214M
+    deployment:
+      readinessProbe:
+        initialDelaySeconds: 5  # Default is 0
+        periodSeconds: 15  # Default is 10
+        timeoutSeconds: 5  # Default is 2
+    workhorse:
+      resources:
+        requests:
+          cpu: 400m
+          memory: 75M
+        limits:
+          cpu: 600m
+          memory: 113M
+      readinessProbe:
+        initialDelaySeconds: 5  # Default is 0
+        periodSeconds: 15  # Default is 10
+        timeoutSeconds: 5  # Default is 2
+gitlab-runner:
+  resources:
+    requests:
+      cpu: 675m
+      memory: 100M
+    limits:
+      cpu: 1015m
+      memory: 150M
+  nodeSelector:
+    preemptible: "true"
+minio:
+  resources:
+    requests:
+      cpu: 9m
+      memory: 128M
+    limits:
+      cpu: 15m
+      memory: 280M
+  nodeSelector:
+    preemptible: "true"
+nginx-ingress:
+  controller:
+    config:
+      ssl-ciphers: ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4
+    resources:
+      requests:
+        cpu: 300m
+        memory: 450M
+      limits:
+        cpu: 600m
+        memory: 675M
+    service:
+      enableHttp: false
+    livenessProbe:
+      timeoutSeconds: 5
+    readinessProbe:
+      timeoutSeconds: 5
+    nodeSelector:
+      preemptible: "true"
+  defaultBackend:
+    resources:
+      requests:
+        cpu: 5m
+        memory: 12M
+      limits:
+        cpu: 10m
+        memory: 24M
+    nodeSelector:
+      preemptible: "true"
+postgresql:
+  metrics:
+    enabled: false
+  resources:
+    requests:
+      cpu: 600m
+      memory: 1000M
+    limits:
+      cpu: 1300m
+      memory: 1500M
+  master:
+    nodeSelector:
+      preemptible: "false"
+prometheus:
+  install: false
+redis:
+  metrics:
+    enabled: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 60M
+    limits:
+      cpu: 200m
+      memory: 130M
+  master:
+    nodeSelector:
+      preemptible: "true"
+registry:
+  hpa:
+    minReplicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 30M
+    limits:
+      cpu: 200m
+      memory: 45M
+  nodeSelector:
+    preemptible: "true"

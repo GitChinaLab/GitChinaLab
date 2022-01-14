@@ -1,0 +1,20 @@
+---
+data_category: optional
+key_path: counts.package_events_i_package_conan_delete_package
+description: A count of Conan packages that have been deleted
+product_section: ops
+product_stage: package
+product_group: group::package
+product_category: package registry
+value_type: number
+status: active
+time_frame: all
+data_source: redis
+distribution:
+- ee
+- ce
+tier:
+- free
+- premium
+- ultimate
+milestone: "<13.9"
